@@ -1,0 +1,119 @@
+<mxfile host="app.diagrams.net" type="device">
+  <diagram name="§2 전체 구조도" id="sa-p1"><mxGraphModel grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1200" pageHeight="1320" dx="1200" dy="1320" math="0" shadow="0"><root><mxCell id="0" /><mxCell id="1" parent="0" /><mxCell id="p_user" value="사용자" style="rounded=1;whiteSpace=wrap;html=1;arcSize=40;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="120" y="40" width="130" height="50" as="geometry" /></mxCell><mxCell id="p_ui" value="🖥 사용자 인터페이스부" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffee;strokeColor=#cccc33;verticalAlign=top;fontStyle=1;container=1;collapsible=0;" vertex="1" parent="1"><mxGeometry x="70" y="130" width="380" height="120" as="geometry" /></mxCell><mxCell id="p_web" value="웹 화면&lt;br/&gt;업로드 · 진행 모니터링 · 결과 표시" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_ui"><mxGeometry x="20" y="45" width="340" height="60" as="geometry" /></mxCell><mxCell id="p_sw" value="💻 소프트웨어부" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeeeff;strokeColor=#3333cc;verticalAlign=top;fontStyle=1;container=1;collapsible=0;" vertex="1" parent="1"><mxGeometry x="70" y="310" width="780" height="560" as="geometry" /></mxCell><mxCell id="p_img" value="① 이미지 처리&lt;br/&gt;edge · 윤곽 추출" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_sw"><mxGeometry x="40" y="45" width="320" height="60" as="geometry" /></mxCell><mxCell id="p_plan" value="② 스트로크 계획&lt;br/&gt;stroke 변환 · 픽셀→종이 스케일 · 순서" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_sw"><mxGeometry x="40" y="140" width="320" height="70" as="geometry" /></mxCell><mxCell id="p_ctrl" value="③ 로봇 제어&lt;br/&gt;궤적 생성(MoveIt2) · 종이→로봇 변환" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_sw"><mxGeometry x="40" y="245" width="320" height="70" as="geometry" /></mxCell><mxCell id="p_exec" value="④ 드로잉 실행" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_sw"><mxGeometry x="40" y="355" width="320" height="60" as="geometry" /></mxCell><mxCell id="p_calib" value="⑥ 캘리브레이션&lt;br/&gt;eye-to-hand · 종이 위치" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_sw"><mxGeometry x="420" y="245" width="320" height="60" as="geometry" /></mxCell><mxCell id="p_mon" value="⑤ 드로잉 모니터링&lt;br/&gt;카메라로 그린 결과 추적 · 품질 검증" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_sw"><mxGeometry x="420" y="355" width="320" height="70" as="geometry" /></mxCell><mxCell id="p_job" value="⑦ 작업 관리&lt;br/&gt;긴급정지 · 일시정지 · 상태" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_sw"><mxGeometry x="420" y="455" width="320" height="60" as="geometry" /></mxCell><mxCell id="p_bnd" value="하드웨어 추상화 경계&lt;br/&gt;같은 코드로 sim/real 교체" style="shape=hexagon;perimeter=hexagonPerimeter2;whiteSpace=wrap;html=1;fillColor=#cc0000;fontColor=#ffffff;strokeColor=#660000;strokeWidth=2;" vertex="1" parent="1"><mxGeometry x="890" y="555" width="180" height="90" as="geometry" /></mxCell><mxCell id="p_ver" value="🧪 검증 환경 (교체 가능)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffeeee;strokeColor=#cc0000;verticalAlign=top;fontStyle=1;container=1;collapsible=0;dashed=1;dashPattern=5 5;" vertex="1" parent="1"><mxGeometry x="70" y="940" width="520" height="200" as="geometry" /></mxCell><mxCell id="p_mj" value="MuJoCo" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_ver"><mxGeometry x="40" y="70" width="130" height="60" as="geometry" /></mxCell><mxCell id="p_is" value="IsaacSim (선택)&lt;br/&gt;(별도 PC)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_ver"><mxGeometry x="210" y="60" width="150" height="80" as="geometry" /></mxCell><mxCell id="p_re" value="실물" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_ver"><mxGeometry x="400" y="70" width="100" height="60" as="geometry" /></mxCell><mxCell id="p_hw" value="🔧 하드웨어부" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#eeffee;strokeColor=#33aa33;verticalAlign=top;fontStyle=1;container=1;collapsible=0;" vertex="1" parent="1"><mxGeometry x="650" y="940" width="490" height="250" as="geometry" /></mxCell><mxCell id="p_arm" value="로봇암 HCR-5&lt;br/&gt;+ 스프링 펜홀더" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_hw"><mxGeometry x="30" y="45" width="210" height="80" as="geometry" /></mxCell><mxCell id="p_cam" value="카메라&lt;br/&gt;RealSense / 폰" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_hw"><mxGeometry x="260" y="45" width="200" height="80" as="geometry" /></mxCell><mxCell id="p_jig" value="A4 종이 지그 · 작업대&lt;br/&gt;(철제 책상 상판)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="p_hw"><mxGeometry x="30" y="150" width="430" height="80" as="geometry" /></mxCell><mxCell id="p_db" value="🗄 작업 이력 DB" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="890" y="770" width="170" height="100" as="geometry" /></mxCell><mxCell id="e_user_web" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_user" target="p_web"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_web_img" value="입력 이미지" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_web" target="p_img"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_img_plan" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_img" target="p_plan"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_plan_ctrl" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_plan" target="p_ctrl"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_ctrl_bnd" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_ctrl" target="p_bnd"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_bnd_exec" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_bnd" target="p_exec"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_exec_mj" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_exec" target="p_mj"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_exec_is" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_exec" target="p_is"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_exec_re" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_exec" target="p_re"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_re_arm" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_re" target="p_arm"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_arm_jig" value="연필로 그림" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="p_arm" target="p_jig"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_cam_calib" value="보정 영상" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_cam" target="p_calib"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_cam_mon" value="드로잉 추적 영상" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_cam" target="p_mon"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_calib_ctrl" value="좌표 파라미터" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_calib" target="p_ctrl"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_mon_job" value="품질 판정&lt;br/&gt;(원 틀어짐 · 미완성)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_mon" target="p_job"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_job_exec" value="정지 / 재개" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_job" target="p_exec"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_exec_job" value="진행 상태" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_exec" target="p_job"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_job_db" value="이력 저장" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_job" target="p_db"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="e_db_web" value="조회" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_db" target="p_web"><mxGeometry relative="1" as="geometry" /></mxCell></root></mxGraphModel></diagram>
+  <diagram name="§3.1 계산 파이프라인" id="sa-p2"><mxGraphModel grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1650" pageHeight="420" dx="1650" dy="420" math="0" shadow="0"><root><mxCell id="0" /><mxCell id="1" parent="0" /><mxCell id="p_sap2_A" value="입력 이미지&lt;br/&gt;(RGB/그레이)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="40" y="170" width="160" height="80" as="geometry" /></mxCell><mxCell id="p_sap2_B" value="스트로크 폴리라인&lt;br/&gt;(픽셀 좌표)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="270" y="170" width="160" height="80" as="geometry" /></mxCell><mxCell id="p_sap2_C" value="종이 평면 스트로크&lt;br/&gt;(x,y mm)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="500" y="170" width="160" height="80" as="geometry" /></mxCell><mxCell id="p_sap2_D" value="순서 있는 종이 경로&lt;br/&gt;(x,y mm)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="730" y="170" width="160" height="80" as="geometry" /></mxCell><mxCell id="p_sap2_E" value="로봇 작업공간 경로&lt;br/&gt;(x,y,z · base frame)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="960" y="170" width="160" height="80" as="geometry" /></mxCell><mxCell id="p_sap2_F" value="관절 궤적&lt;br/&gt;(q1~q6 시퀀스)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="1190" y="170" width="160" height="80" as="geometry" /></mxCell><mxCell id="p_sap2_G" value="A4에 연필 스트로크" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1"><mxGeometry x="1420" y="170" width="160" height="80" as="geometry" /></mxCell><mxCell id="p_sap2_e1" value="① 이미지 처리&lt;br/&gt;이진화·윤곽·centerline" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_sap2_A" target="p_sap2_B"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="p_sap2_e2" value="② 픽셀→종이 mm 스케일링&lt;br/&gt;(F2.4)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_sap2_B" target="p_sap2_C"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="p_sap2_e3" value="② 그리는 순서 최적화&lt;br/&gt;(F3.1)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_sap2_C" target="p_sap2_D"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="p_sap2_e4" value="③ 좌표 변환&lt;br/&gt;종이→로봇 (F4.1, 캘리브레이션)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_sap2_D" target="p_sap2_E"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="p_sap2_e5" value="③ 궤적·IK 계획&lt;br/&gt;(F4.2, MoveIt2)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_sap2_E" target="p_sap2_F"><mxGeometry relative="1" as="geometry" /></mxCell><mxCell id="p_sap2_e6" value="④ 드로잉 실행&lt;br/&gt;ros2_control → mock/real" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p_sap2_F" target="p_sap2_G"><mxGeometry relative="1" as="geometry" /></mxCell></root></mxGraphModel></diagram>
+<diagram name="§3.2 그리기-검증 루프" id="sa-p3">
+    <mxGraphModel dx="1400" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1700" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p3_a" value="입력 이미지" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="40" y="250" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_b" value="edge 추출" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="200" y="250" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_c" value="stroke 변환&lt;br&gt;+ 순서" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="360" y="245" width="130" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_d" value="궤적 생성" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="540" y="250" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e" value="스트로크 실행" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="700" y="250" width="120" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_f" value="로봇이 한 스트로크 그림" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="870" y="248" width="140" height="55" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_g" value="카메라 촬영" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1060" y="250" width="110" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_h" value="계획대로 그려졌나?&lt;br&gt;(원 틀어짐 · 미완성)" style="rhombus;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1220" y="230" width="170" height="90" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_i" value="다음 스트로크" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1250" y="70" width="130" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_j" value="기록 / 재시도 판정&lt;br&gt;(작업 관리)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1240" y="410" width="180" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_k" value="결과 저장 · UI 표시" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="1470" y="70" width="170" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e1" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_a" target="p3_b">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e2" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_b" target="p3_c">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e3" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_c" target="p3_d">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_d" target="p3_e">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_e" target="p3_f">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e6" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_f" target="p3_g">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e7" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_g" target="p3_h">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e8" value="합격" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_h" target="p3_i">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e9" value="불합격" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_h" target="p3_j">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e10" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_i" target="p3_e">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e11" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p3_j" target="p3_e">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p3_e12" value="전체 완료" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;dashed=1;" edge="1" parent="1" source="p3_i" target="p3_k">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+  <diagram name="§5.2 웹↔ROS2 연동" id="sa-p4">
+    <mxGraphModel dx="900" dy="700" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="900" pageHeight="600" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="p4_r" value="React&lt;br&gt;(roslibjs)" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="40" y="180" width="140" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p4_f" value="FastAPI" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="300" y="70" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p4_rb" value="rosbridge" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="300" y="290" width="140" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="p4_ros" value="ROS2&lt;br&gt;MoveIt2 · ros2_control" style="rounded=0;whiteSpace=wrap;html=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="580" y="180" width="180" height="70" as="geometry" />
+        </mxCell>
+        <mxCell id="p4_db" value="SQLite" style="shape=cylinder3;whiteSpace=wrap;html=1;boundedLbl=1;backgroundOutline=1;fillColor=#ffffff;strokeColor=#000000;" vertex="1" parent="1">
+          <mxGeometry x="300" y="450" width="140" height="80" as="geometry" />
+        </mxCell>
+        <mxCell id="p4_e1" value="업로드 · 이력 조회 (REST)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p4_r" target="p4_f">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p4_e2" value="진행상태 구독 (ws:9090)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;" edge="1" parent="1" source="p4_r" target="p4_rb">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p4_e3" value="rclpy 노드 (별도 스레드)" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p4_f" target="p4_ros">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p4_e4" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;startArrow=classic;endArrow=classic;" edge="1" parent="1" source="p4_rb" target="p4_ros">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="p4_e5" style="edgeStyle=orthogonalEdgeStyle;rounded=0;html=1;" edge="1" parent="1" source="p4_f" target="p4_db">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

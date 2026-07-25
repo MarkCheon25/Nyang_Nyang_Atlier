@@ -1,0 +1,74 @@
+# ============================================================================
+#  MoveIt2 튜토리얼 실행 환경 (Docker Compose)
+#  이미지: moveit/moveit2:main-jazzy-tutorial-source  (ROS 2 Jazzy 기반)
+#
+#  ▶ 실행:  docker compose run --name moveit2_dev --rm moveit2
+#  ▶ 상세:  같은 폴더의 README_동료용.md 참고
+#
+#  ⚠️ 동료 PC 세팅 시 반드시 확인할 곳: 아래 [GPU] 섹션 (devices)
+# ============================================================================
+services:
+  moveit2:
+    image: moveit/moveit2:main-jazzy-tutorial-source
+    container_name: moveit2_dev
+
+    # ROS 2 DDS 통신: 호스트 네트워크 직접 사용
+    network_mode: host
+
+    # 터미널 유지 (인터랙티브 세션)
+    stdin_open: true
+    tty: true
+
+    # ------------------------------------------------------------------------
+    # [GPU] ⚠️ PC마다 다름 — 동료 PC 환경에 맞게 반드시 조정할 것
+    # ------------------------------------------------------------------------
+    #
+    #  ▶ 먼저 동료 PC에서 GPU 종류와 디바이스 경로를 확인:
+    #        ls -l /dev/dri/          # AMD/Intel iGPU: cardN, renderD128 확인
+    #        lspci | grep -Ei 'vga|3d'   # GPU 제조사 확인
+    #
+    #  ── (A) AMD / Intel 내장·외장 GPU ────────────────────────────────
+    #     아래가 기본값. 단, cardN 번호는 PC마다 다름!
+    #     - 이 기준 PC(LenV15)는 card0가 없고 card1만 존재 → card1 사용
+    #     - 대부분의 다른 PC는 card0 → 그 경우 아래 card1을 card0으로 수정
+    devices:
+      - /dev/dri/card1:/dev/dri/card1          # ← 동료 PC의 실제 cardN으로 수정
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    #
+    #  ── (B) NVIDIA GPU ───────────────────────────────────────────────
+    #     위 devices 블록을 통째로 지우고(또는 주석 처리), 아래를 사용.
+    #     선행 조건: 호스트에 nvidia-container-toolkit 설치 필요.
+    #        (Ubuntu: sudo apt install -y nvidia-container-toolkit
+    #                 && sudo nvidia-ctk runtime configure --runtime=docker
+    #                 && sudo systemctl restart docker)
+    #
+    #     deploy:
+    #       resources:
+    #         reservations:
+    #           devices:
+    #             - driver: nvidia
+    #               count: all
+    #               capabilities: [gpu]
+    #     # environment 에 아래 두 줄 추가:
+    #     #   - NVIDIA_VISIBLE_DEVICES=all
+    #     #   - NVIDIA_DRIVER_CAPABILITIES=all
+    #
+    #  ── (C) GPU 없이 소프트웨어 렌더링 (RViz 느리지만 동작) ──────────────
+    #     devices 블록을 지우고, environment 에 아래 추가:
+    #     #   - LIBGL_ALWAYS_SOFTWARE=1
+    # ------------------------------------------------------------------------
+
+    environment:
+      # GUI (X11) — RViz2 창을 호스트 디스플레이에 띄우기 위함
+      - DISPLAY=:0
+      # ROS 2 도메인 (0: 기본값, 호스트와 동일하게 맞춤)
+      - ROS_DOMAIN_ID=0
+
+    volumes:
+      # X11 소켓 공유 (RViz2 GUI 표시)
+      #  ⚠️ 실행 전 호스트에서 1회: xhost +local:docker
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      # 사용자 작업 소스 마운트 (컨테이너 내 편집이 로컬 ./src 에 유지됨)
+      - ./src:/root/ws_user/src
+
+    working_dir: /root/ws_user
