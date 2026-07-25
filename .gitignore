@@ -3,6 +3,10 @@ build/
 install/
 log/
 
+# ── 워크스페이스에 소스로 받는 외부 패키지 ──
+# apt로 배포되지 않아 git clone 으로 가져오는 것들 (중첩 리포가 되므로 제외)
+src/moveit2/ws_moveit2/src/moveit2_tutorials/
+
 # ── Claude Code PC 로컬 설정 ──
 # 멀티PC 공유 계약상 동기화 대상 아님 (PC 로컬 자산)
 .claude/settings.local.json

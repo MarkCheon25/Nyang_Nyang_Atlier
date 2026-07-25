@@ -54,6 +54,13 @@ RUN set -e; \
     echo "${USER_NAME} ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/${USER_NAME}; \
     chmod 0440 /etc/sudoers.d/${USER_NAME}
 
+# ---- GPU 렌더 노드 접근 그룹 ------------------------------------------------
+# /dev/dri/card*(video) · renderD*(render) 접근용 — 보조 수단이다.
+# 실제 권한은 호스트 GID 로 걸리므로 이름만 같은 그룹으로는 부족하고,
+# run_container.sh → compose.yml 의 group_add 가 호스트 GID 를 넘겨 해결한다.
+RUN groupadd -f video && groupadd -f render \
+ && usermod -aG video,render ${USER_NAME}
+
 # ---- rosdep 초기화 ---------------------------------------------------------
 RUN rosdep update --rosdistro=jazzy || true
 
@@ -66,7 +73,7 @@ USER ${USER_NAME}
 WORKDIR /home/${USER_NAME}
 
 RUN echo "source /opt/ros/jazzy/setup.bash" >> ~/.bashrc \
- && echo "[ -f ~/ws_moveit/install/setup.bash ] && source ~/ws_moveit/install/setup.bash" >> ~/.bashrc
+ && echo "[ -f ~/ws_moveit2/install/setup.bash ] && source ~/ws_moveit2/install/setup.bash" >> ~/.bashrc
 
 ENTRYPOINT ["/usr/local/bin/entrypoint.sh"]
 CMD ["bash"]

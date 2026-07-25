@@ -1,46 +1,60 @@
 # ============================================================================
-#  MoveIt2 튜토리얼 실행 환경 (Docker Compose)
-#  이미지: moveit/moveit2:main-jazzy-tutorial-source  (ROS 2 Jazzy 기반)
+#  MoveIt2 개발 환경 (ROS 2 Jazzy) — Docker Compose
 #
-#  ▶ 실행:  docker compose run --name moveit2_dev --rm moveit2
-#  ▶ 상세:  같은 폴더의 README_동료용.md 참고
+#  ▶ 첫 실행:  ./run_container.sh build    (이미지 빌드, 20~40분)
+#  ▶ 진입:     ./run_container.sh shell
+#  ▶ 상세:     docs/README_동료용.md
 #
-#  ⚠️ 동료 PC 세팅 시 반드시 확인할 곳: 아래 [GPU] 섹션 (devices)
+#  이미지는 같은 폴더의 Dockerfile 로 각 PC에서 직접 빌드한다.
+#  ⚠️ 동료 PC 세팅 시 확인할 곳: 아래 [GPU] 섹션 — 나머지는 대개 그대로 동작한다.
 # ============================================================================
 services:
   moveit2:
-    image: moveit/moveit2:main-jazzy-tutorial-source
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_NAME: rosuser
+        # 호스트 사용자와 UID/GID를 맞춰야 ws_moveit2/ 안에 생기는 파일 권한이
+        # 꼬이지 않는다. run_container.sh 가 현재 사용자 값을 넘겨준다.
+        USER_UID: "${HOST_UID:-1000}"
+        USER_GID: "${HOST_GID:-1000}"
+    image: moveit2_dev:jazzy
     container_name: moveit2_dev
+    hostname: moveit2
 
-    # ROS 2 DDS 통신: 호스트 네트워크 직접 사용
-    network_mode: host
-
-    # 터미널 유지 (인터랙티브 세션)
+    network_mode: host      # ROS 2 DDS 통신
+    ipc: host               # RViz2 shared memory
     stdin_open: true
     tty: true
 
     # ------------------------------------------------------------------------
-    # [GPU] ⚠️ PC마다 다름 — 동료 PC 환경에 맞게 반드시 조정할 것
+    # [GPU] ⚠️ PC마다 다름 — 아래 (A)/(B)/(C) 중 하나를 고른다
     # ------------------------------------------------------------------------
     #
-    #  ▶ 먼저 동료 PC에서 GPU 종류와 디바이스 경로를 확인:
-    #        ls -l /dev/dri/          # AMD/Intel iGPU: cardN, renderD128 확인
-    #        lspci | grep -Ei 'vga|3d'   # GPU 제조사 확인
+    #  먼저 동료 PC에서 GPU 종류를 확인:
+    #        lspci | grep -Ei 'vga|3d'    # 제조사
+    #        ls -l /dev/dri/              # 렌더 디바이스
     #
-    #  ── (A) AMD / Intel 내장·외장 GPU ────────────────────────────────
-    #     아래가 기본값. 단, cardN 번호는 PC마다 다름!
-    #     - 이 기준 PC(LenV15)는 card0가 없고 card1만 존재 → card1 사용
-    #     - 대부분의 다른 PC는 card0 → 그 경우 아래 card1을 card0으로 수정
+    #  ── (A) AMD / Intel GPU — 아래가 기본값 ──────────────────────────
+    #     /dev/dri 를 통째로 넘기므로 cardN 번호를 신경 쓸 필요가 없다.
     devices:
-      - /dev/dri/card1:/dev/dri/card1          # ← 동료 PC의 실제 cardN으로 수정
-      - /dev/dri/renderD128:/dev/dri/renderD128
+      - /dev/dri:/dev/dri
+    #
+    #     렌더 노드 접근 권한은 호스트 GID 기준이라 PC마다 다르다
+    #     (video 는 대개 44 지만 render 는 992·993 등 제각각).
+    #     run_container.sh 가 호스트에서 읽어 넘겨주므로 손댈 필요 없다.
+    #     docker compose 를 직접 호출하면 아래 기본값이 쓰인다.
+    group_add:
+      - "${VIDEO_GID:-44}"
+      - "${RENDER_GID:-992}"
     #
     #  ── (B) NVIDIA GPU ───────────────────────────────────────────────
-    #     위 devices 블록을 통째로 지우고(또는 주석 처리), 아래를 사용.
-    #     선행 조건: 호스트에 nvidia-container-toolkit 설치 필요.
-    #        (Ubuntu: sudo apt install -y nvidia-container-toolkit
-    #                 && sudo nvidia-ctk runtime configure --runtime=docker
-    #                 && sudo systemctl restart docker)
+    #     위 devices 블록을 지우고 아래를 사용.
+    #     선행 조건: 호스트에 nvidia-container-toolkit 설치
+    #        sudo apt install -y nvidia-container-toolkit
+    #        sudo nvidia-ctk runtime configure --runtime=docker
+    #        sudo systemctl restart docker
     #
     #     deploy:
     #       resources:
@@ -53,22 +67,27 @@ services:
     #     #   - NVIDIA_VISIBLE_DEVICES=all
     #     #   - NVIDIA_DRIVER_CAPABILITIES=all
     #
-    #  ── (C) GPU 없이 소프트웨어 렌더링 (RViz 느리지만 동작) ──────────────
-    #     devices 블록을 지우고, environment 에 아래 추가:
+    #  ── (C) GPU 없이 소프트웨어 렌더링 ────────────────────────────────
+    #     RViz2가 느리지만 동작한다. GPU 문제로 막힐 때 우선 확인용.
+    #     devices 블록을 지우고 environment 에 추가:
     #     #   - LIBGL_ALWAYS_SOFTWARE=1
     # ------------------------------------------------------------------------
 
     environment:
-      # GUI (X11) — RViz2 창을 호스트 디스플레이에 띄우기 위함
-      - DISPLAY=:0
-      # ROS 2 도메인 (0: 기본값, 호스트와 동일하게 맞춤)
-      - ROS_DOMAIN_ID=0
+      # GUI(X11) — RViz2 창을 호스트 디스플레이에 띄운다
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - XDG_RUNTIME_DIR=/tmp/runtime-rosuser
+      # ROS 2 도메인 — 다른 노드와 통신하려면 상대와 같은 값이어야 한다
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
 
     volumes:
-      # X11 소켓 공유 (RViz2 GUI 표시)
-      #  ⚠️ 실행 전 호스트에서 1회: xhost +local:docker
-      - /tmp/.X11-unix:/tmp/.X11-unix
-      # 사용자 작업 소스 마운트 (컨테이너 내 편집이 로컬 ./src 에 유지됨)
-      - ./src:/root/ws_user/src
+      # X11 소켓 — 실행 전 호스트에서 1회: xhost +local:root
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/home/rosuser/.Xauthority:ro
+      # 작업 워크스페이스. 컨테이너가 연결하는 루트이며, 컨테이너 안에서
+      # 만든 결과물이 호스트 ./ws_moveit2 에 그대로 남는다.
+      - ./ws_moveit2:/home/rosuser/ws_moveit2:rw
 
-    working_dir: /root/ws_user
+    working_dir: /home/rosuser/ws_moveit2
+    command: bash

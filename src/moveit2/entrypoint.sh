@@ -6,8 +6,8 @@ set -e
 source /opt/ros/jazzy/setup.bash
 
 # 워크스페이스가 이미 빌드되어 있으면 자동 로드
-if [ -f "$HOME/ws_moveit/install/setup.bash" ]; then
-    source "$HOME/ws_moveit/install/setup.bash"
+if [ -f "$HOME/ws_moveit2/install/setup.bash" ]; then
+    source "$HOME/ws_moveit2/install/setup.bash"
 fi
 
 exec "$@"
