@@ -100,7 +100,7 @@ Nyang_Nyang_Atlier/
 ```
 
 > `hanwha_robot_arm/`은 외부에서 가져와 포팅한 자산이라 자체 코드와 섞지 않고 최상위에 둡니다.
-> 빌드 시에는 컨테이너 안에서 워크스페이스로 연결됩니다 — [`src/moveit2/docs/README_동료용.md`](src/moveit2/docs/README_%EB%8F%99%EB%A3%8C%EC%9A%A9.md) §7
+> 빌드 시에는 컨테이너 안에서 워크스페이스로 연결됩니다 — [`src/moveit2/README.md`](src/moveit2/README.md) §7
 
 ---
 
@@ -117,7 +117,7 @@ Nyang_Nyang_Atlier/
 
 MoveIt2 개발 환경은 컨테이너로 제공됩니다. 이미지는 각 PC에서 직접 빌드하며, GPU(AMD·Intel / NVIDIA / 소프트웨어 렌더링) 분기와 UID·X11 설정은 실행 스크립트가 자동 처리합니다.
 
-세팅 절차: [`src/moveit2/docs/README_동료용.md`](src/moveit2/docs/README_%EB%8F%99%EB%A3%8C%EC%9A%A9.md)
+세팅 절차: [`src/moveit2/README.md`](src/moveit2/README.md)
 
 ---
 
@@ -174,7 +174,7 @@ cd src/moveit2
 ros2 launch moveit_resources_panda_moveit_config demo.launch.py
 ```
 
-상세: [`src/moveit2/docs/README_동료용.md`](src/moveit2/docs/README_%EB%8F%99%EB%A3%8C%EC%9A%A9.md) · [실행 가이드](src/moveit2/docs/moveit2_%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC_%EC%8B%A4%ED%96%89_%EA%B0%80%EC%9D%B4%EB%93%9C.md)
+상세: [`src/moveit2/README.md`](src/moveit2/README.md) · [실행 가이드](src/moveit2/docs/moveit2_%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC_%EC%8B%A4%ED%96%89_%EA%B0%80%EC%9D%B4%EB%93%9C.md)
 
 ---
 

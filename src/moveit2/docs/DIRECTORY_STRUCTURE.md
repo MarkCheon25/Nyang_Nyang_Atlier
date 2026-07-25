@@ -15,11 +15,12 @@ Nyang_Nyang_Atlier/                 ← 리포 디렉터리 (GitHub)
 │   └── docs/ros1_to_ros2_migration/
 └── src/                            자체 개발 코드
     ├── moveit2/                    ← 본 문서 범위
+    │   ├── README.md               세팅 진입점 — 전제조건·빌드·실행 (동료용)
     │   ├── Dockerfile              ROS 2 Jazzy + MoveIt2 이미지 정의 (환경 중립)
     │   ├── compose.yml             실행 정의 — GPU·X11·볼륨 (PC마다 갈리는 곳)
     │   ├── entrypoint.sh           컨테이너 진입 시 ROS 환경 로드
     │   ├── run_container.sh        호스트 헬퍼 (build/up/shell/down/logs)
-    │   ├── docs/                   (본 문서 포함) 문서
+    │   ├── docs/                   (본 문서 포함) 참고 문서
     │   └── ws_moveit2/             ROS 2 워크스페이스 — 컨테이너가 연결하는 루트
     │       └── src/
     │           └── hello_moveit/   colcon 패키지 (C++ 노드)
@@ -60,6 +61,7 @@ Nyang_Nyang_Atlier/                 ← 리포 디렉터리 (GitHub)
 ## 유지 규칙
 
 1. **구조 변경 시 본 문서 우선 갱신** — 실제 폴더 이동보다 문서를 먼저 고친다.
-2. `moveit2/` 하위 폴더에는 README를 두지 않는다 — 본 문서로 통합 (파일 산개 방지).
+2. **README는 `moveit2/` 바로 아래 하나만** — 세팅 진입점(전제조건·빌드·실행). GitHub에서 폴더를 열면 바로 렌더링되어 발견성이 높다.
+   `docs/` 하위와 그 밖의 폴더에는 README를 두지 않는다 (파일 산개 방지).
    `vision/`·`simulation/`·`operator/`는 설계 문서 참조용 README만 갖는다.
 3. **세션 인수인계** — 새 세션은 `SESSION_LOG.md` 마지막 엔트리와 본 문서를 먼저 읽는다.

@@ -1,34 +1,55 @@
-# MoveIt2 개발 환경 세팅 (동료용)
+# MoveIt2 개발 환경
 
-이 폴더는 **ROS 2 Jazzy + MoveIt2 실행 환경**을 담고 있습니다.
-같은 폴더의 `Dockerfile`로 **각자 PC에서 이미지를 직접 빌드**합니다. 큰 이미지 파일을 주고받을 필요가 없습니다.
+**ROS 2 Jazzy + MoveIt2 실행 환경**입니다. 같은 폴더의 `Dockerfile`로 **각자 PC에서 이미지를 직접 빌드**합니다 — 큰 이미지 파일을 주고받을 필요가 없습니다.
 
 - 베이스: `ros:jazzy-ros-base` → `ros-jazzy-desktop` + `ros-jazzy-moveit` 설치
 - 구성: Docker Compose 하나로 컨테이너 실행 + RViz2 GUI + ROS 2 DDS 통신
 
 ```
 moveit2/
+├── README.md            # (이 파일) 세팅 절차
 ├── Dockerfile           # 이미지 정의 — 어느 PC에서든 동일
 ├── compose.yml          # 실행 정의 — ⚠️ GPU 부분만 PC에 맞게 확인
 ├── entrypoint.sh        # 컨테이너 진입 시 ROS 환경 로드
 ├── run_container.sh     # 헬퍼 (build/up/shell/down/logs)
-├── docs/                # (이 파일 포함) 문서
+├── docs/                # 구조·치트시트·튜토리얼 실행 가이드
 └── ws_moveit2/          # 작업 워크스페이스 — 컨테이너가 연결하는 루트
     └── src/             # 여기에 ROS 2 패키지를 두고 빌드
 ```
 
 ---
 
-## 0. 전제 조건 (호스트 PC)
+## 0. 전제 조건 — 동료 PC에서 먼저 확인
 
-| 항목 | 확인 명령 | 비고 |
+**아래를 통째로 복사해 실행하면 필요한 항목이 한 번에 나옵니다.**
+
+```bash
+echo "아키텍처   : $(uname -m)"
+echo "OS         : $(. /etc/os-release; echo "$PRETTY_NAME")"
+echo "Docker     : $(docker --version 2>/dev/null || echo '✗ 없음')"
+echo "Compose    : $(docker compose version --short 2>/dev/null || echo '✗ 없음 (v2 필요)')"
+echo "docker 그룹: $(groups | grep -qw docker && echo '✓ 소속' || echo '✗ 없음')"
+echo "디스크 여유: $(df -h / | awk 'NR==2{print $4}')"
+echo "GPU        : $(lspci | grep -Ei 'vga|3d' | sed 's/.*: //' | head -1)"
+echo "렌더 노드  : $(ls /dev/dri/ 2>/dev/null | grep -v by-path | tr '\n' ' ')"
+echo "세션       : ${XDG_SESSION_TYPE:-?} / DISPLAY=${DISPLAY:-✗ 미설정}"
+```
+
+| 항목 | 필요한 값 | 안 맞으면 |
 |---|---|---|
-| OS | `lsb_release -a` | Ubuntu 22.04+ 권장 |
-| Docker Engine | `docker --version` | 없으면 아래 설치 |
-| Docker Compose v2 | `docker compose version` | `docker-compose`(구버전) 아님 |
-| GPU 드라이버 | `ls -l /dev/dri/` 또는 `nvidia-smi` | RViz2 3D 렌더링용 |
-| X 서버(GUI) | `echo $DISPLAY` | 보통 `:0` 또는 `:1` |
-| 아키텍처 | `uname -m` | `x86_64` 기준 |
+| 아키텍처 | `x86_64` | ARM(Apple Silicon 등)은 **미검증** |
+| OS | Ubuntu 22.04+ | 다른 배포판도 Docker만 되면 대개 동작 |
+| Docker Engine | 설치됨 | 아래 설치 절차 |
+| Docker Compose | **v2** (`docker compose`) | `docker-compose`(v1, 하이픈)는 안 됩니다 |
+| **docker 그룹** | 소속 | `sudo usermod -aG docker $USER` → **재로그인** |
+| **디스크 여유** | **10GB 이상** | 이미지 6.1GB + 빌드 산출물·apt 캐시 |
+| GPU | 확인만 | §2에서 A/B/C로 분기 |
+| 렌더 노드 | `/dev/dri/`에 `card*`·`renderD*` | 없으면 §2의 **(C) 소프트웨어 렌더링** |
+| **세션 타입** | `x11` 또는 `wayland` | Wayland면 XWayland 경유 — 대개 자동이지만 RViz가 안 뜨면 §3 확인 |
+| 네트워크 | — | 첫 빌드에 apt로 **수 GB** 내려받습니다 |
+
+> **자동으로 맞춰지는 것들** — 아래는 `run_container.sh`가 각 PC 값을 읽어 처리하므로 신경 쓰지 않아도 됩니다.
+> 컨테이너 사용자 UID/GID · `XAUTHORITY` 경로(없으면 생성) · `/dev/dri` 렌더 그룹 GID(`video`·`render`).
 
 <details>
 <summary>Docker 미설치 시 (Ubuntu)</summary>
@@ -53,11 +74,6 @@ docker run --rm hello-world   # 동작 확인
 
 ## 2. ⚠️ GPU 설정 확인 (PC마다 다른 유일한 부분)
 
-```bash
-lspci | grep -Ei 'vga|3d'    # GPU 제조사 확인
-ls -l /dev/dri/              # 렌더 디바이스 확인
-```
-
 `compose.yml`의 `[GPU]` 섹션에 **(A)/(B)/(C) 세 경우**가 정리되어 있습니다.
 
 | GPU | 할 일 |
@@ -75,7 +91,7 @@ xhost +local:root
 ```
 
 > 재부팅하면 초기화됩니다. `run_container.sh`가 실행 시 자동으로 한 번 걸어주지만, GUI가 안 뜨면 직접 실행해 보세요.
-> (Wayland 세션이면 X11 앱 호환을 위해 XWayland가 필요할 수 있습니다.)
+> Wayland 세션이면 X11 앱 호환을 위해 XWayland가 필요합니다(대개 기본 설치).
 
 ---
 
@@ -108,15 +124,21 @@ cd moveit2
 
 ---
 
-## 6. 동작 확인 (RViz2 데모)
+## 6. 동작 확인
 
-컨테이너 안에서:
+컨테이너 안에서 — **HCR-5** (이 프로젝트의 로봇):
+```bash
+cd ~/ws_moveit2 && colcon build --symlink-install && source install/setup.bash
+ros2 launch hcr_moveit_config demo.launch.py
+```
+→ RViz2에 HCR-5가 뜨고 인터랙티브 마커로 Plan/Execute가 되면 성공.
+
+MoveIt 기본 예제(**Panda**)로 환경만 확인하려면:
 ```bash
 ros2 launch moveit_resources_panda_moveit_config demo.launch.py
 ```
-→ **RViz2 창이 뜨고 Panda 로봇 팔이 보이면 환경 세팅 성공.**
 
-이후 실행 명령은 `moveit2_튜토리얼_실행_가이드.md`를 참고하세요.
+이후 실행 명령은 [`docs/moveit2_튜토리얼_실행_가이드.md`](docs/moveit2_%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC_%EC%8B%A4%ED%96%89_%EA%B0%80%EC%9D%B4%EB%93%9C.md)를 참고하세요.
 
 ---
 
@@ -169,18 +191,21 @@ Nyang_Nyang_Atlier/
 
 | 증상 | 원인 / 해결 |
 |---|---|
-| `docker: permission denied` | `sudo usermod -aG docker $USER` 후 재로그인 |
+| `docker: permission denied` | docker 그룹 미소속. `sudo usermod -aG docker $USER` 후 **재로그인** |
+| `docker compose` 명령이 없음 | Compose v1(`docker-compose`) 설치됨. v2 플러그인 필요 |
 | 빌드가 apt 단계에서 실패 | 네트워크/미러 문제. 잠시 후 `./run_container.sh build` 재시도 |
-| RViz2 창이 안 뜸 | `xhost +local:root` 재실행 / `echo $DISPLAY` 값 확인 |
-| `cannot open /dev/dri/renderD128` | 렌더 그룹 권한. `getent group video render`로 GID 확인 후 `compose.yml`의 `group_add`에 숫자로 추가 |
+| 빌드 중 `no space left on device` | 디스크 부족. `docker system prune -a`로 정리 후 재시도 |
+| RViz2 창이 안 뜸 | `xhost +local:root` 재실행 / `echo $DISPLAY` 확인 / Wayland면 XWayland 설치 확인 |
+| `cannot open /dev/dri/renderD128` | 렌더 그룹 권한. `run_container.sh`가 자동 처리하지만, 직접 `docker compose`를 호출했다면 헬퍼로 실행하세요 |
 | RViz는 뜨는데 3D가 검거나 느림 | GPU passthrough 실패 → (C) `LIBGL_ALWAYS_SOFTWARE=1`로 임시 확인 |
-| 컨테이너가 만든 파일이 root 소유 | `run_container.sh`를 거치지 않고 `docker compose`를 직접 호출한 경우. 헬퍼로 실행하면 UID/GID가 맞춰집니다 |
+| 컨테이너가 만든 파일이 root 소유 | `run_container.sh`를 거치지 않은 경우. 헬퍼로 실행하면 UID/GID가 맞춰집니다 |
 | 다른 ROS 2 노드와 통신 안 됨 | `ROS_DOMAIN_ID`를 상대와 동일하게 (`ROS_DOMAIN_ID=7 ./run_container.sh shell`) |
 
 ---
 
 ## 참고
 
-- 구조·경로 매핑 상세: `DIRECTORY_STRUCTURE.md`
-- 자주 쓰는 명령: `CHEATSHEET.md`
+- 구조·컨테이너 매핑 상세: [`docs/DIRECTORY_STRUCTURE.md`](docs/DIRECTORY_STRUCTURE.md)
+- 자주 쓰는 명령: [`docs/CHEATSHEET.md`](docs/CHEATSHEET.md)
+- 튜토리얼 실행: [`docs/moveit2_튜토리얼_실행_가이드.md`](docs/moveit2_%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC_%EC%8B%A4%ED%96%89_%EA%B0%80%EC%9D%B4%EB%93%9C.md)
 - MoveIt2 공식 튜토리얼: https://moveit.picknik.ai/main/index.html
