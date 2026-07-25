@@ -88,6 +88,10 @@ services:
       # 작업 워크스페이스. 컨테이너가 연결하는 루트이며, 컨테이너 안에서
       # 만든 결과물이 호스트 ./ws_moveit2 에 그대로 남는다.
       - ./ws_moveit2:/home/rosuser/ws_moveit2:rw
+      # 외부에서 가져온 로봇 모델(리포 최상위 hanwha_robot_arm/)을 컨테이너 안에서만
+      # 워크스페이스 src 아래로 보이게 한다. 호스트 배치는 최상위 그대로 두면서
+      # colcon 이 hcr_robot_description · hcr_moveit_config 를 잡게 하기 위함.
+      - ../../hanwha_robot_arm:/home/rosuser/ws_moveit2/src/hanwha_robot_arm:rw
 
     working_dir: /home/rosuser/ws_moveit2
     command: bash

@@ -136,6 +136,33 @@ ros2 run hello_moveit hello_moveit
 > `build/`·`install/`·`log/`는 빌드 산출물이라 git에 올리지 않습니다 (`.gitignore` 등록).
 > 지워도 `colcon build`로 다시 만들어집니다.
 
+### ⚠️ 호스트와 컨테이너의 디렉터리 배치가 다릅니다
+
+HCR-5 로봇 모델(`hcr_robot_description` · `hcr_moveit_config`)은 **호스트에서는 리포 최상위**에 있지만, **컨테이너 안에서는 워크스페이스 `src/` 아래**에 나타납니다.
+
+```
+호스트                                    컨테이너
+Nyang_Nyang_Atlier/
+├── hanwha_robot_arm/          ─────┐
+│   └── HCR_5/                      │
+│       ├── hcr_robot_description/  │    /home/rosuser/ws_moveit2/
+│       └── hcr_moveit_config/      ├──►   ├── src/
+└── src/moveit2/                    │      │   ├── hello_moveit/
+    └── ws_moveit2/            ─────┘      │   └── hanwha_robot_arm/HCR_5/…
+        └── src/hello_moveit/                └── build· install· log
+```
+
+**왜 이렇게 했나** — `hanwha_robot_arm/`은 외부(커뮤니티 ROS1 패키지)에서 가져와 포팅한 자산이라, 자체 개발 코드(`src/`)와 섞이지 않도록 리포 최상위에 두었습니다. 그런데 colcon은 워크스페이스 `src/` 아래에 있는 패키지만 빌드하므로, 호스트 배치를 그대로 두면서 컨테이너 안에서만 워크스페이스로 들어오도록 `compose.yml`에 볼륨을 하나 더 두었습니다.
+
+```yaml
+- ../../hanwha_robot_arm:/home/rosuser/ws_moveit2/src/hanwha_robot_arm:rw
+```
+
+실무상 알아둘 점:
+- **`colcon build`는 세 패키지를 한꺼번에 빌드합니다** — `hello_moveit` · `hcr_robot_description` · `hcr_moveit_config`
+- 컨테이너 안에서 `~/ws_moveit2/src/hanwha_robot_arm/`을 고치면 **호스트 최상위 `hanwha_robot_arm/`이 바뀝니다** (같은 디렉터리)
+- 호스트에서 `ws_moveit2/src/`를 봐도 `hanwha_robot_arm`은 **없습니다** — 컨테이너 안에서만 보이는 게 정상입니다
+
 ---
 
 ## 8. 트러블슈팅

@@ -7,7 +7,13 @@
 ```
 Nyang_Nyang_Atlier/                 ← 리포 디렉터리 (GitHub)
 ├── docs/                           설계 문서·다이어그램 (원본)
-└── src/
+├── hanwha_robot_arm/               외부 자산 — 커뮤니티 ROS1 패키지의 ROS2 Jazzy 포팅
+│   ├── LICENSE  README.md          출처·라이선스 (건드리지 않는다)
+│   ├── HCR_5/
+│   │   ├── hcr_robot_description/  colcon 패키지 — URDF·xacro·STL·USD
+│   │   └── hcr_moveit_config/      colcon 패키지 — SRDF·kinematics·ompl·demo.launch.py
+│   └── docs/ros1_to_ros2_migration/
+└── src/                            자체 개발 코드
     ├── moveit2/                    ← 본 문서 범위
     │   ├── Dockerfile              ROS 2 Jazzy + MoveIt2 이미지 정의 (환경 중립)
     │   ├── compose.yml             실행 정의 — GPU·X11·볼륨 (PC마다 갈리는 곳)
@@ -22,12 +28,18 @@ Nyang_Nyang_Atlier/                 ← 리포 디렉터리 (GitHub)
     └── operator/
 ```
 
+**외부 자산과 자체 코드의 경계** — `hanwha_robot_arm/`은 외부에서 가져와 포팅한 것이라 `src/`(자체 개발)와 섞지 않고 최상위에 둔다. 대신 colcon 이 잡을 수 있도록 컨테이너 안에서만 워크스페이스로 끌어온다(아래 매핑).
+
 ## 컨테이너 매핑
 
 | 호스트 | 컨테이너 |
 |---|---|
 | `src/moveit2/ws_moveit2/` | `/home/rosuser/ws_moveit2/` (rw) |
+| **`hanwha_robot_arm/`** | **`/home/rosuser/ws_moveit2/src/hanwha_robot_arm/`** (rw) |
 | `src/moveit2/docs/` | 마운트 안 함 — 호스트 전용 |
+
+> **호스트와 컨테이너의 배치가 다르다.** `hanwha_robot_arm/`은 호스트에서 리포 최상위지만 컨테이너 안에서는 워크스페이스 `src/` 아래로 보인다. 호스트의 `ws_moveit2/src/`에는 그 디렉터리가 없는 것이 정상이다.
+> `colcon build`는 세 패키지를 함께 빌드한다 — `hello_moveit` · `hcr_robot_description` · `hcr_moveit_config`.
 
 - 컨테이너 사용자 `rosuser` — 호스트와 같은 UID/GID로 생성 (`run_container.sh`가 전달)
 - 이미지 `moveit2_dev:jazzy` / 컨테이너 `moveit2_dev`

@@ -85,7 +85,11 @@ Nyang_Nyang_Atlier/
 │   ├── Process Flow.md                프로세스 흐름
 │   ├── System_Architecture.drawio
 │   └── Process_Flow.drawio
-└── src/
+├── hanwha_robot_arm/              외부 자산 — HCR-5 로봇 모델 (ROS1 → ROS2 Jazzy 포팅)
+│   └── HCR_5/
+│       ├── hcr_robot_description/     URDF · xacro · STL · USD
+│       └── hcr_moveit_config/         SRDF · kinematics · ompl · demo.launch.py
+└── src/                           자체 개발 코드
     ├── moveit2/                   MoveIt2 실행 환경(Docker) + ROS 2 워크스페이스
     │   ├── Dockerfile  compose.yml  run_container.sh
     │   ├── docs/                      환경 세팅·실행 가이드
@@ -94,6 +98,9 @@ Nyang_Nyang_Atlier/
     ├── simulation/                (예정) 검증 환경
     └── operator/                  (예정) 웹 운영 레이어 · DB
 ```
+
+> `hanwha_robot_arm/`은 외부에서 가져와 포팅한 자산이라 자체 코드와 섞지 않고 최상위에 둡니다.
+> 빌드 시에는 컨테이너 안에서 워크스페이스로 연결됩니다 — [`src/moveit2/docs/README_동료용.md`](src/moveit2/docs/README_%EB%8F%99%EB%A3%8C%EC%9A%A9.md) §7
 
 ---
 
