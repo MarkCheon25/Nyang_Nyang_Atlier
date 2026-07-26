@@ -63,12 +63,12 @@
 flowchart LR
     A["입력 이미지<br/>(라인아트)"]
     B["스트로크 폴리라인<br/>(픽셀 좌표)"]
-    C["종이 평면 경로<br/>(x, y mm)"]
+    C["종이 평면 스트로크 집합<br/>(x, y mm · 순서 없음)"]
     D["관절 궤적<br/>(q1~q6)"]
     E["A4에 연필 스트로크"]
     A -->|"① 이진화 · 윤곽 · centerline"| B
-    B -->|"② 픽셀→종이 스케일링 · 순서 최적화"| C
-    C -->|"③ 좌표 변환 · IK 계획 (MoveIt2)"| D
+    B -->|"② 픽셀→종이 스케일링"| C
+    C -->|"③ 순서 최적화 · 좌표 변환 · IK 계획 (MoveIt2)"| D
     D -->|"④ ros2_control → mock / real"| E
 ```
 
@@ -126,8 +126,8 @@ MoveIt2 개발 환경은 컨테이너로 제공됩니다. 이미지는 각 PC에
 | 구성 | 사양 |
 |---|---|
 | 로봇암 | **Hanwha Techwin HCR-5** — 6-DoF 협동로봇, reach 915mm / payload 5kg / 반복정밀도 ±0.1mm |
-| 엔드이펙터 | 스프링 내장 펜홀더 (자체 설계 · 3D 프린팅) — 플랜지 직결, 그리퍼 미사용 |
-| 카메라 | Intel RealSense — **모델 미정** · eye-to-hand, 외부 기둥 고정 |
+| 엔드이펙터 | 펜을 **테이프로 고정** — 플랜지 직결, 그리퍼 미사용 |
+| 카메라 | Intel RealSense — **모델 미정** · **eye-in-hand**, 엔드이펙터(6축 관절) 장착 |
 | 작업대 | 철제 책상 상판 수평 고정 · A4 종이 지그 (자체 제작) |
 | 필기구 | 연필 (A4 선화) |
 
@@ -169,7 +169,13 @@ cd src/moveit2
 ./run_container.sh shell    # 컨테이너 진입
 ```
 
-컨테이너 안에서 동작 확인:
+컨테이너 안에서 동작 확인 — **HCR-5** (이 프로젝트의 로봇):
+```bash
+cd ~/ws_moveit2 && colcon build --symlink-install && source install/setup.bash
+ros2 launch hcr_moveit_config demo.launch.py
+```
+
+MoveIt 기본 예제(**Panda**)로 환경만 확인하려면:
 ```bash
 ros2 launch moveit_resources_panda_moveit_config demo.launch.py
 ```

@@ -38,7 +38,10 @@ rm -rf build install log
 ## 실행
 
 ```bash
-# Panda demo (RViz + MoveGroup + fake controller) — 이미지에 포함됨
+# HCR-5 demo (이 프로젝트의 로봇) — RViz + MoveGroup + mock controller
+ros2 launch hcr_moveit_config demo.launch.py
+
+# Panda demo (환경 확인용 MoveIt 기본 예제) — 이미지에 포함됨
 ros2 launch moveit_resources_panda_moveit_config demo.launch.py
 
 # 자체 노드
@@ -60,12 +63,4 @@ ros2 param list <node>             # 노드 파라미터
 
 ## GUI가 안 뜰 때
 
-```bash
-# 호스트에서
-xhost +local:root
-echo $DISPLAY                      # compose.yml이 이 값을 그대로 넘긴다
-
-# 컨테이너 안에서
-xdpyinfo | head -3                 # X 서버 접속 확인
-glxinfo -B                         # 렌더러 확인 (llvmpipe면 소프트웨어 렌더링)
-```
+→ `../README.md` §8 트러블슈팅 참조

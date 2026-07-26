@@ -17,6 +17,19 @@ moveit2/
     └── src/             # 여기에 ROS 2 패키지를 두고 빌드
 ```
 
+## 설계 책임 (구현 착수 전 — 설계 세션에서 정리된 내용)
+
+이 모듈은 vision(`src/vision`, F2)이 만든 **지도**(정렬 안 된 스트로크 집합 — 구조는 `src/vision/README.md` 참조)를 받아서 다음을 담당한다.
+
+| 단계 | 내용 |
+|---|---|
+| F3.1 스트로크 순서 최적화 | 로봇의 실제 이동거리 기준으로 스트로크 그리는 순서 결정 (AC2: 무최적화 대비 이동시간 20% 이상 단축) |
+| F3.2 펜업/다운 결정 | 정해진 순서에 따라 스트로크 사이 펜업(이동) 구간 결정 |
+| F4.1 좌표 변환 | 종이 mm 좌표 → 로봇 좌표 (calibration 결과 사용) |
+| F4.2 경로 계획 | MoveIt2 데카르트 궤적 계획 |
+
+F3이 vision에서 이 모듈로 옮겨진 경위·근거는 `src/vision/README.md`(A. 이미지 → 지도)에 기록.
+
 ---
 
 ## 0. 전제 조건 — 동료 PC에서 먼저 확인
@@ -201,11 +214,23 @@ Nyang_Nyang_Atlier/
 | 컨테이너가 만든 파일이 root 소유 | `run_container.sh`를 거치지 않은 경우. 헬퍼로 실행하면 UID/GID가 맞춰집니다 |
 | 다른 ROS 2 노드와 통신 안 됨 | `ROS_DOMAIN_ID`를 상대와 동일하게 (`ROS_DOMAIN_ID=7 ./run_container.sh shell`) |
 
+**GUI가 안 뜰 때 진단 순서**
+
+```bash
+# 호스트에서
+xhost +local:root
+echo $DISPLAY                      # compose.yml이 이 값을 그대로 넘긴다
+
+# 컨테이너 안에서
+xdpyinfo | head -3                 # X 서버 접속 확인
+glxinfo -B                         # 렌더러 확인 (llvmpipe면 소프트웨어 렌더링)
+```
+
 ---
 
 ## 참고
 
-- 구조·컨테이너 매핑 상세: [`docs/DIRECTORY_STRUCTURE.md`](docs/DIRECTORY_STRUCTURE.md)
+- 컨테이너 매핑 상세: [`docs/DIRECTORY_STRUCTURE.md`](docs/DIRECTORY_STRUCTURE.md)
 - 자주 쓰는 명령: [`docs/CHEATSHEET.md`](docs/CHEATSHEET.md)
 - 튜토리얼 실행: [`docs/moveit2_튜토리얼_실행_가이드.md`](docs/moveit2_%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC_%EC%8B%A4%ED%96%89_%EA%B0%80%EC%9D%B4%EB%93%9C.md)
 - MoveIt2 공식 튜토리얼: https://moveit.picknik.ai/main/index.html

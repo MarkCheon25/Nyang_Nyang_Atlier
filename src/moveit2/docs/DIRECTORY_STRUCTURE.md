@@ -1,35 +1,9 @@
-# moveit2 — 디렉터리 구조
+# moveit2 — 컨테이너 매핑
 
-`src/moveit2/`의 구조와 각 파일의 목적을 정의한다. 구조 변경 시 이 문서를 먼저 갱신한다.
+`src/moveit2/` 환경에서 호스트와 컨테이너의 디렉터리가 어떻게 대응되는지를 정의한다.
 
-## 트리
-
-```
-Nyang_Nyang_Atlier/                 ← 리포 디렉터리 (GitHub)
-├── docs/                           설계 문서·다이어그램 (원본)
-├── hanwha_robot_arm/               외부 자산 — 커뮤니티 ROS1 패키지의 ROS2 Jazzy 포팅
-│   ├── LICENSE  README.md          출처·라이선스 (건드리지 않는다)
-│   ├── HCR_5/
-│   │   ├── hcr_robot_description/  colcon 패키지 — URDF·xacro·STL·USD
-│   │   └── hcr_moveit_config/      colcon 패키지 — SRDF·kinematics·ompl·demo.launch.py
-│   └── docs/ros1_to_ros2_migration/
-└── src/                            자체 개발 코드
-    ├── moveit2/                    ← 본 문서 범위
-    │   ├── README.md               세팅 진입점 — 전제조건·빌드·실행 (동료용)
-    │   ├── Dockerfile              ROS 2 Jazzy + MoveIt2 이미지 정의 (환경 중립)
-    │   ├── compose.yml             실행 정의 — GPU·X11·볼륨 (PC마다 갈리는 곳)
-    │   ├── entrypoint.sh           컨테이너 진입 시 ROS 환경 로드
-    │   ├── run_container.sh        호스트 헬퍼 (build/up/shell/down/logs)
-    │   ├── docs/                   (본 문서 포함) 참고 문서
-    │   └── ws_moveit2/             ROS 2 워크스페이스 — 컨테이너가 연결하는 루트
-    │       └── src/
-    │           └── hello_moveit/   colcon 패키지 (C++ 노드)
-    ├── vision/
-    ├── simulation/
-    └── operator/
-```
-
-**외부 자산과 자체 코드의 경계** — `hanwha_robot_arm/`은 외부에서 가져와 포팅한 것이라 `src/`(자체 개발)와 섞지 않고 최상위에 둔다. 대신 colcon 이 잡을 수 있도록 컨테이너 안에서만 워크스페이스로 끌어온다(아래 매핑).
+> **디렉터리 트리와 GPU 분기는 이 문서에 두지 않는다** — README가 원본이다.
+> 리포 전체 트리는 리포 최상위 `README.md`, `moveit2/` 하위 트리와 GPU (A)/(B)/(C) 분기는 `../README.md` §2 참조.
 
 ## 컨테이너 매핑
 
@@ -48,20 +22,13 @@ Nyang_Nyang_Atlier/                 ← 리포 디렉터리 (GitHub)
 
 ## 환경 의존 지점
 
-**Dockerfile은 어느 PC에서든 같다.** PC마다 갈리는 것은 compose.yml에 모여 있다.
-
-| 갈리는 것 | 처리 |
-|---|---|
-| GPU 벤더 | compose.yml `[GPU]` 섹션 — (A) AMD/Intel · (B) NVIDIA · (C) 소프트웨어 렌더링 |
-| 렌더 노드 권한 | `/dev/dri` 통째 마운트 (cardN 번호 무관). 권한 오류 시 `group_add`로 호스트 GID 전달 |
-| DISPLAY / X11 | `${DISPLAY}` 참조, 실행 전 `xhost +local:root` |
-| UID/GID | `run_container.sh`가 `HOST_UID`/`HOST_GID`로 전달 |
-| CPU 아키텍처 | x86_64 가정 (유일하게 이미지 층이 갈리는 지점) |
+**Dockerfile은 어느 PC에서든 같다.** PC마다 갈리는 것(GPU 벤더·렌더 노드 권한·DISPLAY/X11·UID/GID·CPU 아키텍처)은 compose.yml에 모여 있고, 그 확인·대응 절차는 `../README.md` §0(전제 조건)·§2(GPU)·§3(X11)이 원본이다.
 
 ## 유지 규칙
 
-1. **구조 변경 시 본 문서 우선 갱신** — 실제 폴더 이동보다 문서를 먼저 고친다.
+1. **매핑 변경 시 본 문서 우선 갱신** — 실제 볼륨 변경보다 문서를 먼저 고친다. 단 디렉터리 트리·GPU 분기·실행 절차는 README가 원본이므로 그쪽을 고친다.
 2. **README는 `moveit2/` 바로 아래 하나만** — 세팅 진입점(전제조건·빌드·실행). GitHub에서 폴더를 열면 바로 렌더링되어 발견성이 높다.
    `docs/` 하위와 그 밖의 폴더에는 README를 두지 않는다 (파일 산개 방지).
    `vision/`·`simulation/`·`operator/`는 설계 문서 참조용 README만 갖는다.
-3. **세션 인수인계** — 새 세션은 `SESSION_LOG.md` 마지막 엔트리와 본 문서를 먼저 읽는다.
+3. **세션 인수인계** — 새 세션은 **리포 상위(루트) 디렉터리의 `작업일지.md`·`업무목록.md`** 마지막 엔트리와 본 문서를 먼저 읽는다.
+   단 이 장부는 **리포에 포함되지 않는다** — 각 개발 PC에서 각자가 작성·관리하는 PC 로컬 자산이다 (03pc 적용 방식). 리포를 clone한 PC에는 이 파일이 없을 수 있다.
