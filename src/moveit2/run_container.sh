@@ -5,8 +5,14 @@ set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE="docker compose -f ${SCRIPT_DIR}/compose.yml"
-# PC 로컬 GPU 오버라이드(예: NVIDIA PC)가 있으면 함께 얹는다 (커밋 대상 아님)
-[ -f "${SCRIPT_DIR}/compose.override.yml" ] && COMPOSE="${COMPOSE} -f ${SCRIPT_DIR}/compose.override.yml"
+# GPU 설정은 compose.yml 에 없다 — PC마다 이 오버라이드로 제공한다 (커밋 대상 아님).
+# 없으면 GPU 없이 뜨고 RViz2 3D 가 소프트웨어 렌더링이 된다. README §2 참조.
+if [ -f "${SCRIPT_DIR}/compose.override.yml" ]; then
+    COMPOSE="${COMPOSE} -f ${SCRIPT_DIR}/compose.override.yml"
+else
+    echo "ℹ️  compose.override.yml 없음 — GPU 설정 없이 실행합니다 (RViz2 3D 느림)." >&2
+    echo "   GPU를 쓰려면 README.md §2 의 스니펫으로 이 파일을 만드세요." >&2
+fi
 CONTAINER="moveit2_dev"
 
 # 컨테이너 사용자를 호스트와 같은 UID/GID로 만들기 위해 compose 에 넘긴다.

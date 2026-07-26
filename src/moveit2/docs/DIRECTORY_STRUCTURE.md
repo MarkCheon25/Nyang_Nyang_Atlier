@@ -22,7 +22,15 @@
 
 ## 환경 의존 지점
 
-**Dockerfile은 어느 PC에서든 같다.** PC마다 갈리는 것(GPU 벤더·렌더 노드 권한·DISPLAY/X11·UID/GID·CPU 아키텍처)은 compose.yml에 모여 있고, 그 확인·대응 절차는 `../README.md` §0(전제 조건)·§2(GPU)·§3(X11)이 원본이다.
+**Dockerfile 도 compose.yml 도 어느 PC에서든 같다.** PC마다 갈리는 것은 두 곳으로 나뉜다.
+
+| 갈리는 것 | 어디서 처리 |
+|---|---|
+| **GPU 벤더·렌더 노드 권한** | 각 PC의 **`compose.override.yml`** (git 제외). `compose.yml`에 GPU 설정을 두지 않는 이유 |
+| DISPLAY/X11 · UID/GID · 렌더 그룹 GID | `run_container.sh`가 호스트에서 읽어 자동 전달 |
+| CPU 아키텍처 | x86_64 가정 — 유일하게 이미지 층이 갈리는 지점 |
+
+확인·대응 절차는 `../README.md` §0(전제 조건)·§2(GPU)·§3(X11)이 원본이다.
 
 ## 유지 규칙
 

@@ -115,7 +115,7 @@ Nyang_Nyang_Atlier/
 | 실행 환경 | Docker + Compose v2 — 호스트 오염 없이 격리 실행 |
 | GUI | X11 (RViz2) — GPU 렌더링 패스스루 |
 
-MoveIt2 개발 환경은 컨테이너로 제공됩니다. 이미지는 각 PC에서 직접 빌드하며, GPU(AMD·Intel / NVIDIA / 소프트웨어 렌더링) 분기와 UID·X11 설정은 실행 스크립트가 자동 처리합니다.
+MoveIt2 개발 환경은 컨테이너로 제공됩니다. 이미지는 각 PC에서 직접 빌드하며, UID·X11 설정은 실행 스크립트가 자동 처리합니다. GPU(AMD·Intel / NVIDIA / 소프트웨어 렌더링)만 PC마다 달라, 공용 `compose.yml`을 건드리지 않고 각 PC가 `compose.override.yml`을 만들어 얹습니다.
 
 세팅 절차: [`src/moveit2/README.md`](src/moveit2/README.md)
 

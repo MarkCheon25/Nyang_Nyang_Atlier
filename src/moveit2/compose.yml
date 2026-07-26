@@ -29,27 +29,20 @@ services:
     tty: true
 
     # ------------------------------------------------------------------------
-    # [GPU] 아래는 (A) AMD / Intel 기본값이다.
+    # [GPU] 이 파일에 GPU 설정은 없다 — 의도된 것이다.
     #
-    #  ❗ 이 파일을 고치지 않는다 — 동료 PC에서 깨진다.
-    #     PC마다 다른 설정은 같은 폴더에 compose.override.yml 을 만들어 얹는다.
-    #     (run_container.sh 가 있으면 자동으로 함께 읽는다. .gitignore 대상)
-    #     NVIDIA·소프트웨어 렌더링 절차는 README.md §2 참조 — 그쪽이 원본이다.
+    #  GPU는 PC마다 갈리는 유일한 부분이다. 공용 파일에 특정 벤더 기본값을 두면
+    #  다른 벤더 PC에서 깨지고, 각자 이 파일을 고치게 되어 pull 마다 충돌한다.
+    #  그래서 GPU 설정은 각 PC가 같은 폴더에 compose.override.yml 로 제공한다.
+    #
+    #    · run_container.sh 가 그 파일이 있으면 자동으로 함께 읽는다 (없으면 무동작)
+    #    · .gitignore 대상이라 커밋되지 않는다 — PC 로컬 자산
+    #    · AMD/Intel · NVIDIA · 소프트웨어 렌더링 스니펫은 README.md §2 (원본)
+    #
+    #  ⚠️ override 없이 띄우면 GPU 없이 동작한다 → RViz2 3D 가 소프트웨어 렌더링으로
+    #     아주 느려진다. 동작은 하므로 환경 확인용으로는 쓸 수 있다.
     #
     #     GPU 종류 확인:  lspci | grep -Ei 'vga|3d'   /   ls -l /dev/dri/
-    #
-    #  ── (A) AMD / Intel GPU — 기본값 ─────────────────────────────────
-    #     /dev/dri 를 통째로 넘기므로 cardN 번호를 신경 쓸 필요가 없다.
-    devices:
-      - /dev/dri:/dev/dri
-    #
-    #     렌더 노드 접근 권한은 호스트 GID 기준이라 PC마다 다르다
-    #     (video 는 대개 44 지만 render 는 992·993 등 제각각).
-    #     run_container.sh 가 호스트에서 읽어 넘겨주므로 손댈 필요 없다.
-    #     docker compose 를 직접 호출하면 아래 기본값이 쓰인다.
-    group_add:
-      - "${VIDEO_GID:-44}"
-      - "${RENDER_GID:-992}"
     # ------------------------------------------------------------------------
 
     environment:

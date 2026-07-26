@@ -9,7 +9,8 @@
 moveit2/
 ├── README.md            # (이 파일) 세팅 절차
 ├── Dockerfile           # 이미지 정의 — 어느 PC에서든 동일
-├── compose.yml          # 실행 정의 — ⚠️ GPU 부분만 PC에 맞게 확인
+├── compose.yml          # 실행 정의 — 어느 PC에서든 동일 (GPU 설정 없음)
+├── compose.override.yml # ⚠️ PC별 GPU 설정 — 각자 만든다 (git 제외, §2)
 ├── entrypoint.sh        # 컨테이너 진입 시 ROS 환경 로드
 ├── run_container.sh     # 헬퍼 (build/up/shell/down/logs)
 ├── docs/                # 구조·치트시트·튜토리얼 실행 가이드
@@ -56,7 +57,7 @@ echo "세션       : ${XDG_SESSION_TYPE:-?} / DISPLAY=${DISPLAY:-✗ 미설정}"
 | Docker Compose | **v2** (`docker compose`) | `docker-compose`(v1, 하이픈)는 안 됩니다 |
 | **docker 그룹** | 소속 | `sudo usermod -aG docker $USER` → **재로그인** |
 | **디스크 여유** | **10GB 이상** | 이미지 6.1GB + 빌드 산출물·apt 캐시 |
-| GPU | 확인만 | §2에서 A/B/C로 분기 |
+| GPU | 확인만 | §2에서 자기 GPU에 맞는 스니펫으로 `compose.override.yml` 생성 |
 | 렌더 노드 | `/dev/dri/`에 `card*`·`renderD*` | 없으면 §2의 **(C) 소프트웨어 렌더링** |
 | **세션 타입** | `x11` 또는 `wayland` | Wayland면 XWayland 경유 — 대개 자동이지만 RViz가 안 뜨면 §3 확인 |
 | 네트워크 | — | 첫 빌드에 apt로 **수 GB** 내려받습니다 |
@@ -89,27 +90,44 @@ docker run --rm hello-world   # 동작 확인
 
 컨테이너 안의 RViz2가 호스트 GPU로 3D를 렌더링하게 하는 설정입니다. 안 맞으면 RViz2 3D 화면이 검거나 아주 느려집니다.
 
-> **`compose.yml`을 고치지 마세요.** PC마다 다른 값은 같은 폴더에 **`compose.override.yml`**을 만들어 얹습니다.
-> `run_container.sh`가 그 파일이 있으면 자동으로 함께 읽습니다(없으면 아무 일도 안 일어남).
-> 이 파일은 `.gitignore` 대상이라 **커밋되지 않습니다** — 각 PC가 자기 것만 갖습니다.
+> **`compose.yml`에는 GPU 설정이 없습니다** — 의도된 것입니다. 공용 파일에 특정 벤더 기본값을 두면 다른 벤더 PC에서 깨지고, 각자 그 파일을 고치게 되어 `git pull` 마다 충돌합니다.
+>
+> **각 PC가 같은 폴더에 `compose.override.yml`을 만듭니다.** `run_container.sh`가 있으면 자동으로 함께 읽고, 없으면 안내만 띄운 뒤 GPU 없이 실행합니다. 이 파일은 `.gitignore` 대상이라 **커밋되지 않습니다.**
 
-| GPU | 할 일 |
-|---|---|
-| **AMD / Intel** | **아무것도 안 해도 됩니다.** `compose.yml` 기본값이 `/dev/dri`를 통째로 넘기므로 `cardN` 번호를 맞출 필요가 없습니다 |
-| **NVIDIA** | `nvidia-container-toolkit` 설치 + 아래 오버라이드 파일 생성 |
-| **없음 / 문제 발생** | 오버라이드에 `LIBGL_ALWAYS_SOFTWARE=1`을 넣어 소프트웨어 렌더링 (느리지만 동작 확인 가능) |
+먼저 GPU 종류를 확인합니다:
+```bash
+lspci | grep -Ei 'vga|3d'      # 제조사
+ls -l /dev/dri/                # 렌더 디바이스
+```
+
+그리고 **자기 GPU에 맞는 아래 스니펫 하나를** `src/moveit2/compose.override.yml`로 저장합니다.
+
+<details open>
+<summary><b>(A) AMD / Intel GPU</b></summary>
+
+`/dev/dri`를 통째로 넘기므로 `cardN` 번호를 맞출 필요가 없습니다. 렌더 노드 접근 GID는 PC마다 다른데(`video`는 대개 44지만 `render`는 992·993 등 제각각) `run_container.sh`가 호스트에서 읽어 넘겨주므로 아래를 그대로 쓰면 됩니다.
+
+```yaml
+services:
+  moveit2:
+    devices:
+      - /dev/dri:/dev/dri
+    group_add:
+      - "${VIDEO_GID:-44}"
+      - "${RENDER_GID:-992}"
+```
+</details>
 
 <details>
-<summary><b>NVIDIA GPU — 오버라이드 파일 만들기</b></summary>
+<summary><b>(B) NVIDIA GPU</b></summary>
 
-먼저 호스트에 toolkit을 설치합니다 (1회):
+호스트에 toolkit을 먼저 설치합니다 (1회):
 ```bash
 sudo apt install -y nvidia-container-toolkit
 sudo nvidia-ctk runtime configure --runtime=docker
 sudo systemctl restart docker
 ```
 
-그다음 `src/moveit2/compose.override.yml`을 만듭니다:
 ```yaml
 services:
   moveit2:
@@ -125,17 +143,11 @@ services:
               capabilities: [gpu]
 ```
 
-병합 결과 확인:
-```bash
-./run_container.sh config      # 또는: docker compose -f compose.yml -f compose.override.yml config
-```
-
-> **알아둘 제약** — 오버라이드는 값을 *더하는* 방식이라 `compose.yml`의 `devices: /dev/dri` 블록을 **지우지는 못합니다.** NVIDIA 드라이버도 보통 `/dev/dri` 노드를 만들기 때문에 대개 문제가 없지만, `/dev/dri`가 아예 없는 PC라면 컨테이너 기동이 실패합니다. 그 경우엔 `compose.yml`을 직접 손봐야 합니다.
-
+> 하이브리드(Intel+NVIDIA) 노트북이라면 (A)의 `devices`·`group_add`를 같이 넣어도 됩니다 — 두 GPU 노드가 모두 `/dev/dri`에 있습니다.
 </details>
 
 <details>
-<summary><b>소프트웨어 렌더링 (GPU 없음 / 문제 격리용)</b></summary>
+<summary><b>(C) 소프트웨어 렌더링 (GPU 없음 / 문제 격리용)</b></summary>
 
 ```yaml
 services:
@@ -144,6 +156,18 @@ services:
       - LIBGL_ALWAYS_SOFTWARE=1
 ```
 </details>
+
+**병합 결과 확인** — 오버라이드가 제대로 얹혔는지:
+```bash
+./run_container.sh config
+```
+> `docker compose`를 직접 호출하면 `VIDEO_GID` 등이 export되지 않아 기본값이 표시됩니다. 헬퍼로 확인하세요.
+
+**렌더러 확인** — 컨테이너 안에서 실제로 하드웨어 가속이 걸렸는지:
+```bash
+glxinfo -B | grep "OpenGL renderer"
+```
+`llvmpipe`가 나오면 소프트웨어 렌더링입니다. (A)를 넣었는데도 `llvmpipe`라면 **이미지의 Mesa가 GPU보다 오래된 경우**일 수 있습니다 — 아주 최신 세대 GPU(예: Intel Arrow Lake)에서 관측됩니다.
 
 ---
 
@@ -260,7 +284,9 @@ Nyang_Nyang_Atlier/
 | 빌드 중 `no space left on device` | 디스크 부족. `docker system prune -a`로 정리 후 재시도 |
 | RViz2 창이 안 뜸 | `xhost +local:root` 재실행 / `echo $DISPLAY` 확인 / Wayland면 XWayland 설치 확인 |
 | `cannot open /dev/dri/renderD128` | 렌더 그룹 권한. `run_container.sh`가 자동 처리하지만, 직접 `docker compose`를 호출했다면 헬퍼로 실행하세요 |
-| RViz는 뜨는데 3D가 검거나 느림 | GPU passthrough 실패 → (C) `LIBGL_ALWAYS_SOFTWARE=1`로 임시 확인 |
+| RViz는 뜨는데 3D가 검거나 느림 | `compose.override.yml`이 없거나 안 맞음 → §2 확인. `glxinfo -B`에 `llvmpipe`면 소프트웨어 렌더링 |
+| `open /run/nvidia-persistenced/socket: no such file or directory` | (NVIDIA) `nvidia-persistenced`가 안 떠 있음 → `sudo systemctl start nvidia-persistenced` |
+| (NVIDIA) 호스트 `nvidia-smi`가 `Driver/library version mismatch` | 드라이버 갱신 후 미재부팅. **재부팅** 필요. 여러 드라이버 세대가 설치돼 있으면 구버전 패키지 정리 |
 | 컨테이너가 만든 파일이 root 소유 | `run_container.sh`를 거치지 않은 경우. 헬퍼로 실행하면 UID/GID가 맞춰집니다 |
 | 다른 ROS 2 노드와 통신 안 됨 | `ROS_DOMAIN_ID`를 상대와 동일하게 (`ROS_DOMAIN_ID=7 ./run_container.sh shell`) |
 
