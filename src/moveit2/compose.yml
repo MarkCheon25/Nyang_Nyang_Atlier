@@ -29,14 +29,16 @@ services:
     tty: true
 
     # ------------------------------------------------------------------------
-    # [GPU] ⚠️ PC마다 다름 — 아래 (A)/(B)/(C) 중 하나를 고른다
-    # ------------------------------------------------------------------------
+    # [GPU] 아래는 (A) AMD / Intel 기본값이다.
     #
-    #  먼저 동료 PC에서 GPU 종류를 확인:
-    #        lspci | grep -Ei 'vga|3d'    # 제조사
-    #        ls -l /dev/dri/              # 렌더 디바이스
+    #  ❗ 이 파일을 고치지 않는다 — 동료 PC에서 깨진다.
+    #     PC마다 다른 설정은 같은 폴더에 compose.override.yml 을 만들어 얹는다.
+    #     (run_container.sh 가 있으면 자동으로 함께 읽는다. .gitignore 대상)
+    #     NVIDIA·소프트웨어 렌더링 절차는 README.md §2 참조 — 그쪽이 원본이다.
     #
-    #  ── (A) AMD / Intel GPU — 아래가 기본값 ──────────────────────────
+    #     GPU 종류 확인:  lspci | grep -Ei 'vga|3d'   /   ls -l /dev/dri/
+    #
+    #  ── (A) AMD / Intel GPU — 기본값 ─────────────────────────────────
     #     /dev/dri 를 통째로 넘기므로 cardN 번호를 신경 쓸 필요가 없다.
     devices:
       - /dev/dri:/dev/dri
@@ -48,29 +50,6 @@ services:
     group_add:
       - "${VIDEO_GID:-44}"
       - "${RENDER_GID:-992}"
-    #
-    #  ── (B) NVIDIA GPU ───────────────────────────────────────────────
-    #     위 devices 블록을 지우고 아래를 사용.
-    #     선행 조건: 호스트에 nvidia-container-toolkit 설치
-    #        sudo apt install -y nvidia-container-toolkit
-    #        sudo nvidia-ctk runtime configure --runtime=docker
-    #        sudo systemctl restart docker
-    #
-    #     deploy:
-    #       resources:
-    #         reservations:
-    #           devices:
-    #             - driver: nvidia
-    #               count: all
-    #               capabilities: [gpu]
-    #     # environment 에 아래 두 줄 추가:
-    #     #   - NVIDIA_VISIBLE_DEVICES=all
-    #     #   - NVIDIA_DRIVER_CAPABILITIES=all
-    #
-    #  ── (C) GPU 없이 소프트웨어 렌더링 ────────────────────────────────
-    #     RViz2가 느리지만 동작한다. GPU 문제로 막힐 때 우선 확인용.
-    #     devices 블록을 지우고 environment 에 추가:
-    #     #   - LIBGL_ALWAYS_SOFTWARE=1
     # ------------------------------------------------------------------------
 
     environment:

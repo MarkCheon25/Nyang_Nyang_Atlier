@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # moveit2 개발 컨테이너 헬퍼
-# 사용: ./run_container.sh {build|up|shell|down|logs}
+# 사용: ./run_container.sh {build|up|shell|down|logs|config}
 set -e
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 COMPOSE="docker compose -f ${SCRIPT_DIR}/compose.yml"
+# PC 로컬 GPU 오버라이드(예: NVIDIA PC)가 있으면 함께 얹는다 (커밋 대상 아님)
+[ -f "${SCRIPT_DIR}/compose.override.yml" ] && COMPOSE="${COMPOSE} -f ${SCRIPT_DIR}/compose.override.yml"
 CONTAINER="moveit2_dev"
 
 # 컨테이너 사용자를 호스트와 같은 UID/GID로 만들기 위해 compose 에 넘긴다.
@@ -56,8 +58,13 @@ case "${1:-shell}" in
     logs)
         ${COMPOSE} logs -f
         ;;
+    config)
+        # 병합 결과 확인용 (compose.override.yml 이 제대로 얹혔는지).
+        # 호스트 GID·UID 가 위에서 export 되어 있어 실제 값으로 보인다.
+        ${COMPOSE} config
+        ;;
     *)
-        echo "Usage: $0 {build|up|shell|down|logs}"
+        echo "Usage: $0 {build|up|shell|down|logs|config}"
         exit 1
         ;;
 esac

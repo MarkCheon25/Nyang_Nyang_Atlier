@@ -87,13 +87,63 @@ docker run --rm hello-world   # 동작 확인
 
 ## 2. ⚠️ GPU 설정 확인 (PC마다 다른 유일한 부분)
 
-`compose.yml`의 `[GPU]` 섹션에 **(A)/(B)/(C) 세 경우**가 정리되어 있습니다.
+컨테이너 안의 RViz2가 호스트 GPU로 3D를 렌더링하게 하는 설정입니다. 안 맞으면 RViz2 3D 화면이 검거나 아주 느려집니다.
+
+> **`compose.yml`을 고치지 마세요.** PC마다 다른 값은 같은 폴더에 **`compose.override.yml`**을 만들어 얹습니다.
+> `run_container.sh`가 그 파일이 있으면 자동으로 함께 읽습니다(없으면 아무 일도 안 일어남).
+> 이 파일은 `.gitignore` 대상이라 **커밋되지 않습니다** — 각 PC가 자기 것만 갖습니다.
 
 | GPU | 할 일 |
 |---|---|
-| **AMD / Intel** | **그대로 두면 됩니다.** `/dev/dri`를 통째로 넘기므로 `cardN` 번호를 맞출 필요가 없습니다 |
-| **NVIDIA** | `devices:` 블록을 (B) 블록으로 교체 + `nvidia-container-toolkit` 설치 |
-| **없음 / 문제 발생** | (C) `LIBGL_ALWAYS_SOFTWARE=1` 로 소프트웨어 렌더링 (느리지만 동작 확인 가능) |
+| **AMD / Intel** | **아무것도 안 해도 됩니다.** `compose.yml` 기본값이 `/dev/dri`를 통째로 넘기므로 `cardN` 번호를 맞출 필요가 없습니다 |
+| **NVIDIA** | `nvidia-container-toolkit` 설치 + 아래 오버라이드 파일 생성 |
+| **없음 / 문제 발생** | 오버라이드에 `LIBGL_ALWAYS_SOFTWARE=1`을 넣어 소프트웨어 렌더링 (느리지만 동작 확인 가능) |
+
+<details>
+<summary><b>NVIDIA GPU — 오버라이드 파일 만들기</b></summary>
+
+먼저 호스트에 toolkit을 설치합니다 (1회):
+```bash
+sudo apt install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+```
+
+그다음 `src/moveit2/compose.override.yml`을 만듭니다:
+```yaml
+services:
+  moveit2:
+    environment:
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: all
+              capabilities: [gpu]
+```
+
+병합 결과 확인:
+```bash
+./run_container.sh config      # 또는: docker compose -f compose.yml -f compose.override.yml config
+```
+
+> **알아둘 제약** — 오버라이드는 값을 *더하는* 방식이라 `compose.yml`의 `devices: /dev/dri` 블록을 **지우지는 못합니다.** NVIDIA 드라이버도 보통 `/dev/dri` 노드를 만들기 때문에 대개 문제가 없지만, `/dev/dri`가 아예 없는 PC라면 컨테이너 기동이 실패합니다. 그 경우엔 `compose.yml`을 직접 손봐야 합니다.
+
+</details>
+
+<details>
+<summary><b>소프트웨어 렌더링 (GPU 없음 / 문제 격리용)</b></summary>
+
+```yaml
+services:
+  moveit2:
+    environment:
+      - LIBGL_ALWAYS_SOFTWARE=1
+```
+</details>
 
 ---
 
