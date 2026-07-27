@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>job_manager</name>
+  <version>0.1.0</version>
+  <description>
+    job_core 의 ROS 2 래퍼 — ⑥ 작업 관리가 사는 자리. 경계 인터페이스(토픽/서비스/메시지 타입)는
+    vision↔moveit2 경계와 함께 정할 예정이라 아직 열지 않았고, 현재는 정책 적재와 자기 점검만 한다.
+  </description>
+  <maintainer email="cocoffeechan09@gmail.com">Mark Cheon</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>job_core</depend>
+
+  <!-- 웹(React)이 이 노드에 닿는 경로. 아직 서비스·토픽을 열지 않아 실행 의존만 걸어 둔다. -->
+  <exec_depend>rosbridge_server</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

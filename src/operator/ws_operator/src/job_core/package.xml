@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>job_core</name>
+  <version>0.1.0</version>
+  <description>
+    작업 1건의 생애주기를 소유하는 코어 라이브러리 (BRD F6.2~F6.5 · ⑥ 작업 관리).
+    ROS·웹·DB 어디에도 의존하지 않는다 — ROS 래핑은 job_manager, 저장은 웹 백엔드가 담당한다.
+  </description>
+  <maintainer email="cocoffeechan09@gmail.com">Mark Cheon</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

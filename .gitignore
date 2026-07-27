@@ -16,6 +16,15 @@ src/moveit2/ws_moveit2/src/moveit2_tutorials/
 # PC별로 여기에 compose.override.yml 을 만들어 쓴다 (커밋 대상 아님)
 src/moveit2/compose.override.yml
 
+# ── vision 입출력 데이터 ──
+# 입력 샘플 이미지와 CLI 산출물(SVG·PNG·CSV)은 런타임 자산이라 커밋하지 않는다
+src/vision/data/
+
+# ── operator 런타임 데이터 ──
+# CLI 하네스 산출물(job.json·timeline.*)과, 나중에 웹이 쓸 uploads/·results/·atlier.db.
+# operator 에는 compose.override.yml 훅이 없다 — 창을 띄우지 않아 GPU 설정이 필요 없다
+src/operator/data/
+
 # ── Python ──
 __pycache__/
 *.py[cod]

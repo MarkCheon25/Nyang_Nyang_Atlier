@@ -1,0 +1,67 @@
+# ============================================================================
+#  operator 개발 환경 (ROS 2 Jazzy — ⑥ 작업 관리 + 웹 브릿지) — Docker Compose
+#
+#  ▶ 첫 실행:  ./run_container.sh build    (이미지 빌드, 3~8분)
+#  ▶ 진입:     ./run_container.sh shell
+#  ▶ 상세:     README.md
+#
+#  이미지는 같은 폴더의 Dockerfile 로 각 PC에서 직접 빌드한다.
+#  moveit2·vision 과 별도 이미지다 — 통합은 추후 과제.
+# ============================================================================
+services:
+  operator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_NAME: rosuser
+        # 호스트 사용자와 UID/GID를 맞춰야 ws_operator/·data/ 안에 생기는 파일
+        # 권한이 꼬이지 않는다. run_container.sh 가 현재 사용자 값을 넘겨준다.
+        USER_UID: "${HOST_UID:-1000}"
+        USER_GID: "${HOST_GID:-1000}"
+    image: operator_dev:jazzy
+    container_name: operator_dev
+    hostname: operator
+
+    # ROS 2 DDS 통신 + rosbridge(:9090)를 호스트에 그대로 노출.
+    # 브라우저가 ws://localhost:9090 으로 붙는다.
+    network_mode: host
+    ipc: host
+    stdin_open: true
+    tty: true
+
+    # GPU·X11 설정이 없는 것은 의도된 것이다 — 이 컨테이너는 창을 띄우지 않는다.
+    # 화면은 브라우저가 그리고, 확인 산출물은 data/ 로 떨어진다.
+    # moveit2·vision 의 compose.override.yml 훅도 여기엔 없다.
+
+    environment:
+      # ROS 2 도메인 — moveit2·vision 컨테이너와 통신하려면 값이 같아야 한다
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+
+    volumes:
+      # 작업 워크스페이스. 컨테이너 안에서 만든 결과물이 호스트에 그대로 남는다.
+      - ./ws_operator:/home/rosuser/ws_operator:rw
+      # CLI 하네스 산출물(job.json·timeline.csv·timeline.md)과, 나중에 웹이 쓸
+      # uploads/·results/·atlier.db 가 놓일 자리. 워크스페이스와 분리해 두어야
+      # 빌드 산출물과 섞이지 않고 호스트에서 바로 열어 볼 수 있다.
+      - ./data:/home/rosuser/data:rw
+
+    working_dir: /home/rosuser/ws_operator
+    command: bash
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # [웹] React + Node.js 서비스가 붙을 자리 — 이번 스켈레톤 범위 밖이다.
+  #
+  #   web:
+  #     image: node:22-bookworm
+  #     network_mode: host          # ws://localhost:9090 으로 rosbridge 구독
+  #     volumes:
+  #       - ./backend:/app/backend:rw
+  #       - ./frontend:/app/frontend:rw
+  #       - ./data:/app/data:rw     # uploads/ · results/ · atlier.db
+  #     working_dir: /app
+  #     command: bash
+  #
+  # ROS 이미지와 분리하는 이유는 Dockerfile 머리말 참조 — 두 스택의 빌드 캐시가
+  # 서로를 무효화하는 것을 피한다. backend/README.md · frontend/README.md 참조.
+  # ──────────────────────────────────────────────────────────────────────────

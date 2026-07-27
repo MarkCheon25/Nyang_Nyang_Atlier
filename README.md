@@ -95,8 +95,12 @@ Nyang_Nyang_Atlier/
     │   ├── docs/                      환경 세팅·실행 가이드
     │   └── ws_moveit2/                컨테이너가 연결하는 워크스페이스
     ├── vision/                    (예정) 이미지 처리
-    ├── simulation/                (예정) 검증 환경
-    └── operator/                  (예정) 웹 운영 레이어 · DB
+    ├── operator/                  운영 계층 환경(Docker) + ROS 2 워크스페이스
+    │   ├── Dockerfile  compose.yml  run_container.sh
+    │   ├── ws_operator/               job_core(ROS 무관 lib) · job_manager
+    │   ├── backend/                   (예정) Node.js — 업로드 · SQLite 이력
+    │   └── frontend/                  (예정) React + roslibjs
+    └── simulation/                (예정) 검증 환경
 ```
 
 > `hanwha_robot_arm/`은 외부에서 가져와 포팅한 자산이라 자체 코드와 섞지 않고 최상위에 둡니다.
@@ -142,11 +146,11 @@ MoveIt2 개발 환경은 컨테이너로 제공됩니다. 이미지는 각 PC에
 | **Computer Vision** | OpenCV 4.6 (+contrib `ximgproc`) — 이진화·윤곽·스트로크 변환 / ORB+Homography·SSIM — 작화 검증 / ChArUco — hand-eye 캘리브레이션 |
 | **AI / Voice** | CLIP (HuggingFace `transformers`, zero-shot) — 결과물 품질 판정 · **Voice 미정** |
 | **Sensor** | Intel RealSense — **모델·드라이버 버전 미정** |
-| **Communication** | **ROS 2 Jazzy** (`rmw-cyclonedds` 권장) · `rosbridge_suite` (websocket :9090) · React + `roslibjs` · FastAPI (REST) + `rclpy` 노드 |
-| **Database** | SQLite + SQLAlchemy ORM — 이미지는 파일시스템, DB엔 경로·메타 |
+| **Communication** | **ROS 2 Jazzy** (`rmw-cyclonedds` 권장) · `rosbridge_suite` (websocket :9090) · React + `roslibjs` · **Node.js** (업로드 · 이력 REST) |
+| **Database** | SQLite — 이미지는 파일시스템, DB엔 경로·메타 (ORM 은 Node 스택에서 선정) |
 | **Tool** | **Git** · Docker + Compose v2 · colcon (`ament_cmake`) · draw.io |
 | **OS** | Ubuntu 24.04 LTS (커널 6.8) |
-| **Programming** | **C++17** (제품 코드 전 구간) · Python (검증·프로토타입 도구) |
+| **Programming** | **C++17** (로봇 파이프라인 · ⑥ 작업 관리) · JavaScript (운영 웹) · Python (AC3 채점기) |
 
 **함정 메모** — 설계 검증에서 확인된 제약입니다.
 - `realsense-ros`는 **DKMS 금지**, ROS apt로 설치
