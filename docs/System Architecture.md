@@ -198,6 +198,7 @@ flowchart LR
 | ② 스트로크 계획 | 자체 C++ (mm 스케일링) | — | 순서 최적화는 ③으로 이관 (§3.1)
 | ③ 로봇 제어 | **MoveIt2** (Jazzy) + ros2_control + **자체 C++ (순서 최적화)** | ✅ 정식 | URDF + SRDF (Setup Assistant)
 | ④ 드로잉 실행 | ros2_control `joint_trajectory_controller` | ✅ |
+| 🧪 검증 환경 (MuJoCo) | **`mujoco_ros2_control`** 0.0.3 (apt) + `mujoco-vendor` 3.4.0 | 확정 | **D5 해소 (2026-07-28)** — 소스 빌드 불필요. 하드웨어 플러그인 `mujoco_ros2_control/MujocoSystemInterface` 가 mock 자리를 대체하므로 N6·F7.3 이 그대로 성립. 모듈 = `src/simulation` |
 | ⑤ 드로잉 모니터링 | OpenCV (ORB+Homography 정합 / SSIM·absdiff 차이) | ✅ | ArUco 기준마커 권장. **중간 1회 + 완성작** (F8)
 | ⑥ 작업 관리 `상시` | 자체 C++ (진행 상태 소유) | — |
 | 카메라 | RealSense (`realsense-ros` / librealsense) | ✅ 정식 | **모델 미정** — 1순위 D455 / 대안 폰, F5에서 확정(BRD §4). **DKMS 금지** — ROS apt 설치. 검증 버전 4.56 / 2.56은 D455 기준

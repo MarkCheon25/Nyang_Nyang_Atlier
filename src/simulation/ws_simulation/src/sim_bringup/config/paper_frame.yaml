@@ -1,0 +1,26 @@
+# 종이 배치 — MuJoCo 월드 좌표를 종이 평면 좌표(mm)로 옮기는 데 쓰인다.
+#
+# ⚠️ **mjcf/scene.xml 의 `<body name="paper">` 배치와 반드시 일치해야 한다.**
+# 어긋나면 그려진 선이 엉뚱한 자리에 찍히고, 그 사실을 알아채기 어렵다.
+#
+# 값의 의미는 sim_core/include/atlier/sim/contact_trace.hpp 의 `PaperFrame` 이 원본.
+#
+# 계산 근거 (scene.xml 기준):
+#   종이 중심 (0.55, 0), 크기 210 × 297 mm → half (0.105, 0.1485)
+#   종이 좌표 원점 = 좌상단 = (0.55 - 0.105, 0 + 0.1485) = (0.445, 0.1485)
+#   종이 +y_mm 는 아래로 증가 → 월드 -y 방향 (vision 과 같은 규약)
+/**:
+  ros__parameters:
+    paper_frame:
+      origin_x_m: 0.445
+      origin_y_m: 0.1485
+      surface_z_m: 0.001
+      yaw_rad: 0.0
+
+    # 접촉 판정 임계값 — 이보다 세게 눌려야 "선이 그어졌다"고 본다.
+    # 너무 낮으면 스치기만 해도 선으로 기록되고, 너무 높으면 옅은 선을 놓친다.
+    # ⚠️ 실물 연필·종이로 맞춰야 하는 값이다 (R2).
+    contact_force_threshold_n: 0.05
+
+    # 궤적 기록 주기. MuJoCo timestep(2 ms)보다 성기게 잡아도 선 모양은 유지된다.
+    trace_sample_hz: 100.0

@@ -15,6 +15,12 @@ src/moveit2/ws_moveit2/src/moveit2_tutorials/
 # compose.yml 기본값은 AMD/Intel(A). NVIDIA PC 등 다른 GPU 설정은
 # PC별로 여기에 compose.override.yml 을 만들어 쓴다 (커밋 대상 아님)
 src/moveit2/compose.override.yml
+src/simulation/compose.override.yml
+
+# ── simulation 런타임 데이터 ──
+# 접촉 궤적 CSV·SVG 산출물과 URDF→MJCF 변환 결과(assets/ 의 OBJ 포함).
+# 변환은 스크립트로 언제든 재생성되므로 커밋하지 않는다
+src/simulation/data/
 
 # ── Python ──
 __pycache__/

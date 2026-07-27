@@ -95,7 +95,9 @@ Nyang_Nyang_Atlier/
     │   ├── docs/                      환경 세팅·실행 가이드
     │   └── ws_moveit2/                컨테이너가 연결하는 워크스페이스
     ├── vision/                    (예정) 이미지 처리
-    ├── simulation/                (예정) 검증 환경
+    ├── simulation/                MuJoCo 접촉 검증 환경(Docker) + ROS 2 워크스페이스
+    │   ├── Dockerfile  compose.yml  run_container.sh
+    │   └── ws_simulation/             sim_core(ROS 무관 lib) · sim_bringup(URDF·MJCF·launch)
     └── operator/                  (예정) 웹 운영 레이어 · DB
 ```
 
