@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>vision_node</name>
+  <version>0.1.0</version>
+  <description>
+    vision_core 의 ROS 2 래퍼. 경계 인터페이스(토픽/서비스/메시지 타입)는 미정이며,
+    현재는 ROS 파라미터로 받은 이미지 경로를 코어에 넘겨 결과를 로그로 남긴다.
+  </description>
+  <maintainer email="cocoffeechan09@gmail.com">Mark Cheon</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>vision_core</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
