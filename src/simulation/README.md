@@ -142,13 +142,24 @@ ros2 run sim_core trace_cli --trace ~/data/trace.csv --plan ~/data/map.csv --out
 | `trace.csv` | `t_s,x_mm,y_mm,force_n,in_contact` |
 | `summary.txt` | 조각 수·길이·필압·접촉 비율 + 계획 대비 |
 
-### 시뮬 기동 (미완)
+### 시뮬 기동
+
+**MJCF 변환을 먼저 해야 한다** (launch 는 변환하지 않는다):
 
 ```bash
-ros2 launch sim_bringup mujoco_sim.launch.py
+S=$(ros2 pkg prefix sim_bringup --share)
+xacro $S/urdf/hcr_robot_pen.xacro > /tmp/hcr_pen.urdf
+/opt/ros/jazzy/share/mujoco_ros2_control/scripts/robot_description_to_mjcf.sh \
+  -u /tmp/hcr_pen.urdf -m $S/mjcf/mujoco_inputs.xml --scene $S/mjcf/scene.xml \
+  -o ~/data/mjcf -s -c --no-fuse
+
+ros2 launch sim_bringup mujoco_sim.launch.py            # headless:=true 로 창 없이
 ```
 
-아래 "구현 상태" 참조 — 아직 실동작을 확인하지 않았다.
+> ⚠️ **`--no-fuse` 와 `-m` 은 선택이 아니다.** 없으면 각각 펜이 병합돼 사라지고
+> actuator 가 0 개로 나온다 (아래 "함정 3건" 참조).
+
+컨트롤러 스폰·궤적 실행은 아직 확인하지 않았다 — "구현 상태" 참조.
 
 ---
 
@@ -159,41 +170,72 @@ ros2 launch sim_bringup mujoco_sim.launch.py
 | 접촉 궤적 타입·통계 (`sim_core`) | ✅ 구현됨 |
 | 확인 하네스 (`trace_cli` · SVG·CSV·요약) | ✅ 구현됨 — 시나리오 3종 관통 |
 | vision 계획 지도 읽기 (`map.csv`) | ✅ 구현됨 |
-| 펜 래퍼 URDF (`hcr_robot_pen.xacro`) | ✅ 파싱 통과 — 링크 10, MuJoCo 플러그인 단독 |
-| **URDF → MJCF 변환** | ✅ **통과** — MuJoCo 가 로드함 (body 7 · joint 6 · geom 8) |
-| MJCF 씬 (책상·종이·지그) | 🟨 작성됨, 변환 결과와 합쳐 로드하는 것은 미확인 |
+| 펜 래퍼 URDF (`hcr_robot_pen.xacro`) | ✅ 파싱 통과 — ros2_control 블록 1개(MuJoCo 단독) |
+| **URDF → MJCF 변환** | ✅ **통과** |
+| **MJCF 씬 (책상·종이·지그)** | ✅ **로드 통과** — body 12 · joint 6 · geom 22 · **actuator 6** · **sensor 1** |
+| **물리 실행** | ✅ **안정** — 초기 자세 2초 유지, 관절 오차 0.003 rad |
+| **필압 측정 경로** | ✅ **열림** — 종이 `touch` 센서가 접촉을 잡는다 (아래 참조) |
+| 필압 → ros2_control 인터페이스 노출 | ⬜ 미확인 — 센서가 MJCF 에 있는 것과 ROS 에서 읽는 것은 별개 |
 | 컨트롤러 스폰 · 궤적 실행 | ⬜ 미확인 |
-| **필압 측정 경로** | ⬜ **미정 — 아래 미결** |
 | 궤적 기록 노드 (MuJoCo → trace.csv) | ⬜ 미착수 |
 
 **검증된 것 (2026-07-28)**
 - `ros-jazzy-mujoco-ros2-control` 0.0.3 · `mujoco-vendor` 3.4.0 apt 설치 확인
 - HCR-5 URDF **8개 링크 전부 inertial 보유** — MuJoCo 변환의 주요 장애물 없음
-- 펜 래퍼 xacro 파싱: 링크 10개(world·base·link1~6·pen_link·pen_tip), ros2_control 플러그인 **MuJoCo 단독**
-- STL → OBJ 변환 + MJCF 생성 후 `mujoco.MjModel.from_xml_path` 로드 성공
+- 펜 래퍼 xacro: ros2_control 블록 **1개**(MuJoCo 단독) · world 고정 · `mujoco_model` param 주입
+- **원본 인자화 후에도 MoveIt2 경로 무영향** — 인자 없이 파싱하면 여전히 `mock_components/GenericSystem`
+- **씬 로드 통과** — body 12(world·base·link1~6·pen_link·pen_tip·paper·jig) · joint 6 ·
+  geom 22 · **actuator 6** · **sensor 1**(pen_pressure)
+- **물리 안정** — 초기 자세(joint_3=1.5669 등)로 2초 시뮬, 관절 오차 최대 0.003 rad
+- **접촉·필압 감지** — 종이 `touch` 센서가 접촉을 잡음 (값의 해석은 위 R2 항목)
 - 하네스 3시나리오: `ideal` 조각 3/계획 3 · `weak-force` **조각 10 → 끊김 7회 검출** · `drift` 바운딩박스 이동 확인
 
-**변환에서 잡힌 함정 3건 (다음 세션의 출발점)**
+**아직 확인 못 한 것** — 초기 자세에서 펜 끝이 `(-0.18, -0.42, 0.27)` 로 종이(0.55, 0)
+반대편을 향한다. **작화 자세를 푸는 것은 MoveIt2(F4.2)의 일**이라 여기서는 종이를
+런타임에 펜 아래로 옮겨 센서만 검증했다. 실제 접촉 시퀀스는 궤적 계획이 붙어야 한다.
 
-1. **원본 `hcr_robot.xacro` 는 mock 을 무조건 호출한다** (8행 `<xacro:hcr_robot_ros2_control/>`).
-   include 하면 mock 과 MuJoCo 하드웨어가 한 URDF 에 공존한다 → **플랫
-   `hcr_robot_urdf.urdf` 를 대신 include**해 우회했다. 근본 해결은 원본이 플러그인을
-   인자로 받게 하는 것 (업무목록).
-2. **`--fuse` 기본값이 펜을 `link6_1` 에 병합한다** — 변환 결과에 `pen_link` body 가 없다
-   (body 7 = base + link1~6). 펜 끝에 센서를 붙이려면 `--no-fuse` 를 검토해야 한다.
-3. **actuator 가 0 개로 나온다.** ros2_control 이 조인트를 제어하려면 MJCF actuator 가
-   있어야 하므로, 변환기의 `-m/--mujoco_inputs` 로 actuator 정의를 넘겨야 한다.
-   `-` `--scene` 옵션도 있어 **씬과 defaults/sensor 를 분리해 넘기는 구조**다 —
-   지금 `mjcf/scene.xml` 한 장에 든 내용을 그 둘로 쪼개는 것이 다음 작업이다.
+**변환에서 잡힌 함정 3건 — 전부 해결됨 (2026-07-28)**
+
+1. **원본 `hcr_robot.xacro` 가 mock 을 무조건 호출하던 것** → **원본을 인자화**했다.
+   `ros2_control:=false` 로 블록 생성을 끄고, `hardware_plugin:=<이름>` 으로 교체한다.
+   **기본값이 종전과 같아 MoveIt2 쪽은 달라지지 않는다** (인자 없이 파싱하면 여전히
+   `mock_components/GenericSystem` — 실측 확인). 이것이 SA 가 말한 하드웨어 추상화
+   경계의 실제 구현 지점이다.
+2. **`--fuse` 가 펜을 병합하던 것** → **`--no-fuse`** 로 해결. 변환 결과에
+   `pen_link`·`pen_tip` body 가 살아 있다 (body 10 → 씬 포함 12).
+3. **actuator 0 개** → **`mjcf/mujoco_inputs.xml` 을 `-m` 으로 넘겨** 해결. actuator 6 개
+   생성 확인. 같은 파일의 `default class="visual"/"collision"` 이 빠져 있던 것이
+   직전 세션의 `unknown default class 'visual'` 로드 실패 원인이었다.
+
+**필압 측정 — 종이 쪽에서 잰다 (2026-07-28)**
+
+펜이 아니라 **종이에 `<site>` 를 두고 `touch` 센서**를 걸었다. 변환된 로봇 MJCF 를
+후처리해 site 를 심을 필요가 없어져 재현이 쉽다. 검증에서 접촉을 정확히 잡았다.
+
+> ⚠️ **그런데 그 값이 R2 를 그대로 보여준다.**
+> 펜 끝을 종이에 **4 mm** 밀어 넣었더니 필압이 **408 N** 으로 올라갔다. 실제 연필
+> 필압은 1~5 N 대이므로 **1 mm 오차가 약 100 N** 이라는 뜻이다 — 연필심은 즉시
+> 부러지고 종이는 찢어진다.
+>
+> 원인은 설계 그대로다. **위치 제어 액추에이터는 목표 자세를 향해 힘을 무한정
+> 올리고, 펜은 테이프로 고정돼 z 방향 완충이 없다**(BRD §2.3). 종이 높이 측정
+> 오차가 곧바로 필압 오차로 나타난다는 R2 의 서술이 숫자로 확인된 것이다.
+>
+> 이 값 자체는 `kp`·`solref`·`solimp` 튜닝 전이라 절대값을 믿을 것은 아니다.
+> 다만 **방향은 분명하다 — 위치 제어 + 강체 펜은 필압이 폭주한다.** R2 의 2차
+> 완화책(스프링 내장 펜홀더)이 왜 준비된 경로여야 하는지를 시뮬이 뒷받침한다.
 
 ## 미결
 
-- **필압 측정 경로** — R2 검증의 핵심인데 아직 열리지 않았다. 후보 셋: ① 변환된 MJCF
-  후처리로 `pen_tip` 에 site + `<force>` 센서 ② ros2_control `effort` state_interface 로
-  관절 반력 역산(래퍼에 인터페이스는 이미 열어 둠) ③ `mujoco_ros2_control_plugins` 로
-  접촉 정보를 토픽으로. 씬이 실제로 뜬 다음 정할 일
-- **접촉 파라미터 튜닝** — `mjcf/scene.xml` 의 `solref`/`solimp`/`friction` 은 출발점일
-  뿐 실물 필압과 맞춘 값이 아니다
+- **필압을 ros2_control 로 읽는 경로** — MJCF 에 센서가 있는 것과 ROS 쪽에서 값을
+  받는 것은 별개다. `mujoco_ros2_control` 의 센서 매핑을 쓸지, 플러그인으로 토픽을
+  낼지 미정. 래퍼에 `effort` state_interface 는 미리 열어 두었다
+- **접촉·강성 파라미터 튜닝 — 우선순위 높음** — `solref`/`solimp`/`friction` 과
+  `mujoco_inputs.xml` 의 `kp`·`dampratio` 가 전부 출발점 값이다. **4 mm 침투에 408 N**
+  이 나오는 현재 설정으로는 필압 실험 자체가 성립하지 않는다. 실물 연필 필압
+  1~5 N 대를 재현하는 것이 다음 목표
+- **작화 자세 · 종이 배치** — 초기 자세에서 펜이 종이 반대편을 향한다. 종이 위치를
+  로봇 작업 범위에 맞출지, MoveIt2 가 자세를 풀게 할지 (F4.1·F4.2 와 함께 정할 일)
 - **펜 치수·장착 위치** — `hcr_robot_pen.xacro` 의 값은 실측 전 임시값
 - **`paper_frame.yaml` ↔ `scene.xml` 일치** — 두 곳에 같은 배치가 적혀 있다. 어긋나면
   선이 엉뚱한 자리에 찍히는데 알아채기 어렵다. 한쪽에서 생성하는 방법을 검토할 것

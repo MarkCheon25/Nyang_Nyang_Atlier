@@ -53,6 +53,16 @@
     <body name="paper" pos="0.55 0 0.0005">
       <geom name="paper_surface" class="paper" type="box" size="0.105 0.1485 0.0005"
             material="paper_white"/>
+      <!--
+        **필압 측정 지점.** 펜이 아니라 **종이 쪽에서 잰다** — 이러면 변환된 로봇
+        MJCF 를 후처리해 site 를 심을 필요가 없다. site 를 우리가 쓰는 씬 파일에
+        두는 것이 훨씬 재현하기 쉽다.
+
+        `touch` 센서는 site 영역 안에서 일어난 접촉의 **법선력 합**을 준다 —
+        그것이 곧 펜이 종이를 누르는 힘(R2 의 측정값)이다.
+      -->
+      <site name="paper_site" type="box" size="0.105 0.1485 0.001" pos="0 0 0.0005"
+            rgba="0 0 0 0"/>
     </body>
 
     <!--
@@ -68,20 +78,14 @@
     </body>
   </worldbody>
 
-  <!--
-    TODO — 필압 측정 경로.
-
-    R2 검증에 필요한 것은 "펜 끝이 종이를 누르는 힘"이다. MuJoCo 의 force/touch
-    센서는 site 를 필요로 하는데, URDF 변환 결과에는 site 가 생기지 않는다.
-    가능한 경로가 셋이고 아직 어느 것도 확인하지 않았다:
-
-      ① 변환된 MJCF 를 후처리해 pen_tip body 에 site 를 넣고 <force> 센서를 건다
-      ② ros2_control 의 effort state_interface 로 관절 반력을 읽어 역산한다
-         (hcr_robot_pen.xacro 에 effort 인터페이스를 이미 열어 두었다)
-      ③ mujoco_ros2_control_plugins 의 플러그인으로 접촉 정보를 토픽으로 뽑는다
-
-    ①이 가장 직접적이지만 변환 결과에 손대야 하므로 재현이 번거롭다.
-    실제로 씬이 뜬 다음에 정할 일이라 지금은 열어 둔다 — README 미결 참조.
-  -->
+  <sensor>
+    <!--
+      필압 (BRD R2). 종이 site 안에서 일어난 접촉의 법선력 합.
+      ⚠️ 이 값을 **ros2_control state_interface 로 읽는 경로**는 아직 확정하지
+      않았다 — 센서가 MJCF 에 있다는 것과 그것을 ROS 쪽에서 받는 것은 별개다.
+      후보는 mujoco_ros2_control 의 센서 매핑 또는 플러그인. README 미결 참조.
+    -->
+    <touch name="pen_pressure" site="paper_site"/>
+  </sensor>
 
 </mujoco>

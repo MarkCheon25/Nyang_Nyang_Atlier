@@ -24,16 +24,24 @@ from launch_ros.substitutions import FindPackageShare
 def generate_launch_description():
     bringup_share = get_package_share_directory('sim_bringup')
 
-    gui_arg = DeclareLaunchArgument(
-        'gui', default_value='true',
-        description='MuJoCo 뷰어를 띄운다. headless 로 돌리려면 false '
+    headless_arg = DeclareLaunchArgument(
+        'headless', default_value='false',
+        description='true 면 MuJoCo Simulate 창을 띄우지 않는다 '
                     '(확인 경로가 SVG 파일이라 GUI 없이도 결과는 나온다)')
+    scene_arg = DeclareLaunchArgument(
+        'mujoco_scene', default_value='/home/rosuser/data/mjcf/scene.xml',
+        description='MuJoCo 씬 경로. **변환 산출물이라 git 제외 영역에 있다** — '
+                    'robot_description_to_mjcf.sh 의 -o 와 맞춰야 한다')
 
     # 1. xacro → robot_description
     #    원본 hcr_robot.xacro 를 감싸 펜을 붙이고 하드웨어 플러그인만 갈아끼운다.
+    #    ⚠️ 씬 경로와 headless 는 **hardware 의 <param> 으로** 들어간다 —
+    #    controller_manager 노드 파라미터가 아니다 (mujoco_ros2_control 규약).
     robot_description_content = Command([
         FindExecutable(name='xacro'), ' ',
         PathJoinSubstitution([FindPackageShare('sim_bringup'), 'urdf', 'hcr_robot_pen.xacro']),
+        ' mujoco_scene:=', LaunchConfiguration('mujoco_scene'),
+        ' headless:=', LaunchConfiguration('headless'),
     ])
     robot_description = {'robot_description': robot_description_content}
 
@@ -46,11 +54,17 @@ def generate_launch_description():
 
     # 2~3. MuJoCo + controller_manager
     #
-    # ⚠️ TODO — mujoco_ros2_control 이 씬을 받는 파라미터 이름과 MJCF 변환 시점을
-    # 아직 확정하지 않았다. 변환 스크립트(robot_description_to_mjcf.sh)는
-    # robot_description 을 읽어 MJCF 를 만들고, 기본 scene.xml 은 그 결과를
-    # include 하는 규약이다. 여기 mjcf/scene.xml 이 같은 규약을 따르고 있으므로
-    # 남은 것은 "언제 변환을 돌리고 어느 경로를 넘기는가" 하나다.
+    # ⚠️ **MJCF 변환은 미리 해 두어야 한다** (이 launch 는 변환하지 않는다):
+    #
+    #   xacro $(ros2 pkg prefix sim_bringup --share)/urdf/hcr_robot_pen.xacro > /tmp/hcr_pen.urdf
+    #   /opt/ros/jazzy/share/mujoco_ros2_control/scripts/robot_description_to_mjcf.sh \
+    #     -u /tmp/hcr_pen.urdf \
+    #     -m $(ros2 pkg prefix sim_bringup --share)/mjcf/mujoco_inputs.xml \
+    #     --scene $(ros2 pkg prefix sim_bringup --share)/mjcf/scene.xml \
+    #     -o ~/data/mjcf -s -c --no-fuse
+    #
+    # `--no-fuse` 가 없으면 펜이 link6_1 에 병합돼 사라지고, `-m` 이 없으면
+    # actuator 가 0 개로 나와 아무것도 제어되지 않는다 (둘 다 실측). README 참조.
     controller_manager = Node(
         package='controller_manager',
         executable='ros2_control_node',
@@ -58,10 +72,6 @@ def generate_launch_description():
         parameters=[
             robot_description,
             os.path.join(bringup_share, 'config', 'controllers.yaml'),
-            {
-                'mujoco_model_path': os.path.join(bringup_share, 'mjcf', 'scene.xml'),
-                'mujoco_viewer': LaunchConfiguration('gui'),
-            },
         ],
     )
 
@@ -76,7 +86,8 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        gui_arg,
+        headless_arg,
+        scene_arg,
         robot_state_publisher,
         controller_manager,
         RegisterEventHandler(
