@@ -1,0 +1,56 @@
+<mujoco_inputs>
+  <!--
+    URDF → MJCF 변환기(`robot_description_to_mjcf.sh -m`)에 넘기는 추가 정의.
+
+    **왜 필요한가** — URDF 만 변환하면 MJCF 에 actuator 가 하나도 안 생긴다
+    (변환 결과 nu=0 을 실측). ros2_control 은 조인트를 MJCF actuator 에 매핑하므로
+    actuator 가 없으면 아무것도 제어되지 않는다. 여기가 그 정의 자리다.
+
+    `default class="visual"/"collision"` 도 여기 있어야 한다 — 변환기가 geom 에
+    그 클래스를 붙이기 때문이며, 없으면 생성된 MJCF 가
+    "unknown default class 'visual'" 로 로드에 실패한다 (실측).
+  -->
+  <raw_inputs>
+    <!-- MuJoCo timestep. controllers.yaml 의 update_rate(500Hz)와 맞춘다 -->
+    <option integrator="implicitfast" timestep="0.002"/>
+
+    <default>
+      <default class="visual">
+        <geom group="2" type="mesh" contype="0" conaffinity="0"/>
+      </default>
+      <default class="collision">
+        <geom group="3" type="mesh"/>
+      </default>
+    </default>
+
+    <!--
+      관절 액추에이터 — ros2_control 의 position command_interface 가 여기 붙는다.
+      `ctrlrange` 는 URDF 의 joint limit 과 같게 두었다.
+
+      ⚠️ `kp`·`dampratio` 는 출발점일 뿐 튜닝 전 값이다. HCR-5 는 링크가 무겁고
+      (link2 만 32kg) 펜 끝 정밀도가 필요하므로 실제로 궤적을 돌려 보며 조정해야
+      한다. 값이 낮으면 중력에 처져 종이에 닿지 않고, 높으면 접촉 순간 튄다.
+    -->
+    <actuator>
+      <position name="joint_1" joint="joint_1" kp="25000" dampratio="1.0" ctrlrange="0 6.283185"/>
+      <position name="joint_2" joint="joint_2" kp="25000" dampratio="1.0" ctrlrange="-1.570796 1.570796"/>
+      <position name="joint_3" joint="joint_3" kp="25000" dampratio="1.0" ctrlrange="-2.268928 2.268928"/>
+      <position name="joint_4" joint="joint_4" kp="10000" dampratio="1.0" ctrlrange="-2.96706 2.96706"/>
+      <position name="joint_5" joint="joint_5" kp="10000" dampratio="1.0" ctrlrange="-2.094395 2.094395"/>
+      <position name="joint_6" joint="joint_6" kp="5000"  dampratio="1.0" ctrlrange="0 6.283185"/>
+    </actuator>
+  </raw_inputs>
+
+  <processed_inputs>
+    <!--
+      조인트 감쇠 — 실물 감속기의 마찰을 흉내낸다. 없으면 관절이 너무 자유롭게
+      흔들려 펜 끝이 떨린다. ⚠️ 실측값 아님.
+    -->
+    <modify_element type="joint" name="joint_1" damping="20.0" frictionloss="5.0"/>
+    <modify_element type="joint" name="joint_2" damping="20.0" frictionloss="5.0"/>
+    <modify_element type="joint" name="joint_3" damping="10.0" frictionloss="3.0"/>
+    <modify_element type="joint" name="joint_4" damping="5.0"  frictionloss="1.0"/>
+    <modify_element type="joint" name="joint_5" damping="5.0"  frictionloss="1.0"/>
+    <modify_element type="joint" name="joint_6" damping="2.0"  frictionloss="0.5"/>
+  </processed_inputs>
+</mujoco_inputs>

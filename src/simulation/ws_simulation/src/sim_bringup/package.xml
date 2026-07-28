@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>sim_bringup</name>
+  <version>0.1.0</version>
+  <description>
+    MuJoCo 시뮬레이션 기동 자산 — HCR-5 + 펜 래퍼 URDF, 작업 환경 MJCF 씬(책상·종이·지그),
+    컨트롤러 설정, launch. hanwha_robot_arm 자산을 고치지 않고 감싸는 방식이다.
+  </description>
+  <maintainer email="cocoffeechan09@gmail.com">Mark Cheon</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>joint_trajectory_controller</exec_depend>
+  <exec_depend>mujoco_ros2_control</exec_depend>
+  <!-- 원본 로봇 모델 — 컨테이너 안에서 워크스페이스로 마운트된다 (compose.yml) -->
+  <exec_depend>hcr_robot_description</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

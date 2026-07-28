@@ -102,7 +102,9 @@ Nyang_Nyang_Atlier/
     │   ├── ws_operator/               job_core(ROS 무관 lib) · job_manager
     │   ├── backend/                   (예정) Node.js — 업로드 · SQLite 이력
     │   └── frontend/                  (예정) React + roslibjs
-    └── simulation/                (예정) 검증 환경
+    └── simulation/                MuJoCo 접촉 검증 환경(Docker) + ROS 2 워크스페이스
+        ├── Dockerfile  compose.yml  run_container.sh
+        └── ws_simulation/             sim_core(ROS 무관 lib) · sim_bringup(URDF·MJCF·launch)
 ```
 
 > `hanwha_robot_arm/`은 외부에서 가져와 포팅한 자산이라 자체 코드와 섞지 않고 최상위에 둡니다.

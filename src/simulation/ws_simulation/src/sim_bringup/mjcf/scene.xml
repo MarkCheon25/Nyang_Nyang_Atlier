@@ -1,0 +1,91 @@
+<mujoco model="atlier_workspace">
+  <!--
+    작업 환경 씬 — 로봇 + 철제 책상 + A4 종이 + 지그.
+
+    로봇은 URDF 에서 변환된 MJCF 를 include 한다. 변환은 런타임에
+    `robot_description_to_mjcf.sh` 가 수행하며 결과 파일 이름이 아래와 같다
+    (mujoco_ros2_control 의 기본 scene.xml 과 같은 규약).
+
+    ⚠️ **종이 배치는 config/paper_frame.yaml 과 반드시 일치해야 한다.**
+    여기 pos 를 고치면 저 yaml 도 같이 고칠 것 — 어긋나면 그려진 선이 엉뚱한
+    자리에 찍히고, 그 사실을 알아채기 어렵다.
+  -->
+  <include file="mujoco_description_formatted.xml"/>
+
+  <statistic center="0.45 0 0.3" extent="1.2"/>
+
+  <visual>
+    <headlight diffuse="0.6 0.6 0.6" ambient="0.2 0.2 0.2" specular="0 0 0"/>
+    <rgba haze="0.15 0.25 0.35 1"/>
+    <global azimuth="140" elevation="-25"/>
+  </visual>
+
+  <asset>
+    <texture type="skybox" builtin="gradient" rgb1="0.3 0.5 0.7" rgb2="0 0 0"
+             width="512" height="3072"/>
+    <material name="steel_desk" rgba="0.72 0.73 0.75 1" specular="0.4" shininess="0.5"/>
+    <material name="paper_white" rgba="0.98 0.98 0.96 1" specular="0.05" shininess="0.02"/>
+    <material name="jig_black" rgba="0.15 0.15 0.17 1"/>
+  </asset>
+
+  <default>
+    <!--
+      접촉 파라미터 — R2 가 걸린 자리다.
+      solref/solimp 이 접촉의 단단함을 정한다. 종이는 단단한 상판 위에 놓인
+      얇은 층이므로 거의 강체로 두되, 너무 단단하면 적분이 불안정해진다.
+      ⚠️ 실물 필압과 맞추는 튜닝은 아직 하지 않았다 — 값은 출발점일 뿐이다.
+    -->
+    <default class="paper">
+      <geom solref="0.004 1" solimp="0.95 0.99 0.001" friction="0.6 0.005 0.0001"/>
+    </default>
+  </default>
+
+  <worldbody>
+    <light pos="0.5 0 1.5" dir="0 0 -1" directional="true"/>
+
+    <!-- 철제 책상 상판 — 로봇과 작업대가 같은 판 위에 있다 (BRD §2.3 설치 환경) -->
+    <geom name="desk_top" type="plane" size="1.2 1.2 0.02" pos="0 0 0" material="steel_desk"/>
+
+    <!--
+      A4 종이 (210 × 297 mm). 중심이 (0.55, 0), 표면 높이 1 mm.
+      종이 좌상단 = 종이 좌표계 원점 = 월드 (0.445, 0.1485) — paper_frame.yaml 참조.
+    -->
+    <body name="paper" pos="0.55 0 0.0005">
+      <geom name="paper_surface" class="paper" type="box" size="0.105 0.1485 0.0005"
+            material="paper_white"/>
+      <!--
+        **필압 측정 지점.** 펜이 아니라 **종이 쪽에서 잰다** — 이러면 변환된 로봇
+        MJCF 를 후처리해 site 를 심을 필요가 없다. site 를 우리가 쓰는 씬 파일에
+        두는 것이 훨씬 재현하기 쉽다.
+
+        `touch` 센서는 site 영역 안에서 일어난 접촉의 **법선력 합**을 준다 —
+        그것이 곧 펜이 종이를 누르는 힘(R2 의 측정값)이다.
+      -->
+      <site name="paper_site" type="box" size="0.105 0.1485 0.001" pos="0 0 0.0005"
+            rgba="0 0 0 0"/>
+    </body>
+
+    <!--
+      종이 고정 지그 — **이 틀이 있어 F5.2(종이 위치 인식)를 매 작업이 아니라
+      준비 흐름에서 1회만 하고 결과를 재사용한다** (BRD F5.3 · PF §4.1).
+      시뮬에서는 종이가 밀리지 않게 잡아 주는 역할.
+    -->
+    <body name="jig" pos="0.55 0 0.002">
+      <geom name="jig_left"   type="box" size="0.004 0.1485 0.002" pos="-0.109 0 0" material="jig_black"/>
+      <geom name="jig_right"  type="box" size="0.004 0.1485 0.002" pos=" 0.109 0 0" material="jig_black"/>
+      <geom name="jig_top"    type="box" size="0.113 0.004 0.002" pos="0  0.1525 0" material="jig_black"/>
+      <geom name="jig_bottom" type="box" size="0.113 0.004 0.002" pos="0 -0.1525 0" material="jig_black"/>
+    </body>
+  </worldbody>
+
+  <sensor>
+    <!--
+      필압 (BRD R2). 종이 site 안에서 일어난 접촉의 법선력 합.
+      ⚠️ 이 값을 **ros2_control state_interface 로 읽는 경로**는 아직 확정하지
+      않았다 — 센서가 MJCF 에 있다는 것과 그것을 ROS 쪽에서 받는 것은 별개다.
+      후보는 mujoco_ros2_control 의 센서 매핑 또는 플러그인. README 미결 참조.
+    -->
+    <touch name="pen_pressure" site="paper_site"/>
+  </sensor>
+
+</mujoco>
