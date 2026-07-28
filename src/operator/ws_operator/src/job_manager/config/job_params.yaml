@@ -1,0 +1,29 @@
+# job_manager 파라미터 기본값.
+#
+# 값의 의미와 근거는 job_core/include/atlier/job/policy.hpp 가 원본이다.
+# 여기 있는 것은 그 구조체를 ROS 파라미터로 노출한 사본일 뿐이므로, 의미가
+# 바뀌면 헤더 쪽 주석을 먼저 고칠 것.
+/**:
+  ros__parameters:
+    # ── F8.1 중간 모니터링 ──
+    # MVP(sim First Stroke)에서는 review_enabled·capture_enabled 를 false 로 둔다.
+    # SA 가 ⑤ 모니터링을 `이후`로 두었고 MuJoCo 에는 카메라가 없다 (PF §5.1).
+    review_enabled: true
+    review_at_ratio: 0.5
+    # ⚠️ 문서에 근거가 없는 유일한 신규 값 — 업무목록 "AC1 과 F8.1 양립 해석" ①의 구현
+    review_timeout_s: 60.0
+    review_default_continue: true
+
+    # ── F8.2 완성작 촬영 ──
+    capture_enabled: true
+
+    # ── F4.4 스트로크 실패 ──
+    # Phase 1 은 기록 후 계속, 재시도 없음 (PF §3.2). 상태 머신은 아직 이 값을 쓰지 않는다
+    stroke_retry_count: 0
+
+    # ── 정지 시 펜 처리 (PF §3.4 표) ──
+    pen_up_on_pause: true
+    pen_up_on_estop: false
+
+    # 기동 시 짧은 작업 하나를 관통시켜 코어 링크를 확인한다
+    self_check: true
