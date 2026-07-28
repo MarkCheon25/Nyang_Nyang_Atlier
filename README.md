@@ -165,11 +165,46 @@ MoveIt2 개발 환경은 컨테이너로 제공됩니다. 이미지는 각 PC에
 
 ---
 
-## 6. 실행 순서
+## 6. 모듈 현황과 실행
 
-> 🚧 **추후 업데이트 예정** — 파이프라인 구현이 진행되는 대로 전체 실행 순서를 채웁니다.
+네 모듈이 각자 **전용 컨테이너 + 2층 구조(ROS 무관 코어 + ROS 래퍼)**로 서 있습니다.
+코어가 ROS를 모르므로 각 모듈은 **혼자서도 결과를 눈으로 확인**할 수 있습니다.
 
-현재 실행 가능한 것은 MoveIt2 개발 환경입니다:
+| 모듈 | 담당 | 상태 | 확인 방법 |
+|---|---|---|---|
+| `src/vision` | ① 이미지 처리 · ② 스트로크 계획 (F2) | 스켈레톤 + 하네스 ✅ / 알고리즘 F2.1~F2.3 ⬜ | `stroke_map_cli` → SVG·CSV |
+| `src/moveit2` | ③ 로봇 제어 (F3·F4) | 환경만 ✅ / 구현 ⬜ | RViz2 데모 |
+| `src/operator` | ⑥ 작업 관리 (F6) | 상태 머신 ✅ / 웹 ⬜ | `job_cli` → 타임라인·mermaid |
+| `src/simulation` | 🧪 접촉·필압 검증 (F7.1 · R2) | 씬·물리·센서 ✅ / 궤적 실행 ⬜ | `trace_cli` → 겹친 SVG |
+
+### 모듈 사이는 어디까지 이어졌나
+
+**아직 대부분 미정입니다.** 경계 형식(토픽/서비스/메시지)은 moveit2 F3 착수 시 한꺼번에 정하기로 했고,
+그때까지 각 모듈은 코어를 ROS 무관으로 분리해 결정을 늦추고 있습니다.
+
+| 경계 | 상태 |
+|---|---|
+| **vision → simulation** (계획 지도) | ✅ **동작** — `map.csv` 파일 경유. 코드 의존 없음 |
+| vision → moveit2 (지도) | ⬜ 형식 미정 |
+| moveit2 → operator (진행·완료·실패) | ⬜ 형식 미정 |
+| 웹 → operator (명령) | ⬜ 형식 미정 (rosbridge 경유로 방향만 확정) |
+| operator → vision (F1.2 판정) | ⬜ 형식 미정 |
+
+```bash
+# vision 이 계획 지도를 만들고 → simulation 이 그것을 그려 본다 (현재 유일하게 이어진 경로)
+cd src/vision      && ./run_container.sh shell
+  ros2 run vision_core stroke_map_cli --dummy --out-dir ~/data/out
+cp src/vision/data/out/map.csv src/simulation/data/
+
+cd src/simulation  && ./run_container.sh shell
+  ros2 run sim_core trace_cli --dummy --case weak-force --plan ~/data/map.csv --out-dir ~/data/out
+  # → drawn.svg 에 계획(회색)과 실제(색)가 겹쳐 그려지고, 선 끊김이 조각 수로 드러난다
+```
+
+각 모듈의 세팅·확인 절차는 해당 README를 보세요 —
+[`vision`](src/vision/README.md) · [`operator`](src/operator/README.md) · [`simulation`](src/simulation/README.md)
+
+### MoveIt2 환경
 
 ```bash
 cd src/moveit2
