@@ -241,6 +241,6 @@ flowchart LR
 - **카메라 4가지 역할** — ① hand-eye 캘리브레이션(F5.1) ② 종이 위치·자세 인식(F5.2) ③ 중간 진행 모니터링(F8.1) ④ 완성작 촬영(F8.2). 뎁스 유무(RealSense vs 폰)가 종이 높이(z)·추적 정밀도에 영향
 - **eye-in-hand 채택의 파급** — 카메라가 펜과 같은 플랜지에 있어 (a) 촬영마다 자세 이동이 필요(F8.3)하고 (b) 촬영 이미지를 로봇 자세와 짝지어야 하며 (c) 로봇 자세 오차가 캘리브레이션 오차로 전파된다(BRD R5). **본 흐름에서 카메라가 무동작이라는 기존 전제는 폐기**됐다 (`Process Flow.md` §4.1)
 - ~~**⑤ 드로잉 모니터링은 BRD 넘어선 신규 요구**~~ → **해소됨** — BRD **F8**로 정식화 (중간 1회·완성작 촬영·촬영 자세 이동). Phase 1 재시도 정책은 F4.4대로 "기록 후 계속, 재시도 없음" 유지
-- **HCR-5 실기 ros2_control 드라이버** — 여전히 미확인(R1). 단 위 mock 경로로 개발은 선행 가능
+- **HCR-5 실기 ros2_control 드라이버** — **비공식 구현 확보 (2026-07-28)**. 한화 **공식** 드라이버는 없고(`hanwharobot/ros` 는 2019년에 만들어진 **빈 리포**다), 공식 매뉴얼 목차에도 외부 실시간 제어 챕터가 없다. 그러나 **커뮤니티 드라이버 [`micmzr/MecHaRo-Lab_HCR3a`](https://github.com/micmzr/MecHaRo-Lab_HCR3a)** (Apache 2.0 · ROS 2 Jazzy · 2026 현행)가 **`hardware_interface::SystemInterface` 를 구현**해 실물 제어까지 되어 있다 — 통로는 매뉴얼 밖의 **Rodi-X 플러그인**(`ROS2.asar`)이 여는 **TCP 6667**, 명령은 `MOV j1..j6`(도, `%7.2f`)·`GET_JOINTS`. → **(A) 경로 성립**: `hardware_plugin:=hcr_control/RobotSystem` 으로 플러그인만 교체하면 `joint_trajectory_controller`·MoveIt2·이 경계가 전부 그대로 산다. **미검증 위험**: ① HCR-3A 용이라 구형 HCR-5 Rodi 호환 여부 ② 분해능 0.01°(≈0.16mm @915mm)가 선 품질 병목일 수 있음 ③ `read()` 블로킹의 100Hz 여유. 상세·실측·확인 순서는 **`hanwha_robot_arm/docs/실기_연결_현황.md`**
 - **MVP 우선 · 과분해 안 함** — 기능 블록 단위로 충분. 코어(①②③④ + ⑥ 긴급정지 최소)로 **sim First Stroke** 달성 후 ⓪⑤·⑥ 일시정지·검증 다단계를 얹는다
 - **drawio 변환** — mermaid 텍스트 그대로 옮김. PC 여유 시
