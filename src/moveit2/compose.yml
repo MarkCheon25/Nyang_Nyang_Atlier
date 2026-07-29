@@ -1,0 +1,69 @@
+# ============================================================================
+#  MoveIt2 개발 환경 (ROS 2 Jazzy) — Docker Compose
+#
+#  ▶ 첫 실행:  ./run_container.sh build    (이미지 빌드, 20~40분)
+#  ▶ 진입:     ./run_container.sh shell
+#  ▶ 상세:     docs/README_동료용.md
+#
+#  이미지는 같은 폴더의 Dockerfile 로 각 PC에서 직접 빌드한다.
+#  ⚠️ 동료 PC 세팅 시 확인할 곳: 아래 [GPU] 섹션 — 나머지는 대개 그대로 동작한다.
+# ============================================================================
+services:
+  moveit2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_NAME: rosuser
+        # 호스트 사용자와 UID/GID를 맞춰야 ws_moveit2/ 안에 생기는 파일 권한이
+        # 꼬이지 않는다. run_container.sh 가 현재 사용자 값을 넘겨준다.
+        USER_UID: "${HOST_UID:-1000}"
+        USER_GID: "${HOST_GID:-1000}"
+    image: moveit2_dev:jazzy
+    container_name: moveit2_dev
+    hostname: moveit2
+
+    network_mode: host      # ROS 2 DDS 통신
+    ipc: host               # RViz2 shared memory
+    stdin_open: true
+    tty: true
+
+    # ------------------------------------------------------------------------
+    # [GPU] 이 파일에 GPU 설정은 없다 — 의도된 것이다.
+    #
+    #  GPU는 PC마다 갈리는 유일한 부분이다. 공용 파일에 특정 벤더 기본값을 두면
+    #  다른 벤더 PC에서 깨지고, 각자 이 파일을 고치게 되어 pull 마다 충돌한다.
+    #  그래서 GPU 설정은 각 PC가 같은 폴더에 compose.override.yml 로 제공한다.
+    #
+    #    · run_container.sh 가 그 파일이 있으면 자동으로 함께 읽는다 (없으면 무동작)
+    #    · .gitignore 대상이라 커밋되지 않는다 — PC 로컬 자산
+    #    · AMD/Intel · NVIDIA · 소프트웨어 렌더링 스니펫은 README.md §2 (원본)
+    #
+    #  ⚠️ override 없이 띄우면 GPU 없이 동작한다 → RViz2 3D 가 소프트웨어 렌더링으로
+    #     아주 느려진다. 동작은 하므로 환경 확인용으로는 쓸 수 있다.
+    #
+    #     GPU 종류 확인:  lspci | grep -Ei 'vga|3d'   /   ls -l /dev/dri/
+    # ------------------------------------------------------------------------
+
+    environment:
+      # GUI(X11) — RViz2 창을 호스트 디스플레이에 띄운다
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - XDG_RUNTIME_DIR=/tmp/runtime-rosuser
+      # ROS 2 도메인 — 다른 노드와 통신하려면 상대와 같은 값이어야 한다
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+
+    volumes:
+      # X11 소켓 — 실행 전 호스트에서 1회: xhost +local:root
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/home/rosuser/.Xauthority:ro
+      # 작업 워크스페이스. 컨테이너가 연결하는 루트이며, 컨테이너 안에서
+      # 만든 결과물이 호스트 ./ws_moveit2 에 그대로 남는다.
+      - ./ws_moveit2:/home/rosuser/ws_moveit2:rw
+      # 외부에서 가져온 로봇 모델(리포 최상위 hanwha_robot_arm/)을 컨테이너 안에서만
+      # 워크스페이스 src 아래로 보이게 한다. 호스트 배치는 최상위 그대로 두면서
+      # colcon 이 hcr_robot_description · hcr_moveit_config 를 잡게 하기 위함.
+      - ../../hanwha_robot_arm:/home/rosuser/ws_moveit2/src/hanwha_robot_arm:rw
+
+    working_dir: /home/rosuser/ws_moveit2
+    command: bash

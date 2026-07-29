@@ -1,5 +1,8 @@
 # Hanwha HCR-5 Robot
 
+> ⚠️ 업스트림 원본 문서 (ROS1 Noetic / catkin) — 이 프로젝트의 빌드·실행 절차는 ROS 2 Jazzy / colcon입니다.
+> `src/moveit2/README.md`를 참조하세요.
+
 [![license - apache 2.0](https://img.shields.io/:license-Apache%202.0-yellowgreen.svg)](https://opensource.org/licenses/Apache-2.0)
 [![License](https://img.shields.io/badge/License-BSD%203--Clause-blue.svg)](https://opensource.org/licenses/BSD-3-Clause)
 
