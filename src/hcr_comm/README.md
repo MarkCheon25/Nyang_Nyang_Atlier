@@ -84,6 +84,10 @@
 | 소프트 관절제한 | `set/limitCheck` | pubWithAck | `{mode:true｜false}` |
 | **관절 조그 시작** | `jogJoint/start` | pubWithAck | `{joint:1~6, direction:"positive"｜"negative", speed:"45.00"}` |
 | **관절 조그 정지** | `jogJoint/stop` | pub | `{}` |
+| 핸드가이드 on/off | `directTeaching/start`｜`/stop` | pub | `{}` |
+| **충돌 PAUSED 해제** | `event/collision/clear` | pubWithAck | `{}` |
+
+읽기 전용 이벤트(로봇→): `event/collision`(`EVENT_COLLISION_DETECTED`, code 204000), `event/collision/mitigation/complete`(params=충돌 시점 관절 float).
 
 - `joint` 인덱스 1=base … 6=wrist3. 각도·속도 단위 = 도. 상태머신: `IDLE →(start)→ MOVING →(stop)→ STOPPING → STOPPED`.
 - **`mongoLog` 토픽**이 내부 함수 호출을 중계한다(`operation.js`의 `procedure`, `operationName`). 미포착 명령(절대이동 등)을 알아내는 **지도**.
@@ -104,6 +108,24 @@
   `start → sleep → stop` 을 `finally` 로 감싸 **정지를 항상 보장**하고, 시작 응답 대기를 2초로 제한해 과주행을 막는다.
 - `set/limitCheck {mode:true}` 로 **소프트 관절제한을 켜 두는 것**을 권장(공식 가동범위 밖 자기정지).
 - `status/safety.reducedVelocity` = 감속 모드 속도 상한. 실험은 감속·저속으로.
+
+### 충돌 감지·복구 (2026-07-29 실증)
+
+모터 전류 기반 충돌감지가 **실제로 트립**한다(외부 센서 아님). 저속 조그 중 손으로 저항해 유발 → 검증됨.
+전이(전부 MQTT로 관찰 가능):
+
+```
+MOVING ─(충돌)→ event/collision (EVENT_COLLISION_DETECTED, 204000)
+       → MOVING → PAUSING → PAUSED   (isCollision=true, directTeach 자동 enable)
+       → event/collision/mitigation/complete
+       → PAUSED → STOPPED             (isCollision=true 로 래치 유지)
+       ─(복구)→ event/collision/clear {thng_id:1}   → isCollision=false, 정상 복귀
+```
+
+- **소프트 관절제한(limitCheck)은 래치 안 됨** — 한계에서 얌전히 정지, 리셋 불필요.
+- **충돌은 래치됨** — `PAUSED` 로 멈추고 `event/collision/clear` 로 명시적 해제 필요.
+- **핵심:** 감지·정지·해제·재개 전 과정을 **PC/ROS2로 처리 가능**(펜던트 불필요). 물리 e-stop만 설계상 수동.
+- 자율 운전 시: `event/collision`·`isCollision` 을 감시하고, 백오프 후 `event/collision/clear` 로 자동 복구하거나 사람 개입으로 정지하는 정책을 ROS2 층에 둔다.
 
 ## 7. 도구 (`tools/`)
 

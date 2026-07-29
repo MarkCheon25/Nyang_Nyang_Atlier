@@ -12,6 +12,8 @@
   limitcheck on|off                 set/limitCheck
   jog <joint 1-6> <pos|neg> [speed] [ms]   jogJoint/start → (ms 후 자동) jogJoint/stop
   stopjog                           jogJoint/stop (수동 즉시정지)
+  clearcollision                    event/collision/clear (충돌 PAUSED 해제)
+  directteach on|off                directTeaching/start|stop (핸드가이드)
   send <topic> <json-data> [ack]    임의 명령
 """
 import socket, struct, time, json, sys, uuid, threading
@@ -120,6 +122,12 @@ def main():
                 print("■ jogJoint/stop 전송 (정지)")
         elif c=="stopjog":
             cmd(m,"jogJoint/stop",{}, ack=False); print("■ 정지")
+        elif c=="clearcollision":
+            cmd(m,"event/collision/clear",{})  # pubWithAck, 충돌 PAUSED 래치 해제
+        elif c=="directteach":
+            on = a[1]=="on"
+            cmd(m,"directTeaching/start" if on else "directTeaching/stop",{}, ack=False)
+            print("✋ 핸드가이드 " + ("ON" if on else "OFF"))
         elif c=="send":
             topic=a[1]; data=json.loads(a[2]); ack=(len(a)>3 and a[3]=="ack")
             cmd(m,topic,data,ack=ack)
