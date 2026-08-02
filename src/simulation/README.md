@@ -91,6 +91,7 @@ simulation/
 ├── README.md            # (이 파일) 인터페이스 원본 + 세팅 절차
 ├── Dockerfile           # ros-base + mujoco-ros2-control — MoveIt2 는 넣지 않는다
 ├── compose.yml / entrypoint.sh / run_container.sh
+├── compose.override.yml # ⛔ git 제외 — PC별 GPU 설정 (뷰어용, §3.1)
 ├── data/                # ⛔ git 제외 — 궤적·SVG·변환된 MJCF
 └── ws_simulation/src/
     ├── sim_core/        # ROS·MuJoCo 무관 C++ 라이브러리 + 확인용 CLI
@@ -109,7 +110,7 @@ cd src/simulation
 ```
 
 전제 조건은 `src/moveit2/README.md` §0과 같다. GPU 설정은 **MuJoCo 뷰어를 띄울 때만**
-필요하다 — 스니펫은 `src/moveit2/README.md` §2와 같되 서비스 이름을 `simulation` 으로 바꾼다.
+필요하다 — §3.1 참조.
 
 ## 2. 빌드와 확인
 
@@ -143,9 +144,46 @@ ros2 run sim_core trace_cli --trace ~/data/trace.csv --plan ~/data/map.csv --out
 | `trace.csv` | `t_s,x_mm,y_mm,force_n,in_contact` |
 | `summary.txt` | 조각 수·길이·필압·접촉 비율 + 계획 대비 |
 
-### 시뮬 기동
+---
 
-**MJCF 변환을 먼저 해야 한다** (launch 는 변환하지 않는다):
+## 3. 시뮬 기동
+
+### 3.0 ⚠️ `ROS_DOMAIN_ID` 를 0 이 아닌 값으로 — **컨테이너를 띄우기 전에**
+
+```bash
+export ROS_DOMAIN_ID=42          # 0 이 아니면 된다
+./run_container.sh up            # 이 값이 컨테이너 환경에 박힌다
+```
+
+컨테이너가 `network_mode: host` 라서 **기본값 0 을 쓰면 같은 LAN 에서 도는 남의 ROS
+그래프에 합류한다.** 2026-08-02 에 실제로 겪었다 — 다른 PC 의 MoveIt2 Panda 데모와
+`/controller_manager`·`/joint_state_broadcaster`·`/robot_state_publisher` 이름이 겹쳐
+**`/joint_states` 가 빈 배열로 나왔다.** 에러가 아니라 조용히 빈 값이라 알아채기 어렵다.
+
+> **순서가 중요하다.** `run_container.sh shell` 은 이미 있는 컨테이너에 `docker exec`
+> 할 뿐이라 **호스트에서 export 해도 그때는 안 먹는다.** 컨테이너가 이미 0 으로 떠
+> 있으면 `./run_container.sh down` 후 다시 `up` 하거나, 셸마다 안에서 export 한다.
+> 확인: 컨테이너 안에서 `echo $ROS_DOMAIN_ID`
+
+### 3.1 뷰어를 띄우려면 — GPU 오버라이드
+
+**MuJoCo Simulate 창을 띄울 때만 필요하다.** `headless:=true` 로 돌리면 없어도 된다
+(확인 경로가 SVG 파일 출력이라 GPU 와 무관).
+
+같은 폴더에 `compose.override.yml` 을 만든다 — 스니펫은 `src/moveit2/README.md` §2와
+같고 **서비스 이름만 `simulation` 으로** 바꾼다. `run_container.sh` 가 있으면 자동으로
+함께 읽는다. `.gitignore` 대상이라 커밋되지 않는 PC 로컬 자산이다.
+
+```bash
+./run_container.sh config | grep -A2 nvidia    # 오버라이드가 얹혔는지 확인
+docker exec simulation_dev glxinfo -B | grep renderer
+```
+
+`OpenGL renderer` 가 `llvmpipe` 로 나오면 GPU 가 안 붙은 것이다 — 뷰어가 아주 느리다.
+
+### 3.2 MJCF 변환 — **`data/mjcf/` 가 비어 있을 때만**
+
+launch 는 변환하지 않는다. 산출물이 이미 있으면 건너뛴다.
 
 ```bash
 S=$(ros2 pkg prefix sim_bringup --share)
@@ -153,8 +191,6 @@ xacro $S/urdf/hcr_robot_pen.xacro > /tmp/hcr_pen.urdf
 /opt/ros/jazzy/share/mujoco_ros2_control/scripts/robot_description_to_mjcf.sh \
   -u /tmp/hcr_pen.urdf -m $S/mjcf/mujoco_inputs.xml --scene $S/mjcf/scene.xml \
   -o ~/data/mjcf -s -c --no-fuse
-
-ros2 launch sim_bringup mujoco_sim.launch.py            # headless:=true 로 창 없이
 ```
 
 > ⚠️ **`--no-fuse` 와 `-m` 은 선택이 아니다.** 없으면 각각 펜이 병합돼 사라지고
@@ -165,16 +201,48 @@ ros2 launch sim_bringup mujoco_sim.launch.py            # headless:=true 로 창
 > 이 설치하지 않는다. **`data/mjcf/` 산출물이 이미 있으면 변환을 건너뛰어도 된다** —
 > 경로 참조가 전부 상대경로라 디렉터리째 옮겨도 무사하다.
 
-### ⚠️ `ROS_DOMAIN_ID` 를 반드시 지정할 것
+### 3.3 실행 (A) — ROS 연동 + 뷰어
+
+컨트롤러까지 올라오므로 **궤적을 넣어 볼 수 있다.** 이쪽이 주력이다.
 
 ```bash
-export ROS_DOMAIN_ID=42     # 0 이 아닌 값이면 된다
+./run_container.sh shell
+source install/setup.bash
+ros2 launch sim_bringup mujoco_sim.launch.py        # headless:=true 로 창 없이
 ```
 
-컨테이너가 `network_mode: host` 라서 **기본값 0 을 쓰면 같은 LAN 에서 도는 남의 ROS
-그래프에 합류한다.** 2026-08-02 에 실제로 겪었다 — 다른 PC 의 MoveIt2 Panda 데모와
-`/controller_manager`·`/joint_state_broadcaster`·`/robot_state_publisher` 이름이 겹쳐
-**`/joint_states` 가 빈 배열로 나왔다.** 에러가 아니라 조용히 빈 값이라 알아채기 어렵다.
+기동이 끝나면 컨트롤러 2개가 active 여야 한다:
+
+```bash
+ros2 control list_controllers
+#  joint_trajectory_controller  ... active
+#  joint_state_broadcaster      ... active
+ros2 topic echo /joint_states --once      # name 이 비어 있으면 §3.0 을 볼 것
+```
+
+**궤적 넣어 보기** — 셸을 하나 더 열고(`./run_container.sh shell`):
+
+```bash
+source install/setup.bash
+ros2 topic pub -1 /joint_trajectory_controller/joint_trajectory trajectory_msgs/msg/JointTrajectory \
+"{joint_names: [joint_1, joint_2, joint_3, joint_4, joint_5, joint_6],
+  points: [{positions: [0.5, -0.0059, 1.5728, -1.5906, -1.2, 0.0], time_from_start: {sec: 3}}]}"
+```
+
+> **`joint_5`(손목)는 휙 도는데 `joint_1`(베이스)은 기어간다** — 아래 "궤적 추종이
+> 성립하지 않는다" 가 화면에서 그대로 보인다. 추종 오차는 여기서 본다:
+> `ros2 topic echo /joint_trajectory_controller/controller_state`
+
+### 3.4 실행 (B) — 씬만 볼 때, MuJoCo 단독 뷰어
+
+ROS 없이 배치만 확인한다. 마우스로 관절을 직접 끌어볼 수 있다.
+
+```bash
+/opt/ros/jazzy/opt/mujoco_vendor/bin/simulate ~/data/mjcf/scene.xml
+```
+
+로봇·책상·A4 종이·지그 배치를 눈으로 본다. **초기 자세에서 펜이 종이 반대편을
+향하는 것**(미결 "작화 자세 · 종이 배치")도 여기서 바로 보인다.
 
 ---
 
