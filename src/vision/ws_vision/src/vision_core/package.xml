@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>vision_core</name>
+  <version>0.1.0</version>
+  <description>
+    이미지 한 장을 종이 평면 스트로크 집합("지도")으로 바꾸는 코어 라이브러리 (BRD F2.1~F2.4).
+    ROS 에 의존하지 않는다 — ROS 래핑은 vision_node 가 담당한다.
+  </description>
+  <maintainer email="cocoffeechan09@gmail.com">Mark Cheon</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>libopencv-dev</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

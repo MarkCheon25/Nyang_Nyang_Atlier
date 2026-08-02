@@ -1,0 +1,36 @@
+# ros2_control 컨트롤러 설정.
+#
+# **mock hardware 때와 같은 컨트롤러를 쓴다** — 바뀌는 것은 그 아래 하드웨어
+# 플러그인뿐이다 (hcr_robot_pen.xacro). 그것이 N6·F7.3 이 요구하는 "동일 제어
+# 코드"의 실제 모습이다.
+controller_manager:
+  ros__parameters:
+    update_rate: 500  # Hz — MuJoCo timestep 2 ms 와 맞춘다
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+    joint_trajectory_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+joint_trajectory_controller:
+  ros__parameters:
+    joints:
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+      - joint_6
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    # MoveIt2 가 보내는 데카르트 궤적(F4.2)이 이 컨트롤러로 들어온다.
+    # 실물 단계는 감속 운전으로 시작한다(N4) — 그 설정은 실물 bringup 몫이다.
+    allow_partial_joints_goal: false
+    open_loop_control: false
+    constraints:
+      stopped_velocity_tolerance: 0.01
+      goal_time: 0.5

@@ -1,0 +1,27 @@
+# vision_node 파라미터 기본값.
+#
+# 값의 의미와 근거는 vision_core/include/atlier/vision/params.hpp 가 원본이다.
+# 여기 있는 것은 그 구조체를 ROS 파라미터로 노출한 사본일 뿐이므로, 의미가
+# 바뀌면 헤더 쪽 주석을 먼저 고칠 것.
+/**:
+  ros__parameters:
+    # 종이 배치 (F2.4)
+    paper_w_mm: 210.0
+    paper_h_mm: 297.0
+    margin_mm: 15.0
+
+    # 스트로크 변환 (F2.3)
+    # resample_step_mm 은 그대로 moveit2 데카르트 waypoint 밀도가 된다 — 실측 후 조정
+    resample_step_mm: 1.0
+    min_stroke_len_mm: 2.0
+
+    # 전처리 (F2.1)
+    blur_ksize: 3
+    invert: false
+
+    # 윤곽 추출 (F2.2)
+    use_thinning: true
+
+    # 실행 대상. 비어 있으면 노드는 대기만 한다 (경계 인터페이스 미정)
+    image_path: ""
+    svg_path: ""

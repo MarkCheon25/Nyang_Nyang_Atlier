@@ -4,8 +4,23 @@
 <xacro:include filename="$(find hcr_robot_description)/urdf/materials.xacro" />
 <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.trans" />
 <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.gazebo" />
+<!--
+  ros2_control 블록 생성 여부와 하드웨어 플러그인을 인자로 받는다.
+  **기본값은 종전과 같다** — 인자 없이 include 하던 곳(MoveIt2 config 등)은 그대로 동작한다.
+
+    ros2_control:=false      블록을 만들지 않는다. 감싸는 쪽이 자체 블록을 정의할 때
+                             (시뮬레이션은 hardware 에 <param> 을 넣어야 해서 이 경로를 쓴다)
+    hardware_plugin:=<이름>  플러그인 교체 (실물 드라이버·MuJoCo 등)
+
+  이 갈래가 없으면 mock 블록이 **항상** 들어가 다른 하드웨어와 같은 조인트를 두고 충돌한다.
+-->
+<xacro:arg name="ros2_control" default="true"/>
+<xacro:arg name="hardware_plugin" default="mock_components/GenericSystem"/>
+
 <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.ros2_control.xacro" />
-<xacro:hcr_robot_ros2_control/>
+<xacro:if value="$(arg ros2_control)">
+  <xacro:hcr_robot_ros2_control plugin="$(arg hardware_plugin)"/>
+</xacro:if>
 <link name="base_link">
   <inertial>
     <origin xyz="0.044693591972953806 -9.689819846991377e-05 0.013982771179495564" rpy="0 0 0"/>

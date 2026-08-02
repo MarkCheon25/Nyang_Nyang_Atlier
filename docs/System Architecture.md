@@ -198,29 +198,33 @@ flowchart LR
 | ② 스트로크 계획 | 자체 C++ (mm 스케일링) | — | 순서 최적화는 ③으로 이관 (§3.1)
 | ③ 로봇 제어 | **MoveIt2** (Jazzy) + ros2_control + **자체 C++ (순서 최적화)** | ✅ 정식 | URDF + SRDF (Setup Assistant)
 | ④ 드로잉 실행 | ros2_control `joint_trajectory_controller` | ✅ |
+| 🧪 검증 환경 (MuJoCo) | **`mujoco_ros2_control`** 0.0.3 (apt) + `mujoco-vendor` 3.4.0 | 확정 | **D5 해소 (2026-07-28)** — 소스 빌드 불필요. 하드웨어 플러그인 `mujoco_ros2_control/MujocoSystemInterface` 가 mock 자리를 대체하므로 N6·F7.3 이 그대로 성립. 모듈 = `src/simulation` |
 | ⑤ 드로잉 모니터링 | OpenCV (ORB+Homography 정합 / SSIM·absdiff 차이) | ✅ | ArUco 기준마커 권장. **중간 1회 + 완성작** (F8)
-| ⑥ 작업 관리 `상시` | 자체 C++ (진행 상태 소유) | — |
+| ⑥ 작업 관리 `상시` | 자체 C++ (진행 상태 소유) | 확정 | 모듈 = `src/operator` — `job_core`(ROS 무관 상태 머신) + `job_manager`(rclcpp 래퍼). 상태 소유자 결정은 §6 참조
 | 카메라 | RealSense (`realsense-ros` / librealsense) | ✅ 정식 | **모델 미정** — 1순위 D455 / 대안 폰, F5에서 확정(BRD §4). **DKMS 금지** — ROS apt 설치. 검증 버전 4.56 / 2.56은 D455 기준
 | AC3 분류 | CLIP (HuggingFace transformers zero-shot) | ✅ | 도메인 프롬프트 + 음성 라벨
 | 웹 프론트 | **React** + roslibjs | ✅ |
-| 웹 백엔드 | **FastAPI** (REST) + rclpy 노드(별도 스레드 spin) | 표준 조합 |
+| 웹 백엔드 | **Node.js** (업로드 · 이력 REST · 정적 서빙) | 확정 | **ROS 를 몰라도 되는 일만 맡는다** — 상태는 ⑥이 소유. 이전 FastAPI + rclpy 스레드 안은 폐기 (2026-07-27)
 | 실시간 브릿지 | **rosbridge_suite** (websocket :9090) | ✅ 정식 | 토픽·서비스 O / 액션 X
-| DB | **SQLite** (+ SQLAlchemy ORM) | 확정 | 이미지는 파일시스템, DB엔 경로·메타
+| DB | **SQLite** | 확정 | 이미지는 파일시스템, DB엔 경로·메타. ORM 은 Node 스택에서 선정 (SQLAlchemy 는 Python 것이라 폐기)
 
 ### 5.2 웹 ↔ ROS2 연동 (검증 반영)
 
 ```mermaid
 flowchart LR
-    R["React<br/>(roslibjs)"] -->|"업로드 · 이력 조회 (REST)"| F["FastAPI"]
-    R <-->|"진행상태 구독 (ws:9090)"| RB["rosbridge"]
-    F -->|"rclpy 노드 (별도 스레드)"| ROS["ROS2<br/>MoveIt2 · ros2_control"]
-    RB <--> ROS
-    F --> DB[("SQLite")]
+    R["React<br/>(roslibjs)"] -->|"업로드 · 이력 조회 (HTTP)"| N["Node.js 백엔드"]
+    R <-->|"상태 구독 · 명령 (ws:9090)"| RB["rosbridge"]
+    N <-->|"작업 이벤트 구독 (ws:9090)"| RB
+    RB <--> JM["job_manager<br/>⑥ 작업 관리 (C++)"]
+    JM -->|"액션"| ROS["MoveIt2 · ros2_control"]
+    N --> DB[("SQLite")]
 ```
 
-- 업로드 · DB · 이력 조회 → **FastAPI (REST)**
-- 실시간 진행상태 · 텔레메트리 → **rosbridge → React 구독**
-- **MoveIt2 제어는 웹에서 직접 호출하지 않음** — rosbridge 액션이 불안정 → 서버측(rclpy/C++ 노드)이 MoveIt 구동, 웹은 상태만 구독
+- 업로드 · 이력 조회 → **Node.js (HTTP)**. **DB 에 직접 붙는 것은 이 백엔드 하나뿐**이다
+- 실시간 진행상태 · 명령(정지·재개·계속/중단) → **rosbridge**. 웹이 부르는 것은 `job_manager` 의 **서비스·토픽뿐**이다
+- **MoveIt2 액션은 `job_manager` 가 서버측에서 호출** — rosbridge 는 액션을 지원하지 않는다(§5.3). **⑥을 독립 C++ 노드로 둔 결과 이 제약이 저절로 해소됐다**
+- **이력 저장은 Node 가 rosbridge 를 따로 구독**해서 쓴다 — 브라우저를 닫아도 기록이 남아야 하므로 화면과 별개 경로다
+- 웹 백엔드가 ROS 노드를 품지 않는다 — 이전 안(FastAPI 안에서 rclpy 를 별도 스레드로 spin)은 생명주기가 둘이 되는 구조였고, ⑥이 독립 노드로 빠지면서 그 자리가 없어졌다 (2026-07-27)
 
 ### 5.3 검증에서 잡힌 통합 리스크 · 기회
 
@@ -241,6 +245,7 @@ flowchart LR
 - **카메라 4가지 역할** — ① hand-eye 캘리브레이션(F5.1) ② 종이 위치·자세 인식(F5.2) ③ 중간 진행 모니터링(F8.1) ④ 완성작 촬영(F8.2). 뎁스 유무(RealSense vs 폰)가 종이 높이(z)·추적 정밀도에 영향
 - **eye-in-hand 채택의 파급** — 카메라가 펜과 같은 플랜지에 있어 (a) 촬영마다 자세 이동이 필요(F8.3)하고 (b) 촬영 이미지를 로봇 자세와 짝지어야 하며 (c) 로봇 자세 오차가 캘리브레이션 오차로 전파된다(BRD R5). **본 흐름에서 카메라가 무동작이라는 기존 전제는 폐기**됐다 (`Process Flow.md` §4.1)
 - ~~**⑤ 드로잉 모니터링은 BRD 넘어선 신규 요구**~~ → **해소됨** — BRD **F8**로 정식화 (중간 1회·완성작 촬영·촬영 자세 이동). Phase 1 재시도 정책은 F4.4대로 "기록 후 계속, 재시도 없음" 유지
-- **HCR-5 실기 ros2_control 드라이버** — 여전히 미확인(R1). 단 위 mock 경로로 개발은 선행 가능
+- ~~**⑥ 작업 관리의 상태 소유자 미정**~~ → **확정 (2026-07-27)** — "어디까지 그렸는가"(스트로크 인덱스·계획·펜 상태)는 **`src/operator` 의 C++ 노드(`job_manager`)가 소유**한다. `Process Flow.md` §3.4 가 남긴 "③ 로봇제어 / ⑥ 작업관리 경계" 질문의 답이다. ③은 궤적을 실행하고 진행 사실을 ⑥에 올려보낼 뿐이며, **웹은 상태를 보여줄 뿐 소유하지 않는다** — 두 곳이 들면 반드시 어긋난다. 상태 전이 전체는 `src/operator/README.md`
+- **HCR-5 실기 ros2_control 드라이버** — **경로는 찾았으나 Rodi 버전에 막힘 (2026-07-28)**. 한화 **공식** 드라이버는 없다(`hanwharobot/ros` 는 2019년에 만들어진 **빈 리포**). 커뮤니티 드라이버 [`micmzr/MecHaRo-Lab_HCR3a`](https://github.com/micmzr/MecHaRo-Lab_HCR3a)(Apache 2.0 · Jazzy · 2026 현행)가 **`hardware_interface::SystemInterface` 를 구현**해 실물 제어까지 되어 있고, 통로는 매뉴얼 밖의 **Rodi-X 플러그인**(`ROS2.asar`)이 여는 **TCP 6667**이다. **그러나 그 플러그인의 `minimumRequiredVersion` 이 Rodi `2.001.003.012` 인데 우리 로봇은 `1.003.005`(컨트롤러 `1.003.001`) — 메이저 버전 미달이라 설치 자체가 불가능하다.** → **실기 연결의 유일한 관문은 Rodi 업그레이드**이고, 업데이트 파일(`.tgos`/`.run`)은 **한화·서비스센터에서만** 받을 수 있다(매뉴얼 §16.6, 일반 사용자 권한 불가). 관문이 열리면 `hardware_plugin:=hcr_control/RobotSystem` 으로 이 경계가 그대로 산다. **R1 은 실물 실행만 막고 sim 개발 전체는 막지 않으므로 Phase 1(sim First Stroke)은 영향 없다.** 버전 대조·업그레이드 절차·벤더 질문은 **`hanwha_robot_arm/docs/실기_연결_현황.md`** §4·§6
 - **MVP 우선 · 과분해 안 함** — 기능 블록 단위로 충분. 코어(①②③④ + ⑥ 긴급정지 최소)로 **sim First Stroke** 달성 후 ⓪⑤·⑥ 일시정지·검증 다단계를 얹는다
 - **drawio 변환** — mermaid 텍스트 그대로 옮김. PC 여유 시
