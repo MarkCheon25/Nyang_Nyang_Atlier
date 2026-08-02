@@ -1,7 +1,12 @@
 """MuJoCo 시뮬레이션 기동 — HCR-5 + 펜 + 종이.
 
-⚠️ **스켈레톤이다.** robot_description 생성과 컨트롤러 스폰까지는 서 있고,
-MJCF 변환·씬 로드 경로는 아직 실동작을 확인하지 않았다 (README "구현 상태" 참조).
+**실동작 확인됨 (2026-08-02)** — 씬 로드 · 컨트롤러 2개 active · 궤적 토픽 명령으로
+관절이 실제로 움직이는 것까지. 다만 **궤적 추종은 아직 성립하지 않는다**(관성 큰
+관절이 목표를 못 따라간다) — README "구현 상태" 참조.
+
+⚠️ **`ROS_DOMAIN_ID` 를 0 이 아닌 값으로 두고 띄울 것.** 컨테이너가
+`network_mode: host` 라서 기본값 0 이면 같은 LAN 의 남의 ROS 그래프에 합류하고,
+`/joint_state_broadcaster` 이름이 겹치면 `/joint_states` 가 조용히 빈 배열이 된다.
 
 기동 순서:
   1. xacro → robot_description  (hcr_robot_pen.xacro — 펜 + MuJoCo 하드웨어 플러그인)
@@ -18,6 +23,7 @@ from launch.actions import DeclareLaunchArgument, RegisterEventHandler
 from launch.event_handlers import OnProcessExit
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 
@@ -43,7 +49,12 @@ def generate_launch_description():
         ' mujoco_scene:=', LaunchConfiguration('mujoco_scene'),
         ' headless:=', LaunchConfiguration('headless'),
     ])
-    robot_description = {'robot_description': robot_description_content}
+    # ⚠️ `value_type=str` 이 없으면 launch 가 URDF 문자열을 YAML 로 파싱하려다
+    #    죽는다 ("Unable to parse the value of parameter robot_description as yaml").
+    #    Command 치환은 타입이 정해지지 않은 채로 오므로 명시해야 한다.
+    robot_description = {
+        'robot_description': ParameterValue(robot_description_content, value_type=str)
+    }
 
     robot_state_publisher = Node(
         package='robot_state_publisher',

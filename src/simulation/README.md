@@ -1,7 +1,8 @@
 # simulation
 
-**MuJoCo 접촉 검증 스켈레톤이 서 있는 상태.** 확인 하네스는 완성됐고, MJCF 변환까지
-실제로 통과했다. 시뮬 실구동(컨트롤러 스폰 → 궤적 실행)은 아직이다.
+**MuJoCo 시뮬이 실제로 돈다.** 확인 하네스·MJCF 변환에 이어 컨트롤러 스폰과 궤적
+실행까지 통과했다. 다만 **궤적 추종은 아직 성립하지 않는다** — 관성이 큰 관절이
+목표를 못 따라간다. 접촉 실험 이전에 이것부터 풀어야 한다 ("구현 상태" 참조).
 
 ## 이 모듈이 답하는 질문
 
@@ -159,7 +160,21 @@ ros2 launch sim_bringup mujoco_sim.launch.py            # headless:=true 로 창
 > ⚠️ **`--no-fuse` 와 `-m` 은 선택이 아니다.** 없으면 각각 펜이 병합돼 사라지고
 > actuator 가 0 개로 나온다 (아래 "함정 3건" 참조).
 
-컨트롤러 스폰·궤적 실행은 아직 확인하지 않았다 — "구현 상태" 참조.
+> ⚠️ **변환 스크립트의 python 의존이 이미지에 없다** (2026-08-02 확인). 위 명령은
+> `requirements.txt`(mujoco·obj2mjcf·coacd·trimesh 등 17개)를 요구하는데 Dockerfile
+> 이 설치하지 않는다. **`data/mjcf/` 산출물이 이미 있으면 변환을 건너뛰어도 된다** —
+> 경로 참조가 전부 상대경로라 디렉터리째 옮겨도 무사하다.
+
+### ⚠️ `ROS_DOMAIN_ID` 를 반드시 지정할 것
+
+```bash
+export ROS_DOMAIN_ID=42     # 0 이 아닌 값이면 된다
+```
+
+컨테이너가 `network_mode: host` 라서 **기본값 0 을 쓰면 같은 LAN 에서 도는 남의 ROS
+그래프에 합류한다.** 2026-08-02 에 실제로 겪었다 — 다른 PC 의 MoveIt2 Panda 데모와
+`/controller_manager`·`/joint_state_broadcaster`·`/robot_state_publisher` 이름이 겹쳐
+**`/joint_states` 가 빈 배열로 나왔다.** 에러가 아니라 조용히 빈 값이라 알아채기 어렵다.
 
 ---
 
@@ -176,8 +191,11 @@ ros2 launch sim_bringup mujoco_sim.launch.py            # headless:=true 로 창
 | **물리 실행** | ✅ **안정** — 초기 자세 2초 유지, 관절 오차 0.003 rad |
 | **필압 측정 경로** | ✅ **열림** — 종이 `touch` 센서가 접촉을 잡는다 (아래 참조) |
 | 필압 → ros2_control 인터페이스 노출 | ⬜ 미확인 — 센서가 MJCF 에 있는 것과 ROS 에서 읽는 것은 별개 |
-| 컨트롤러 스폰 · 궤적 실행 | ⬜ 미확인 |
+| **컨트롤러 스폰** | ✅ **통과** — 두 컨트롤러 active · 6축 command interface claimed |
+| **궤적 명령 수신·실행** | ✅ **통과** — 궤적 토픽으로 관절이 실제로 움직인다 |
+| **궤적 추종** | ⚠️ **성립 안 함** — 관성 큰 관절이 목표를 못 따라간다 (아래) |
 | 궤적 기록 노드 (MuJoCo → trace.csv) | ⬜ 미착수 |
+| MJCF 변환 재현 (새 컨테이너에서) | ⚠️ **불가** — 변환 스크립트의 python 의존이 Dockerfile 에 없다 |
 
 **검증된 것 (2026-07-28)**
 - `ros-jazzy-mujoco-ros2-control` 0.0.3 · `mujoco-vendor` 3.4.0 apt 설치 확인
@@ -189,6 +207,39 @@ ros2 launch sim_bringup mujoco_sim.launch.py            # headless:=true 로 창
 - **물리 안정** — 초기 자세(joint_3=1.5669 등)로 2초 시뮬, 관절 오차 최대 0.003 rad
 - **접촉·필압 감지** — 종이 `touch` 센서가 접촉을 잡음 (값의 해석은 위 R2 항목)
 - 하네스 3시나리오: `ideal` 조각 3/계획 3 · `weak-force` **조각 10 → 끊김 7회 검출** · `drift` 바운딩박스 이동 확인
+
+**검증된 것 (2026-08-02) — 시뮬이 실제로 돌았다**
+- **하드웨어 추상화 경계가 성립함을 실측.** mock 자리에 플러그인만 갈아끼운 채
+  `joint_trajectory_controller` 가 그대로 붙는다 — 로그가 그대로 보여준다:
+  `Loaded hardware 'hcr_robot_mujoco' from plugin 'mujoco_ros2_control/MujocoSystemInterface'`
+- MuJoCo actuator 6개가 `joint_1`~`joint_6` 에 1:1 등록 · 물리 스레드 기동
+- 컨트롤러 2개 active · command interface 6개 claimed · state interface 18개(pos·vel·eff)
+- **궤적 토픽 명령으로 관절이 실제로 움직인다** — mock 이 아니라 물리가 도는 상태에서
+
+**⚠️ 궤적 추종이 성립하지 않는다 (2026-08-02) — 접촉 실험의 선결 과제**
+
+| 관절 | 명령 | 결과 |
+|---|---|---|
+| `joint_5` (손목) | −1.4695 → **−1.2** | **정확히 도달** |
+| `joint_1` (베이스 — 74.6 kg 전체를 회전) | 0.5 → **0.0**, 3초 궤적 | **20초 후 0.288** (오차 0.288 rad 잔존) |
+
+`joint_1` 실측 각속도 **≈0.011 rad/s** — 0.5 rad 도는 데 30초 이상. **관성이 큰
+관절일수록 못 따라간다.** 관련 값이 전부 튜닝 전 자리값이다:
+
+| 값 | 출처 | 문제 |
+|---|---|---|
+| `actuatorfrcrange="-100 100"` | URDF `<limit effort="100">` → 변환기가 이관 | **전 관절 동일** — CAD 변환 자리값. link2 만 32 kg 인데 손목과 같은 토크 |
+| `damping` 20/20/10/5/5/2 · `frictionloss` 5/5/3/1/1/0.5 | `mjcf/mujoco_inputs.xml` (URDF 엔 `<dynamics>` 없음) | 출발점 값 |
+| `kp` 25000/25000/25000/10000/10000/5000 | `mjcf/mujoco_inputs.xml` | 출발점 값 |
+
+> **이것이 BRD 의 "관절별 최대 가속도·토크 미확보"와 같은 뿌리다.** 공식 매뉴얼에
+> 항목이 없어 열어 둔 값이 URDF 에 `effort="100"` 자리값으로 들어가 있고, 그것이
+> 지금 시뮬 궤적을 막는다. 벤더 문의의 근거가 하나 더 생긴 셈이다.
+>
+> **N2(15분) 예산 추정도 이 상태로는 성립하지 않는다** — 3초 궤적이 30초 걸린다.
+>
+> 지배 항이 `actuatorfrcrange` 포화인지 `dampratio` 과감쇠인지는 미확정 (가설).
+> 이미지에 python `mujoco` 가 없어 직접 못 봤다.
 
 **아직 확인 못 한 것** — 초기 자세에서 펜 끝이 `(-0.18, -0.42, 0.27)` 로 종이(0.55, 0)
 반대편을 향한다. **작화 자세를 푸는 것은 MoveIt2(F4.2)의 일**이라 여기서는 종이를
@@ -206,6 +257,13 @@ ros2 launch sim_bringup mujoco_sim.launch.py            # headless:=true 로 창
 3. **actuator 0 개** → **`mjcf/mujoco_inputs.xml` 을 `-m` 으로 넘겨** 해결. actuator 6 개
    생성 확인. 같은 파일의 `default class="visual"/"collision"` 이 빠져 있던 것이
    직전 세션의 `unknown default class 'visual'` 로드 실패 원인이었다.
+
+**기동에서 잡힌 함정 1건 — 해결됨 (2026-08-02)**
+
+launch 가 첫 줄에서 죽었다 — `Unable to parse the value of parameter
+robot_description as yaml`. **`Command()` 치환은 타입이 정해지지 않은 채로 오므로**
+launch 가 URDF 문자열을 YAML 로 파싱하려 든다. `ParameterValue(..., value_type=str)`
+로 감싸 해결. **launch 를 한 번도 안 돌려 본 것이 첫 줄에서 드러난 셈이다.**
 
 **필압 측정 — 종이 쪽에서 잰다 (2026-07-28)**
 
@@ -230,10 +288,21 @@ ros2 launch sim_bringup mujoco_sim.launch.py            # headless:=true 로 창
 - **필압을 ros2_control 로 읽는 경로** — MJCF 에 센서가 있는 것과 ROS 쪽에서 값을
   받는 것은 별개다. `mujoco_ros2_control` 의 센서 매핑을 쓸지, 플러그인으로 토픽을
   낼지 미정. 래퍼에 `effort` state_interface 는 미리 열어 두었다
-- **접촉·강성 파라미터 튜닝 — 우선순위 높음** — `solref`/`solimp`/`friction` 과
-  `mujoco_inputs.xml` 의 `kp`·`dampratio` 가 전부 출발점 값이다. **4 mm 침투에 408 N**
-  이 나오는 현재 설정으로는 필압 실험 자체가 성립하지 않는다. 실물 연필 필압
-  1~5 N 대를 재현하는 것이 다음 목표
+- **관절 게인·토크 한계 — 우선순위 최상 (2026-08-02 승격)** — 접촉 이전에 **궤적
+  추종부터 안 된다.** `actuatorfrcrange`(URDF `effort="100"` 자리값 유래) · `kp` ·
+  `damping`/`frictionloss` 를 실제 링크 질량(합 74.6 kg, link2 만 32 kg)에 맞춰야
+  한다. **`effort` 의 근거값은 벤더 문의(관절별 최대 토크)에 걸려 있다**
+- **접촉·강성 파라미터 튜닝 — 우선순위 높음** — `solref`/`solimp`/`friction` 이 전부
+  출발점 값이다. **4 mm 침투에 408 N** 이 나오는 현재 설정으로는 필압 실험 자체가
+  성립하지 않는다. 실물 연필 필압 1~5 N 대를 재현하는 것이 목표. **다만 위 궤적
+  추종이 먼저다** — 펜을 종이까지 못 가져가면 접촉 실험을 시작할 수 없다
+- **MJCF 변환 의존을 Dockerfile 에 반영** — `robot_description_to_mjcf.sh` 의
+  `requirements.txt` 17개가 이미지에 없어 **새 컨테이너에서 변환 절차를 재현할 수
+  없다.** 이미지에 넣을지(용량 증가) 변환용 스크립트를 따로 둘지 미정
+- **`ROS_DOMAIN_ID` 기본값을 0 이 아닌 값으로** — `network_mode: host` 라 기본값 0 은
+  같은 LAN 의 남의 그래프에 합류한다. `compose.yml` 기본값을 바꿀지, README 절차로
+  둘지 정할 것. moveit2·vision·operator 컨테이너와 값이 같아야 서로 통신한다는
+  제약과 함께 봐야 한다
 - **작화 자세 · 종이 배치** — 초기 자세에서 펜이 종이 반대편을 향한다. 종이 위치를
   로봇 작업 범위에 맞출지, MoveIt2 가 자세를 풀게 할지 (F4.1·F4.2 와 함께 정할 일)
 - **펜 치수·장착 위치** — `hcr_robot_pen.xacro` 의 값은 실측 전 임시값
