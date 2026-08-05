@@ -1,0 +1,102 @@
+# hcr_bridge — HCR-5 실기 ↔ ROS2 브릿지
+
+> 한화 HCR-5(2018 1세대, Rodi 1.003.005)를 **벤더 플러그인 없이** ROS2 에 붙인다.
+> 컨트롤러의 네이티브 MQTT 버스를 직접 말하는 방식이며, 프로토콜은 펜던트 관찰로
+> 역설계했다 → [`src/drivers/hcr_comm/README.md`](../../../../drivers/hcr_comm/README.md)
+
+*2026-08-05 착수. 현재 **상태 브릿지까지** 구현 — 궤적 실행 층은 미구현(업무목록 T15).*
+
+---
+
+## 0. 왜 ros2_control 이 아닌가
+
+커뮤니티 드라이버(`hcr_control/RobotSystem`)는 Rodi 2.x 플러그인을 요구해 이 로봇에 설치할 수 없다.
+네이티브 MQTT 경로는 1.x 에서 그대로 동작하므로 이쪽을 쓴다.
+
+`SystemInterface` 플러그인 대신 **독립 노드**를 택한 이유:
+
+| | 이유 |
+|---|---|
+| 주기 불일치 | 상태 버스가 **29.1Hz**, `controller_manager` 는 100Hz. `read()`/`write()` 를 100Hz 로 돌리면 없는 데이터를 만들어내야 한다 |
+| 실행 모델 | `move/joint/here` 는 **한 번 발행하면 목표까지 자율 주행**한다(실측: 명령 없이 6.3초간 61° 이동 후 도착). 매 주기 목표를 밀어넣는 `write()` 모델과 맞지 않는다 |
+| 연속 궤적 | 소묘 스트로크는 `program/plan` 의 블렌딩(`radius`·`continues`)으로 실행한다 — 컨트롤러가 보간을 소유하는 구조라 ros2_control 의 궤적 소유권과 충돌한다 |
+
+MoveIt2 는 **계획·검증**을 맡고 실행은 컨트롤러에 위임한다.
+
+## 1. 관절 규약 — 빠뜨리면 조용히 틀린다 ⚠️
+
+실기와 URDF 는 **영점 규약이 다르다**. `include/hcr_bridge/joint_convention.hpp` 가 이를 담는다.
+
+```
+q_URDF[i](도) = SIGN[i] * q_real[i](도) + DELTA[i]
+  SIGN  = (+1, +1, −1, +1, +1, +1)      ← J3 만 부호 반전
+  DELTA = ( 90,  90,   0,  90,   0,  0)
+```
+
+- 실기 zero = 팔이 **수평으로 뻗은** 자세 (flange z = −2.5mm)
+- URDF zero = 팔이 **수직으로 선** 자세 (flange z = +1063mm)
+- 실기 홈 `[0, −90, −90, −90, 90, 0]` = URDF `[90, 0, 90, 0, 90, 0]`
+
+이 변환과 URDF origin 교정을 함께 적용하면 109개 자세에서 **위치오차 RMS 0.0060mm**.
+**변환을 빼면 에러 없이 전혀 다른 자세로 간다** — 가장 위험한 실패 방식이다. 근거: 업무목록 T16.
+
+관절 매핑(6축 조그 실측 확정): `joint_1~6` ↔ `base·shoulder·elbow·wrist1·wrist2·wrist3`,
+축간 간섭 없음, 부호는 6축 모두 증가 방향 일치, 영점 오프셋 없음(펜던트 표시 = 버스 값).
+
+## 2. 구성
+
+| 파일 | 역할 |
+|---|---|
+| `include/hcr_bridge/joint_convention.hpp` | 규약 변환·가동범위·홈 자세 (헤더 온리) |
+| `include/hcr_bridge/mqtt_client.hpp` · `src/mqtt_client.cpp` | MQTT 버스 클라이언트 + `pubWithAck` RPC |
+| `src/state_bridge_node.cpp` | 상태 → `/joint_states`, 서보·홈 서비스 |
+| `launch/state_bridge.launch.py` | 기동 (기본 읽기 전용) |
+
+### 봉투 규약
+
+```
+보낼 때  {"type":"pub"|"pubWithAck", "uuid":U, "data":{"thng_id":1, ...}}
+pubWithAck → **uuid 와 같은 이름의 토픽**으로 응답:
+         {"type":"pub", "uuid":.., "data":{"code":0,"data":{...},"msg":"success"}}
+```
+
+응답 알맹이는 **한 겹 안쪽**(`data.data`)이다. `MqttClient::request()` 가 벗겨서 돌려준다.
+
+**ack ≠ 도착.** ack 는 명령 접수일 뿐이고, 이동 완료는 로봇이 `event/motion {"event":"moveHere"}` 로 알린다.
+
+## 3. 쓰기
+
+```bash
+# 읽기 전용 (기본) — 로봇을 절대 움직이지 않는다
+ros2 launch hcr_bridge state_bridge.launch.py
+
+# 동작 지령 서비스까지 열기 — e-stop 대기 상태에서만
+ros2 launch hcr_bridge state_bridge.launch.py allow_motion:=true
+```
+
+```bash
+ros2 topic echo /joint_states --once
+ros2 service call /hcr_state_bridge/set_servo std_srvs/srv/SetBool "{data: true}"
+ros2 service call /hcr_state_bridge/go_home  std_srvs/srv/Trigger
+```
+
+RViz 에 `RobotModel` 을 띄우면 **실기의 실제 자세가 그대로 보인다**(교정된 URDF 기준).
+
+## 4. 안전 ⚠️
+
+- **PC MQTT 명령은 펜던트 인에이블 스위치(데드맨)를 거치지 않는다.** 그래서 동작 지령은
+  `allow_motion` 파라미터로 잠가 뒀고 기본값이 `false` 다
+- 상태 수신이 1초 이상 끊기면 `/joint_states` 발행을 **멈춘다** — 낡은 자세를 참으로 믿게 두지 않는다
+- 필드버스 상태(`controllerStatus`)를 감시한다. `FIELD_BUS_SW_STATE_CONNECTED` 가 아니면 에러 로그.
+  08-05 에 드라이브 6축이 동시에 트립해(에러 0x40) 필드버스가 두절된 적이 있다 — 컨트롤러 재부팅으로 복구
+- 충돌은 **래치된다**(`PAUSED`). `event/collision/clear` 로 명시 해제해야 재개된다
+- 서보를 켠 채 오래 두지 말 것 — 홀딩 토크로 축 온도가 37→60°C 까지 오른다
+
+## 5. 다음 (T15)
+
+- [ ] `FollowJointTrajectory` 액션 서버 — MoveIt2 궤적 수신
+- [ ] 궤적 → `program/plan` 변환. 스트로크 내부는 `continues:true`·`radius:0`(정확 통과),
+      스트로크 경계에서만 정지. **`radius`>0 은 모서리를 22mm 깎으므로 선 안에서 쓰면 안 된다**(실측)
+- [ ] `program/play` 실행 + `program/index`·`program/end` 로 진행 추적
+- [ ] `program/plan` 크기 한계 실측 — 스트로크 수백 개면 수 MB 급 JSON 이 된다 (완주의 잠재 차단 요인)
+- [ ] 즉시정지(`program/stop`) 지연 실측 — BRD N4 "즉시" 요건

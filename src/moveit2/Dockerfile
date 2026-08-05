@@ -64,6 +64,17 @@ RUN groupadd -f video && groupadd -f render \
 # ---- rosdep 초기화 ---------------------------------------------------------
 RUN rosdep update --rosdistro=jazzy || true
 
+# ---- HCR-5 실기 브릿지 의존성 (2026-08-05) --------------------------------
+# 컨트롤러의 네이티브 MQTT 버스(Mosquitto 1.4.7, 192.168.0.20:1883)를 직접 말한다.
+# compose 가 network_mode: host 라 컨테이너에서 실기 서브넷에 그대로 닿는다.
+#   libmosquitto-dev    MQTT 3.1.1 클라이언트 — 프로토콜을 손으로 짜지 않는다
+#   nlohmann-json3-dev  명령/상태 페이로드 JSON (헤더 온리)
+#   uuid-dev            pubWithAck RPC 의 uuid v1 — 로봇이 이 값을 응답 토픽명으로 쓴다
+USER root
+RUN apt-get update && apt-get install -y --no-install-recommends \
+      libmosquitto-dev nlohmann-json3-dev uuid-dev \
+ && rm -rf /var/lib/apt/lists/*
+
 # ---- entrypoint -----------------------------------------------------------
 COPY entrypoint.sh /usr/local/bin/entrypoint.sh
 RUN chmod +x /usr/local/bin/entrypoint.sh
