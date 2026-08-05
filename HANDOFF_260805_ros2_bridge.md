@@ -18,7 +18,7 @@
 | 절대 관절이동 PC 실증 | ✅ 도달오차 0.0000° |
 | 연속궤적(블렌딩) | ✅ 실증 — 소묘 스트로크 실행 가능 확인 |
 | URDF ↔ 실기 정렬 | ✅ 교정 완료 (RMS 0.006mm) |
-| `hcr_bridge` 상태 층 | ✅ 코드 작성 — **빌드 검증 미완** |
+| `hcr_bridge` 상태 층 | ✅ 빌드·**실기 연결 검증 완료** (`/joint_states` 발행, 규약 변환 실증) |
 | `hcr_bridge` 궤적 층 | ⬜ 미착수 |
 
 ## 1. 다른 PC 에서 재개할 때 — 순서대로
@@ -32,7 +32,9 @@ docker compose build            # libmosquitto·nlohmann-json·uuid 추가돼 �
 # ── 컨테이너 안 ──
 cd ~/ws_moveit2 && colcon build --symlink-install && source install/setup.bash
 ```
-**첫 작업은 `hcr_bridge` 컴파일 통과 확인이다.** 09pc 에서 코드만 쓰고 빌드 검증을 못 했다.
+09pc 에서 **빌드·실기 연결까지 검증했다** — 컨테이너 재빌드 후 `colcon build` 통과(15.8s),
+실기에 MQTT 접속해 `/joint_states` 발행 확인, `joint_1 = 1.5708 rad`(=90.00°)로 홈 자세의
+규약 변환값과 일치했다. 다른 PC 에서는 이미지가 없으므로 `docker compose build` 부터 새로 한다.
 CMake 가 `pkg_check_modules(MOSQUITTO libmosquitto)`·`(UUID uuid)` 로 라이브러리를 찾는다.
 
 ### ② 실기 연결 (로봇이 필요할 때)
@@ -149,7 +151,7 @@ DELTA = ( 90,  90,  0,  90,  0,  0)
 | 무엇 | 어디 |
 |---|---|
 | 브릿지 설계·규약·안전 | `src/moveit2/ws_moveit2/src/hcr_bridge/README.md` |
-| 명령 프로토콜 (07-29분) | `src/drivers/hcr_comm/README.md` — **08-05 신규 명령 미반영** |
+| **명령 프로토콜 (원본)** | `src/drivers/hcr_comm/README.md` — 08-05 실측 반영 완료 |
 | 실기 제어 CLI | `src/drivers/hcr_comm/tools/mqtt_cmd.py` (movej·pos·fk·ik 등) |
 | 명령 캡처 도구 | `src/drivers/hcr_comm/tools/capture.py` |
 | 기구학 교정 근거 | `hanwha_robot_arm/HCR_5/hcr_robot_description/urdf/hcr_robot.xacro` 상단 주석 |
