@@ -20,7 +20,10 @@
 
 #include <nlohmann/json.hpp>
 
+// 전역 스코프에 둬야 한다 — namespace 안에서 elaborated type specifier(struct X *)를 쓰면
+// 컴파일러가 hcr_bridge::X 를 새로 선언해버려 libmosquitto 의 타입과 어긋난다.
 struct mosquitto;
+struct mosquitto_message;
 
 namespace hcr_bridge
 {
@@ -58,7 +61,7 @@ public:
   void setThngId(int id) { thng_id_ = id; }
 
 private:
-  static void onMessage(mosquitto * m, void * self, const struct mosquitto_message * msg);
+  static void onMessage(::mosquitto * m, void * self, const ::mosquitto_message * msg);
   void dispatch(const std::string & topic, const std::string & payload);
   static std::string makeUuidV1();
 

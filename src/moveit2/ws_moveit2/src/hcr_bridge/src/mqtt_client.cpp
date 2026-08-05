@@ -85,7 +85,7 @@ void MqttClient::subscribe(const std::string & topic, TopicCallback cb)
   if (connected_) { mosquitto_subscribe(mosq_, nullptr, topic.c_str(), 0); }
 }
 
-void MqttClient::onMessage(mosquitto *, void * self, const struct mosquitto_message * msg)
+void MqttClient::onMessage(::mosquitto *, void * self, const ::mosquitto_message * msg)
 {
   if (!msg || !msg->payload) { return; }
   auto * c = static_cast<MqttClient *>(self);
