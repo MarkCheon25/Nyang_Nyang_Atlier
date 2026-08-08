@@ -27,7 +27,14 @@ Visualization Manager:
       Scene Geometry:
         Scene Alpha: 1
       Scene Robot:
-        Robot Alpha: 0.5
+        # Scene Robot = /joint_states 를 따라가는 **실제 로봇**이다.
+        # 기본값 0.5(반투명)로 두면, 주황 불투명으로 그려지는 Query Goal State
+        # (인터랙티브 마커의 목표 자세 미리보기)가 더 진해 보여서 둘이 뒤바뀌어 읽힌다.
+        # 실제로 움직이는 쪽이 가장 선명해야 하므로 1.0 으로 올렸다.
+        #
+        # 프로그램으로만 구동할 때는 Planning Request → Query Goal State 를 꺼두면
+        # 주황색이 아예 사라져 더 깔끔하다 (수동으로 마커를 끌 때는 다시 켤 것).
+        Robot Alpha: 1.0
       Value: true
   Global Options:
     Fixed Frame: base_link
