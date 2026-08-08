@@ -238,4 +238,4 @@ int main(int argc, char** argv)
 //  가끔 실패, 재실행하면 성공        | KDL timeout(0.005s). 값을 늘리거나 TRAC-IK
 //  도달 오차가 mm 단위로 큼          | IK 근사 수렴 또는 관절 한계 접촉
 //
-// 관련 문서: src/moveit2/docs/HCR5_ros2_control_구축_상세.md §5.2 (펜 TCP)
+// 관련 문서: src/moveit2/docs/ysh_HCR5_ros2_control_구축_상세.md §5.2 (펜 TCP)

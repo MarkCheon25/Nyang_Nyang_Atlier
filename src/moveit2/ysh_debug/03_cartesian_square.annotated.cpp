@@ -386,5 +386,5 @@ int main(int argc, char** argv)
 //  실행은 성공인데 움직임이 뚝뚝 끊김      | EEF_STEP 이 너무 큼 / 스케일 문제
 //  복귀 오차가 크다                       | IK 누적 오차 or 궤적 잘림
 //
-// 관련 문서: src/moveit2/docs/HCR5_ros2_control_구축_상세.md
+// 관련 문서: src/moveit2/docs/ysh_HCR5_ros2_control_구축_상세.md
 //            src/moveit2/ws_moveit2/src/hcr5_examples/README.md

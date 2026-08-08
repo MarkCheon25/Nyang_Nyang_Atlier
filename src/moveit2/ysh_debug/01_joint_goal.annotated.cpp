@@ -336,4 +336,4 @@ int main(int argc, char** argv)
 //  "Action client not connected"           | ros2_controllers.yaml 인터페이스 (§7.2)
 //  실행 성공인데 RViz 가 안 움직임           | Scene Robot alpha. 주황은 Goal State다
 //
-// 관련 문서: src/moveit2/docs/HCR5_ros2_control_구축_상세.md
+// 관련 문서: src/moveit2/docs/ysh_HCR5_ros2_control_구축_상세.md

@@ -92,5 +92,5 @@ IK 솔버 교체(KDL → TRAC-IK) · 자세 제약 추가 · 작업영역 재배
 **펜 끝 자취를 선으로 그리는 시각화**(`hcr_viz`)를 붙여, 입력한 도형과 실제 지나간 선을
 겹쳐 보고 편차를 수치로 낸다.
 
-- 계획·구축 경위: [`src/moveit2/docs/HCR5_ros2_control_구축_상세.md`](../../../docs/HCR5_ros2_control_구축_상세.md)
-- 요약: [`src/moveit2/docs/HCR5_ros2_control_요약.md`](../../../docs/HCR5_ros2_control_요약.md)
+- 계획·구축 경위: [`src/moveit2/docs/ysh_HCR5_ros2_control_구축_상세.md`](../../../docs/ysh_HCR5_ros2_control_구축_상세.md)
+- 요약: [`src/moveit2/docs/ysh_HCR5_ros2_control_요약.md`](../../../docs/ysh_HCR5_ros2_control_요약.md)

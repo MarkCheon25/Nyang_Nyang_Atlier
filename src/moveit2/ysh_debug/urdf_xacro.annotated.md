@@ -325,7 +325,7 @@ xacro ... ros2_control:=false | grep -c "<ros2_control"     # 0
 xacro ... pen_length:=0.182 | grep -A3 tool0_to_pen_tip
 
 # 설정 전반 검사
-python3 src/moveit2/tools/check_moveit_config.py
+python3 src/moveit2/tools/ysh_check_moveit_config.py
 ```
 
 **기대되는 링크 트리**
@@ -335,4 +335,4 @@ base_link → link1_1 → link2_1 → link3_1 → link4_1 → link5_1 → link6_
 
 ---
 
-관련 문서: [`docs/HCR5_ros2_control_구축_상세.md`](../docs/HCR5_ros2_control_구축_상세.md) §5
+관련 문서: [`docs/ysh_HCR5_ros2_control_구축_상세.md`](../docs/ysh_HCR5_ros2_control_구축_상세.md) §5

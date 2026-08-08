@@ -1,7 +1,7 @@
 # HCR-5 MoveIt2 + ros2_control 구축 — 요약
 
 **2026-08-08 · 브랜치 `ysh_moveit_ros2_control` · ysh (moveit2 모듈)**
-상세본: [`HCR5_ros2_control_구축_상세.md`](./HCR5_ros2_control_구축_상세.md)
+상세본: [`ysh_HCR5_ros2_control_구축_상세.md`](./ysh_HCR5_ros2_control_구축_상세.md)
 
 ---
 
@@ -71,7 +71,7 @@ MoveIt2 → JointTrajectoryController → [하드웨어 플러그인] → MQTT �
 >
 > 대비: ① 두 파일 상단에 이유를 주석으로 박음 ② **검증 스크립트**를 둠 —
 > ```bash
-> python3 src/moveit2/tools/check_moveit_config.py     # 0=통과 / 1=문제
+> python3 src/moveit2/tools/ysh_check_moveit_config.py     # 0=통과 / 1=문제
 > ```
 > moveit_config 패키지 **바깥**에 있어 재생성에도 살아남고, 문제가 있으면 **고칠 값까지 출력**한다.
 > **재생성 직후에는 반드시 한 번 돌릴 것.**

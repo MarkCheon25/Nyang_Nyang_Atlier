@@ -1,4 +1,4 @@
-# `debug/` — 코드 해설본
+# `ysh_debug/` — 코드 해설본
 
 작성한 코드를 **한 줄씩 뜯어 설명한 사본**을 모아둔 곳이다.
 "이 줄이 왜 있는가 / 빼면 어떻게 되는가"를 적었다.
@@ -61,7 +61,7 @@
 
 ## 함께 볼 것
 
-- 구축 경위·설계 근거 전체: [`../docs/HCR5_ros2_control_구축_상세.md`](../docs/HCR5_ros2_control_구축_상세.md)
-- 1페이지 요약: [`../docs/HCR5_ros2_control_요약.md`](../docs/HCR5_ros2_control_요약.md)
+- 구축 경위·설계 근거 전체: [`../docs/ysh_HCR5_ros2_control_구축_상세.md`](../docs/ysh_HCR5_ros2_control_구축_상세.md)
+- 1페이지 요약: [`../docs/ysh_HCR5_ros2_control_요약.md`](../docs/ysh_HCR5_ros2_control_요약.md)
 - 예제 실행법: [`../ws_moveit2/src/hcr5_examples/README.md`](../ws_moveit2/src/hcr5_examples/README.md)
-- 설정 검증: `python3 ../tools/check_moveit_config.py`
+- 설정 검증: `python3 ../tools/ysh_check_moveit_config.py`

@@ -21,7 +21,7 @@ MoveIt Setup Assistant 를 재실행하면 config/ 아래 파일이 **전부 새
 
 사용법
 ------
-  python3 src/moveit2/tools/check_moveit_config.py
+  python3 src/moveit2/tools/ysh_check_moveit_config.py
   echo $?        # 0 = 전부 통과, 1 = 문제 있음
 
 Setup Assistant 를 다시 돌린 직후에는 **반드시** 한 번 실행할 것.
@@ -266,7 +266,7 @@ def main():
             print(f"  · {msg}")
             if fix:
                 print(f"      → {fix}")
-        print("\n상세: src/moveit2/docs/HCR5_ros2_control_구축_상세.md §7")
+        print("\n상세: src/moveit2/docs/ysh_HCR5_ros2_control_구축_상세.md §7")
         return 1
     if _warn:
         print(f"\033[33m경고 {len(_warn)}건\033[0m (동작은 하지만 확인 권장)")

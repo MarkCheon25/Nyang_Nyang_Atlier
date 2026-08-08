@@ -15,7 +15,7 @@ MoveGroupInterface 는 robot_description · SRDF · kinematics · joint_limits �
 참고 — 이 파일은 Setup Assistant 가 건드리지 않는다(생성 대상 이름이 아니다).
 그래서 joint_limits 를 여기서 명시적으로 넘긴다. 나중에 이 경로를
 hcr5_description 쪽 정본으로 바꾸면, Setup Assistant 재생성에도 값이 살아남는다.
-(상세: src/moveit2/docs/HCR5_ros2_control_구축_상세.md §7.3.1)
+(상세: src/moveit2/docs/ysh_HCR5_ros2_control_구축_상세.md §7.3.1)
 """
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument

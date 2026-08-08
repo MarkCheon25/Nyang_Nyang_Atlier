@@ -2,8 +2,8 @@
 
 > 이 워크스페이스(`ws_moveit2/src/`)에서 만든 것, 실행 방법, 디버깅, 실기 통합 준비를 한 곳에 모았다.
 >
-> **왜 이렇게 만들었는가**(설계 근거·의사결정 경위)는 [`../../../docs/HCR5_ros2_control_구축_상세.md`](../../../docs/HCR5_ros2_control_구축_상세.md) 에 있다.
-> **코드를 한 줄씩 뜯어본 해설**은 [`../../../debug/`](../../../debug/) 에 있다.
+> **왜 이렇게 만들었는가**(설계 근거·의사결정 경위)는 [`../../../docs/ysh_HCR5_ros2_control_구축_상세.md`](../../../docs/ysh_HCR5_ros2_control_구축_상세.md) 에 있다.
+> **코드를 한 줄씩 뜯어본 해설**은 [`../../../ysh_debug/`](../../../ysh_debug/) 에 있다.
 > 이 문서는 **"무엇을 어떻게 돌리는가"** 에 집중한다.
 
 **브랜치** `ysh_moveit_ros2_control` · **환경** ROS 2 Jazzy · `moveit2_dev:jazzy` 컨테이너
@@ -244,7 +244,7 @@ base_link → link1_1 → … → link6_1 → tool0 → pen_tip
 
 ```bash
 # 호스트에서
-python3 ~/Nyang_Nyang_Atlier/src/moveit2/tools/check_moveit_config.py
+python3 ~/Nyang_Nyang_Atlier/src/moveit2/tools/ysh_check_moveit_config.py
 echo $?     # 0 = 통과 / 1 = 문제
 ```
 
@@ -372,7 +372,7 @@ MoveIt 이 만드는 것은 **6축 동시 시간 매개변수화 궤적**이라,
 ```bash
 python3 src/drivers/hcr_comm/tools/capture.py 192.168.0.20 1883 ~/cap_movej
 ```
-읽기 전용이라 로봇에 아무것도 쓰지 않는다. 절차는 `docs/HCR5_ros2_control_구축_상세.md` §10 참조.
+읽기 전용이라 로봇에 아무것도 쓰지 않는다. 절차는 `docs/ysh_HCR5_ros2_control_구축_상세.md` §10 참조.
 
 **함께 확인해야 할 것 ★** — movej 를 연속 2~3개 실행했을 때 **중간에 멈췄다 가는지, 끊김 없이 이어지는지(blending)**.
 "매번 정지"라면 획마다 마디가 져서 선 품질이 결정적으로 나빠지고, **서보 스트리밍 경로를 따로 찾아야 한다.**
@@ -472,9 +472,9 @@ Setup Assistant 재실행이 필요하다.** 그때 §1.2 의 손보정 3건이 
 
 | 문서 | 내용 |
 |---|---|
-| [`../../../docs/HCR5_ros2_control_구축_상세.md`](../../../docs/HCR5_ros2_control_구축_상세.md) | 설계 근거 · 의사결정 경위 · 문제 해결 기록 |
-| [`../../../docs/HCR5_ros2_control_요약.md`](../../../docs/HCR5_ros2_control_요약.md) | 1페이지 요약 (팀 공유용) |
-| [`../../../debug/`](../../../debug/) | 코드 한 줄씩 해설본 |
+| [`../../../docs/ysh_HCR5_ros2_control_구축_상세.md`](../../../docs/ysh_HCR5_ros2_control_구축_상세.md) | 설계 근거 · 의사결정 경위 · 문제 해결 기록 |
+| [`../../../docs/ysh_HCR5_ros2_control_요약.md`](../../../docs/ysh_HCR5_ros2_control_요약.md) | 1페이지 요약 (팀 공유용) |
+| [`../../../ysh_debug/`](../../../ysh_debug/) | 코드 한 줄씩 해설본 |
 | [`../hcr5_examples/README.md`](../hcr5_examples/README.md) | 예제 상세 |
 | [`../hcr5_viz/README.md`](../hcr5_viz/README.md) | 자취 시각화 상세 |
 | `../../../../drivers/hcr_comm/README.md` | **MQTT 명령 프로토콜** (실기 통합의 핵심 자료) |

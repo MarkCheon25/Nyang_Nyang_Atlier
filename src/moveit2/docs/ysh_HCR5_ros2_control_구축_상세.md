@@ -423,10 +423,10 @@ state_interfaces:
 
 두 파일 모두 **상단에 이유를 주석으로 박아 두었다.**
 
-**그리고 검증 스크립트를 두었다** — `src/moveit2/tools/check_moveit_config.py`
+**그리고 검증 스크립트를 두었다** — `src/moveit2/tools/ysh_check_moveit_config.py`
 
 ```bash
-python3 src/moveit2/tools/check_moveit_config.py
+python3 src/moveit2/tools/ysh_check_moveit_config.py
 echo $?     # 0 = 전부 통과, 1 = 문제 있음
 ```
 
@@ -494,7 +494,7 @@ ros2 control list_hardware_components    # position 6개가 [claimed]
 
 **설정 검증** (호스트에서, Setup Assistant 재실행 직후에는 필수):
 ```bash
-python3 src/moveit2/tools/check_moveit_config.py
+python3 src/moveit2/tools/ysh_check_moveit_config.py
 ```
 
 **RViz 조작**: MotionPlanning 패널 → 인터랙티브 마커 드래그 → `Plan` → `Execute`
