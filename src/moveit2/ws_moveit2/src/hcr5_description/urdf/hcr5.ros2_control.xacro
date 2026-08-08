@@ -1,0 +1,64 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--
+    하드웨어 플러그인을 인자로 받는다 (기본값은 종전과 같은 mock).
+
+    이것이 SA 가 말하는 하드웨어 추상화 경계(N6·F7.3)의 실제 구현 지점이다 —
+    시뮬레이션·실물이 **같은 URDF 로 플러그인만 갈아끼운다.** 기본값을 두었으므로
+    이 매크로를 그냥 호출하던 기존 사용처(MoveIt2 demo 등)는 달라지지 않는다.
+
+    예: <xacro:hcr5_ros2_control plugin="mujoco_ros2_control/MujocoSystemInterface"/>
+  -->
+  <xacro:macro name="hcr5_ros2_control"
+               params="name:=hcr5_system plugin:=mock_components/GenericSystem">
+    <ros2_control name="${name}" type="system">
+      <hardware>
+        <plugin>${plugin}</plugin>
+      </hardware>
+      <joint name="joint_1">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="joint_2">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="joint_3">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">1.5669</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="joint_4">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">-1.59</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="joint_5">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">-1.4695</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+      <joint name="joint_6">
+        <command_interface name="position"/>
+        <state_interface name="position">
+          <param name="initial_value">0</param>
+        </state_interface>
+        <state_interface name="velocity"/>
+      </joint>
+    </ros2_control>
+  </xacro:macro>
+
+</robot>

@@ -1,0 +1,38 @@
+<?xml version="1.0"?>
+<!--
+  ══ HCR-5 최상위 URDF ═══════════════════════════════════════════════════════
+  이 파일 하나만 xacro 에 넘기면 완성된 로봇이 나온다.
+
+  인자로 갈리는 것 (하드웨어 추상화 경계):
+    ros2_control:=false                  ros2_control 블록을 만들지 않는다.
+                                         감싸는 쪽이 자체 블록을 정의할 때 쓴다.
+    hardware_plugin:=<플러그인>          mock / MuJoCo / 실기 드라이버 교체 지점.
+    pen_length:=<m>                      펜 끝까지 거리. 펜홀더 설계 확정 시 교체.
+
+  예)
+    xacro hcr5.urdf.xacro                                    # mock (기본)
+    xacro hcr5.urdf.xacro hardware_plugin:=mujoco_ros2_control/MujocoSystemInterface
+    xacro hcr5.urdf.xacro pen_length:=0.182
+-->
+<robot name="hcr5" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ── 인자 ──────────────────────────────────────────────────────────── -->
+  <xacro:arg name="ros2_control"    default="true"/>
+  <xacro:arg name="hardware_plugin" default="mock_components/GenericSystem"/>
+  <xacro:arg name="pen_length"      default="0.15"/>
+
+  <!-- ── 구성요소 ──────────────────────────────────────────────────────── -->
+  <xacro:include filename="$(find hcr5_description)/urdf/hcr5_materials.xacro"/>
+  <xacro:include filename="$(find hcr5_description)/urdf/hcr5_arm.xacro"/>
+  <xacro:include filename="$(find hcr5_description)/urdf/hcr5_tool.xacro"/>
+  <xacro:include filename="$(find hcr5_description)/urdf/hcr5.ros2_control.xacro"/>
+
+  <!-- ── 펜홀더를 플랜지(link6_1)에 부착 ───────────────────────────────── -->
+  <xacro:hcr5_tool parent="link6_1" pen_length="$(arg pen_length)"/>
+
+  <!-- ── ros2_control (sim / 실기가 갈리는 지점) ───────────────────────── -->
+  <xacro:if value="$(arg ros2_control)">
+    <xacro:hcr5_ros2_control plugin="$(arg hardware_plugin)"/>
+  </xacro:if>
+
+</robot>

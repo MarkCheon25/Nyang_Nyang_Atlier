@@ -1,0 +1,44 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--
+    ══ 펜홀더 · TCP ══════════════════════════════════════════════════════════
+    체인:   <parent> ─fixed─ tool0 ─fixed─ pen_tip
+            (parent = link6_1 = 플랜지)
+
+    tool0    ROS-Industrial 관례 프레임 — **+Z 가 공구 진출(approach) 방향**이다.
+             link6_1 의 축 방향 근거: 이 URDF 는 모든 joint 의 rpy 가 0 이라
+             링크 프레임이 전부 base_link 와 축 정렬돼 있고, joint_6 의 회전축이
+             (-1,0,0) 이다. 즉 플랜지 법선 = link6_1 의 -X.
+             flange_p 기본값 -pi/2 가 tool0 의 +Z 를 그 -X 에 맞춘다.
+
+             ⚠️ 이 방향은 기하로부터의 **추론**이다. 1-4 에서 RViz TF 축(파랑=Z)이
+                팔 바깥을 향하는지 눈으로 확인하고 확정할 것. 어긋나면 flange_p 만
+                고치면 된다 (+pi/2 이면 반대 방향).
+
+    pen_tip  실제 TCP. tool0 의 +Z 로 pen_length 만큼 나간 지점.
+             펜홀더 설계가 확정되면 pen_length 만 교체한다.
+  -->
+  <xacro:macro name="hcr5_tool"
+               params="parent
+                       pen_length:=0.15
+                       flange_r:=0 flange_p:=-1.5707963 flange_y:=0
+                       pen_x:=0 pen_y:=0">
+
+    <link name="tool0"/>
+    <joint name="flange_to_tool0" type="fixed">
+      <parent link="${parent}"/>
+      <child  link="tool0"/>
+      <origin xyz="0 0 0" rpy="${flange_r} ${flange_p} ${flange_y}"/>
+    </joint>
+
+    <link name="pen_tip"/>
+    <joint name="tool0_to_pen_tip" type="fixed">
+      <parent link="tool0"/>
+      <child  link="pen_tip"/>
+      <origin xyz="${pen_x} ${pen_y} ${pen_length}" rpy="0 0 0"/>
+    </joint>
+
+  </xacro:macro>
+
+</robot>

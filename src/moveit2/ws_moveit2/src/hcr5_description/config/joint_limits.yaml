@@ -1,0 +1,54 @@
+# ══ HCR-5 관절 한계 ═══════════════════════════════════════════════════════
+#
+# 출처: HCR-5 Collaborative Robot User Manual v2.0 (2018-11, ENG)
+#       Appendix F(제원) · Appendix G(정지거리·정지시간)
+#
+# ⚠️ 이 파일은 "원본 근거"다. MoveIt 이 실제로 읽는 것은 Setup Assistant 가
+#    hcr5_moveit_config/config/joint_limits.yaml 로 생성하는 쪽이므로,
+#    생성 후 그 파일의 값이 아래와 같은지 반드시 대조할 것.
+#    (Setup Assistant 는 URDF 기본값으로 덮어쓰는 경향이 있다)
+#
+# max_velocity  = 3.1416 rad/s = 180 °/s
+#   Appendix G 원문: "maximum speed of 180°/sec which can be generated at the
+#   robot joint". 종전 CAD 기본값 100 rad/s (= 5729 °/s) 는 실기의 약 32배였다.
+#
+# max_acceleration = 3.5 rad/s² ≈ 200 °/s²  ← **추정치, 벤더 확인 대상**
+#   공식 매뉴얼에 관절 최대 가속도 항목이 없다. Appendix G 의 정지거리·정지시간
+#   (J1 34.67°/0.61s, J2 31.60°/0.55s, J3 29.08°/0.51s, 브레이크 체결 0.03s)
+#   에서 역산한 값이다. 비상제동 기준이라 통상 운전 가속도는 이보다 작아야 한다.
+#   그리기는 저속 연속 작업이므로 보수적으로 잡고 실기에서 조정한다.
+
+default_velocity_scaling_factor: 0.1
+default_acceleration_scaling_factor: 0.1
+
+joint_limits:
+  joint_1:
+    has_velocity_limits: true
+    max_velocity: 3.1416
+    has_acceleration_limits: true
+    max_acceleration: 3.5
+  joint_2:
+    has_velocity_limits: true
+    max_velocity: 3.1416
+    has_acceleration_limits: true
+    max_acceleration: 3.5
+  joint_3:
+    has_velocity_limits: true
+    max_velocity: 3.1416
+    has_acceleration_limits: true
+    max_acceleration: 3.5
+  joint_4:
+    has_velocity_limits: true
+    max_velocity: 3.1416
+    has_acceleration_limits: true
+    max_acceleration: 3.5
+  joint_5:
+    has_velocity_limits: true
+    max_velocity: 3.1416
+    has_acceleration_limits: true
+    max_acceleration: 3.5
+  joint_6:
+    has_velocity_limits: true
+    max_velocity: 3.1416
+    has_acceleration_limits: true
+    max_acceleration: 3.5

@@ -1,0 +1,10 @@
+moveit_setup_assistant_config:
+  urdf:
+    package: hcr5_description
+    relative_path: urdf/hcr5.urdf.xacro
+  srdf:
+    relative_path: config/hcr5.srdf
+  package_settings:
+    author_name: ysh
+    author_email: ysh2@gmail.com
+    generated_timestamp: 1786158115
