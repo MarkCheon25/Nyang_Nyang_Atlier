@@ -52,9 +52,9 @@ int main(int argc, char** argv)
   std::vector<geometry_msgs::msg::Pose> waypoints;
   auto p = start;
   p.position.x += SIDE;  waypoints.push_back(p);
-  p.position.y += SIDE;  waypoints.push_back(p);
+  p.position.z += SIDE;  waypoints.push_back(p);
   p.position.x -= SIDE;  waypoints.push_back(p);
-  p.position.y -= SIDE;  waypoints.push_back(p);   // 시작점 복귀 → 닫힌 사각형
+  p.position.z -= SIDE;  waypoints.push_back(p);   // 시작점 복귀 → 닫힌 사각형
 
   moveit_msgs::msg::RobotTrajectory traj_msg;
   double fraction = mg.computeCartesianPath(waypoints, EEF_STEP, traj_msg);

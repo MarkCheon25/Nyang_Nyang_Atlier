@@ -22,6 +22,7 @@ set(EXAMPLES
   joint_goal:01_joint_goal
   pose_goal:02_pose_goal
   cartesian_square:03_cartesian_square
+  4_cartesian_square:04_cartesian_square
 )
 
 foreach(pair IN LISTS EXAMPLES)

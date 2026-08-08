@@ -61,7 +61,7 @@ int main(int argc, char** argv)
   // ───────────────────────────────────────────────────────────────────────────
   // 【3】 노드 생성  ← 여기가 가장 자주 틀리는 곳
   // ───────────────────────────────────────────────────────────────────────────
-
+  
   auto node = std::make_shared<rclcpp::Node>(
       "hcr5_joint_goal",
       rclcpp::NodeOptions().automatically_declare_parameters_from_overrides(true));
