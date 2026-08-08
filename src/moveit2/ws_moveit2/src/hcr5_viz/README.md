@@ -19,11 +19,17 @@ TF 에서 **펜 끝(`pen_tip`)** 을 따라가며 지나간 자취를 RViz 에 �
 ros2 launch hcr5_moveit_config demo.launch.py
 
 # 터미널 2 — 자취 시각화
-ros2 launch hcr5_viz pen_trail.launch.py
+ros2 run hcr5_viz pen_trail
 
 # 터미널 3 — 도형 그리기
 ros2 launch hcr5_examples example.launch.py example:=cartesian_square
 ```
+
+> **launch 파일이 없는 이유** — 이 노드는 파라미터를 전부 기본값과 함께 선언하고
+> TF 만 읽으므로 외부 주입이 필요 없다. launch 를 두면 기본값이 두 곳에 중복되어
+> 한쪽만 고쳤을 때 조용히 어긋난다. `hcr5_examples/example.launch.py` 는
+> robot_description 등을 **반드시** 주입해야 해서 launch 가 필수인 경우이고,
+> 여기는 그렇지 않다.
 
 ## RViz 설정
 
@@ -44,7 +50,7 @@ ros2 service call /pen_trail/clear std_srvs/srv/Empty
 
 ## 파라미터
 
-전부 launch 인자로 바꿀 수 있다. **코드를 고칠 필요가 없다.**
+전부 `--ros-args -p` 로 바꿀 수 있다. **코드를 고칠 필요가 없다.**
 
 | 인자 | 기본 | 뜻 |
 |---|---|---|
@@ -58,10 +64,10 @@ ros2 service call /pen_trail/clear std_srvs/srv/Empty
 
 ```bash
 # 더 촘촘하게 (곡선을 볼 때)
-ros2 launch hcr5_viz pen_trail.launch.py min_point_distance:=0.0005
+ros2 run hcr5_viz pen_trail --ros-args -p min_point_distance:=0.0005
 
 # 플랜지 자취와 비교 — 펜 오프셋 150mm 가 눈에 보인다
-ros2 launch hcr5_viz pen_trail.launch.py tip_frame:=link6_1
+ros2 run hcr5_viz pen_trail --ros-args -p tip_frame:=link6_1
 ```
 
 > `min_point_distance` 를 0 으로 두면 정지 상태에서도 같은 점이 계속 쌓여

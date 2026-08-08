@@ -82,6 +82,16 @@ class PenTrail(Node):
         self.points: list[Point] = []
         self._warned = False   # TF 경고를 한 번만 내기 위한 플래그
 
+        # ★ 기동 시 이전 자취를 지운다.
+        #   Marker 는 lifetime 을 지정하지 않으면 기본값 0 = **영구 유지**다.
+        #   그래서 노드를 껐다 켜도 RViz 는 이전 실행의 선을 계속 들고 있고,
+        #   새 자취가 그 위에 덧그려져 두 실험 결과가 겹쳐 보인다.
+        #   (노드가 죽어도 선이 남아 있어서 "아직 도는 중"으로 오인하기도 쉽다)
+        #
+        #   지연을 두는 이유: 발행자가 막 생겼을 때 구독자(RViz)와의 연결이
+        #   아직 안 맺어져 있으면 이 메시지가 유실된다. 0.5초 뒤 한 번만 쏜다.
+        self._startup_clear = self.create_timer(0.5, self._clear_once)
+
         self.timer = self.create_timer(1.0 / rate, self._tick)
 
         self.get_logger().info(
@@ -92,16 +102,28 @@ class PenTrail(Node):
         self.get_logger().info("자취 지우기: ros2 service call /pen_trail/clear std_srvs/srv/Empty")
 
     # ─────────────────────────────────────────────────────────────────────────
-    def _on_clear(self, request, response):
-        """자취를 지운다. 도형을 바꿔가며 실험할 때 이전 선이 겹치지 않게."""
-        n = len(self.points)
-        self.points.clear()
-        # DELETEALL 을 한 번 보내야 RViz 에 남아 있던 선이 실제로 사라진다.
-        # 빈 LINE_STRIP 만 보내면 RViz 가 이전 마커를 그대로 들고 있다.
+    def _clear_once(self):
+        """기동 직후 1회 실행. 이전 실행이 남긴 마커를 지우고 타이머를 해제한다."""
+        self._startup_clear.cancel()
+        self._delete_all()
+        self.get_logger().info("이전 자취 삭제 (기동 정리)")
+
+    def _delete_all(self):
+        """RViz 가 들고 있는 마커를 실제로 지운다.
+
+        빈 LINE_STRIP 을 보내는 것만으로는 안 된다 — RViz 는 이전 마커를
+        그대로 유지한다. DELETEALL 액션을 명시적으로 보내야 사라진다.
+        """
         m = Marker()
         m.header.frame_id = self.base_frame
         m.action = Marker.DELETEALL
         self.pub.publish(MarkerArray(markers=[m]))
+
+    def _on_clear(self, request, response):
+        """자취를 지운다. 도형을 바꿔가며 실험할 때 이전 선이 겹치지 않게."""
+        n = len(self.points)
+        self.points.clear()
+        self._delete_all()
         self.get_logger().info(f"자취 삭제 ({n} 점)")
         return response
 
