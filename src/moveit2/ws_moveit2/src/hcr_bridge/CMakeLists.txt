@@ -14,6 +14,9 @@ find_package(rclcpp REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
 find_package(nlohmann_json REQUIRED)
+find_package(hardware_interface REQUIRED)
+find_package(pluginlib REQUIRED)
+find_package(rclcpp_lifecycle REQUIRED)
 
 # libmosquitto / libuuid 는 ament 패키지가 아니라 pkg-config 로 찾는다.
 find_package(PkgConfig REQUIRED)
@@ -26,12 +29,23 @@ target_include_directories(hcr_mqtt PUBLIC
   $<INSTALL_INTERFACE:include>
   ${MOSQUITTO_INCLUDE_DIRS} ${UUID_INCLUDE_DIRS})
 target_link_libraries(hcr_mqtt ${MOSQUITTO_LIBRARIES} ${UUID_LIBRARIES} nlohmann_json::nlohmann_json)
+# 아래 플러그인이 공유 라이브러리라 정적으로 묶이는 hcr_mqtt 도 PIC 여야 한다.
+set_property(TARGET hcr_mqtt PROPERTY POSITION_INDEPENDENT_CODE ON)
 
 add_executable(state_bridge_node src/state_bridge_node.cpp)
 target_link_libraries(state_bridge_node hcr_mqtt)
 ament_target_dependencies(state_bridge_node rclcpp sensor_msgs std_srvs)
 
-install(TARGETS hcr_mqtt
+# ── ros2_control 하드웨어 플러그인 ────────────────────────────────────────
+# 같은 패키지 안에 두어 hcr_mqtt · joint_convention.hpp 를 배선 없이 재사용한다.
+# (hcr_bridge 에 ament_export_targets 가 없어 외부 패키지는 hcr_mqtt 를 링크 못 한다)
+add_library(hcr_system_interface SHARED src/hcr_system_interface.cpp)
+target_link_libraries(hcr_system_interface hcr_mqtt)
+ament_target_dependencies(hcr_system_interface
+  hardware_interface pluginlib rclcpp rclcpp_lifecycle)
+pluginlib_export_plugin_description_file(hardware_interface hcr_bridge_plugins.xml)
+
+install(TARGETS hcr_mqtt hcr_system_interface
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)

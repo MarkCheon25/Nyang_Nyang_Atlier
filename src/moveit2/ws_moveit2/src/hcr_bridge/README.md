@@ -4,24 +4,31 @@
 > 컨트롤러의 네이티브 MQTT 버스를 직접 말하는 방식이며, 프로토콜은 펜던트 관찰로
 > 역설계했다 → [`src/drivers/hcr_comm/README.md`](../../../../drivers/hcr_comm/README.md)
 
-*2026-08-05 착수. 현재 **상태 브릿지까지** 구현 — 궤적 실행 층은 미구현(업무목록 T15).*
+*2026-08-05 착수. 상태 브릿지(독립 노드) + **ros2_control 하드웨어 플러그인**(08-09 신설, 실기 미검증) 구현.*
 
 ---
 
-## 0. 왜 ros2_control 이 아닌가
+## 0. 왜 ros2_control 이 아닌가 → **부분 재검토 중** (08-09)
 
 커뮤니티 드라이버(`hcr_control/RobotSystem`)는 Rodi 2.x 플러그인을 요구해 이 로봇에 설치할 수 없다.
-네이티브 MQTT 경로는 1.x 에서 그대로 동작하므로 이쪽을 쓴다.
+네이티브 MQTT 경로는 1.x 에서 그대로 동작하므로 이쪽을 쓴다. **이 부분은 그대로다.**
 
-`SystemInterface` 플러그인 대신 **독립 노드**를 택한 이유:
+08-05 에 `SystemInterface` 플러그인 대신 **독립 노드**를 택한 이유는 셋이었다:
 
-| | 이유 |
-|---|---|
-| 주기 불일치 | 상태 버스가 **29.1Hz**, `controller_manager` 는 100Hz. `read()`/`write()` 를 100Hz 로 돌리면 없는 데이터를 만들어내야 한다 |
-| 실행 모델 | `move/joint/here` 는 **한 번 발행하면 목표까지 자율 주행**한다(실측: 명령 없이 6.3초간 61° 이동 후 도착). 매 주기 목표를 밀어넣는 `write()` 모델과 맞지 않는다 |
-| 연속 궤적 | 소묘 스트로크는 `program/plan` 의 블렌딩(`radius`·`continues`)으로 실행한다 — 컨트롤러가 보간을 소유하는 구조라 ros2_control 의 궤적 소유권과 충돌한다 |
+| | 이유 | 08-09 현재 |
+|---|---|---|
+| 주기 불일치 | 상태 버스가 **29.1Hz**, `controller_manager` 는 100Hz. `read()`/`write()` 를 100Hz 로 돌리면 없는 데이터를 만들어내야 한다 | ⚠️ **무너졌다** — ros2_control **4.45.2** 의 컴포넌트별 `rw_rate`·`is_async` 로 주기를 분리할 수 있다(사실, mock 확인) |
+| 실행 모델 | `move/joint/here` 는 **한 번 발행하면 목표까지 자율 주행**한다(실측: 명령 없이 6.3초간 61° 이동 후 도착). 매 주기 목표를 밀어넣는 `write()` 모델과 맞지 않는다 | **유효** — 그래서 플러그인의 명령 경로는 **점대점 한정**이다 |
+| 연속 궤적 | 소묘 스트로크는 `program/plan` 의 블렌딩(`radius`·`continues`)으로 실행한다 — 컨트롤러가 보간을 소유하는 구조라 ros2_control 의 궤적 소유권과 충돌한다 | **유효** — 스트로크는 `program/plan` 에 그대로 남긴다 |
 
-MoveIt2 는 **계획·검증**을 맡고 실행은 컨트롤러에 위임한다.
+그래서 08-09 에 **`HcrSystemInterface` 를 실제로 구현했다**(`src/hcr_system_interface.cpp`). 둘은 배타가 아니다 —
+플러그인은 **점대점 + 상태 피드백** 계층이고, 연속 스트로크는 여전히 `program/plan` 이다.
+
+> **이것이 08-05 결정의 '반전'인지 '병행'인지는 아직 판정하지 않았다.** 판정에는 실기 실측(B·C)이 필요하고,
+> 기록 자리는 `ros2_control_hw_interface/최종결과물.md` 의 '차이' 절이다. 계약·실측 현황은
+> [`중간결과물.md`](../../../../drivers/hcr_comm/ros2_control_hw_interface/중간결과물.md).
+
+MoveIt2 는 **계획·검증**을 맡는다. 실행은 — 점대점이면 JTC→플러그인, 연속 스트로크면 컨트롤러에 위임한다.
 
 ## 1. 관절 규약 — 빠뜨리면 조용히 틀린다 ⚠️
 
@@ -49,8 +56,13 @@ q_URDF[i](도) = SIGN[i] * q_real[i](도) + DELTA[i]
 |---|---|
 | `include/hcr_bridge/joint_convention.hpp` | 규약 변환·가동범위·홈 자세 (헤더 온리) |
 | `include/hcr_bridge/mqtt_client.hpp` · `src/mqtt_client.cpp` | MQTT 버스 클라이언트 + `pubWithAck` RPC |
-| `src/state_bridge_node.cpp` | 상태 → `/joint_states`, 서보·홈 서비스 |
+| `src/state_bridge_node.cpp` | 상태 → `/joint_states`, 서보·홈 서비스 (**독립 노드** 경로) |
+| `include/hcr_bridge/hcr_system_interface.hpp` · `src/hcr_system_interface.cpp` | **ros2_control 하드웨어 플러그인** (§0) — MoveIt2 실행 경로용 |
+| `hcr_bridge_plugins.xml` | pluginlib 등록 — 클래스명 `hcr_bridge/HcrSystemInterface` |
 | `launch/state_bridge.launch.py` | 기동 (기본 읽기 전용) |
+
+두 경로는 **동시에 쓰지 않는다.** 독립 노드는 `/joint_states` 를 직접 내고, 플러그인은
+`joint_state_broadcaster` 를 통해 낸다 — 같이 띄우면 같은 토픽에 둘이 발행한다.
 
 ### 봉투 규약
 
@@ -93,6 +105,21 @@ RViz 에 `RobotModel` 을 띄우면 **실기의 실제 자세가 그대로 보�
 - 서보를 켠 채 오래 두지 말 것 — 홀딩 토크로 축 온도가 37→60°C 까지 오른다
 
 ## 5. 다음 (T15)
+
+**ros2_control 경로 — 점대점 + 상태 피드백** (08-09 신설)
+
+```bash
+# 실기 전환은 인자 하나다. 기본값은 mock 이라 인자 없이 띄우면 로봇이 필요 없다.
+ros2 launch hcr_moveit_config demo.launch.py \
+    hardware_plugin:=hcr_bridge/HcrSystemInterface rw_rate:=30 is_async:=true
+```
+
+- [x] `HcrSystemInterface` 구현 — 라이프사이클 9행·안전게이트 7건. 빌드·플러그인 로드까지 실측
+- [ ] **실기 읽기 검증(B)** — 상태 정합·`read()` 실효 주기·통신 두절 거동·차분 velocity 품질
+- [ ] **실기 쓰기 검증(C)** — 게이트가 실제로 막는가 → 단발 점대점 → 재발행 선점 → JTC 궤적 관통
+- [ ] 실기 없이 실기 모드를 띄우면 **controller_manager 가 abort** 한다 — 완화책 확정 필요
+
+**연속 스트로크 경로 — 이 계층 밖이다**
 
 - [ ] `FollowJointTrajectory` 액션 서버 — MoveIt2 궤적 수신
 - [ ] 궤적 → `program/plan` 변환. 스트로크 내부는 `continues:true`·`radius:0`(정확 통과),

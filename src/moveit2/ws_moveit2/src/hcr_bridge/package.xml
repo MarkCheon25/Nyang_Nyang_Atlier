@@ -18,7 +18,13 @@
   <depend>geometry_msgs</depend>
   <depend>std_srvs</depend>
 
+  <!-- ros2_control 하드웨어 플러그인용 -->
+  <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp_lifecycle</depend>
+
   <export>
     <build_type>ament_cmake</build_type>
+    <hardware_interface plugin="${prefix}/hcr_bridge_plugins.xml"/>
   </export>
 </package>
