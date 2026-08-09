@@ -1,4 +1,52 @@
 <?xml version="1.0" ?>
+<!--
+  ══ HCR-5 팔 기구학 ══════════════════════════════════════════════════════════
+
+  ★ 표시된 origin·limit 은 **실기 실측으로 교정된 정본값**이다. 임의로 되돌리지 말 것.
+
+  왜 교정이 필요했나
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  이 파일의 원본은 CAD 변환본(`hcr_robot.xacro`)이고, 그 CAD 치수가 실기와 달랐다.
+  컨트롤러의 순기구학 RPC(`robot/convertPose`)로 6축을 20°씩 전 회전 스윕해
+  (108 샘플, 원 적합 RMS 0.000mm) 실기 기구학을 추출하고 URDF 와 최소제곱 대조한 결과:
+
+      109개 자세 위치오차 RMS  43.4mm  →  0.0060mm  (최대 0.0130mm)
+
+  **43mm 는 조용히 틀린다.** 계획도 실행도 에러 없이 성공하고, 펜만 43mm 옆에 그린다.
+  A4 폭이 210mm 이므로 이 상태로는 그림이 성립하지 않는다.
+
+  독립 검증 (이 파일에 반영 후 재계산)
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  실기 홈 [0,−90,−90,−90,90,0]° = URDF [90,0,90,0,90,0]° 에서
+      계산 flange = (490.00, −170.50, 441.50) mm
+      실측 flange = (490.00, −170.50, 441.50) mm   → 차이 **0.01mm**
+  같은 자세에서 pen_tip 이 flange 기준 base −Z 로 150mm (펜이 바닥을 향함) 임도 확인.
+
+  실기 ↔ URDF 영점 규약 (이 파일에는 담기지 않는다 — 브릿지가 소유)
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+      q_URDF[i](도) = SIGN[i] * q_real[i](도) + DELTA[i]
+      SIGN  = (+1, +1, −1, +1, +1, +1)     ← J3 만 부호 반전
+      DELTA = ( 90,  90,   0,  90,   0,  0)
+  실기 zero = 팔이 수평으로 뻗은 자세, URDF zero = 팔이 수직으로 선 자세.
+  구현: `hcr_bridge/include/hcr_bridge/joint_convention.hpp`
+  ⚠️ 이 변환을 빼먹으면 로봇이 에러 없이 전혀 다른 자세로 간다.
+
+  mesh visual/collision origin 에 대하여
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  이 파일의 mesh origin 은 전부 **유도값**이다 — CAD 가 링크를 하나의 base 좌표계 자세로
+  그려 두었기 때문에, 각 링크의 origin 은 "영점 자세 누적변환의 역" 이어야 한다.
+  관절 origin 을 고쳤으므로 이 유도값도 함께 다시 계산했다(파일 내부 정합성 유지).
+  ⚠️ 그 결과 link5_1 ↔ link6_1 사이에 **약 43mm 의 시각적 틈**이 보인다. 이는 실기 손목이
+     CAD 모델보다 그만큼 길다는 뜻이며, **기구학은 옳고 mesh 형상만 부족한 것**이다.
+     STL 재작업은 별도 과제. 계획·실행에는 영향이 없다.
+
+  출처
+  ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+  · 기구학 교정 (2026-08-05, 세션 260805-봉선화):
+    `hanwha_robot_arm/HCR_5/hcr_robot_description/urdf/hcr_robot.xacro` 관절 정의부 주석
+  · 가동범위·속도: HCR-5 User Manual v2.0 (2018-11) Appendix F·G
+  · 검증 스크립트: `src/moveit2/tools/ysh_check_moveit_config.py` [F]
+-->
 <robot name="hcr5" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
 <link name="base_link">
@@ -50,14 +98,14 @@
     <inertia ixx="1.334728" iyy="1.368804" izz="0.0845" ixy="-5e-06" iyz="-0.003172" ixz="-0.002068"/>
   </inertial>
   <visual>
-    <origin xyz="0.0785 0.0 -0.148778" rpy="0 0 0"/>
+    <origin xyz="0.059138 0.0 -0.149001" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://hcr5_description/meshes/link2_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
-    <origin xyz="0.0785 0.0 -0.148778" rpy="0 0 0"/>
+    <origin xyz="0.059138 0.0 -0.149001" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://hcr5_description/meshes/link2_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
@@ -71,14 +119,14 @@
     <inertia ixx="0.008668" iyy="0.014027" izz="0.010649" ixy="-0.0" iyz="0.0" ixz="0.001661"/>
   </inertial>
   <visual>
-    <origin xyz="0.077848 -0.001 -0.572778" rpy="0 0 0"/>
+    <origin xyz="0.078486 0.0 -0.574002" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://hcr5_description/meshes/link3_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
-    <origin xyz="0.077848 -0.001 -0.572778" rpy="0 0 0"/>
+    <origin xyz="0.078486 0.0 -0.574002" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://hcr5_description/meshes/link3_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
@@ -92,14 +140,14 @@
     <inertia ixx="0.011005" iyy="0.012783" izz="0.007491" ixy="-0.0" iyz="0.0" ixz="0.001222"/>
   </inertial>
   <visual>
-    <origin xyz="0.107864 -0.000992 -0.911345" rpy="0 0 0"/>
+    <origin xyz="0.108502 8e-06 -0.912501" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://hcr5_description/meshes/link4_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
-    <origin xyz="0.107864 -0.000992 -0.911345" rpy="0 0 0"/>
+    <origin xyz="0.108502 8e-06 -0.912501" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://hcr5_description/meshes/link4_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
@@ -113,14 +161,14 @@
     <inertia ixx="0.007541" iyy="0.012794" izz="0.010966" ixy="0.0" iyz="-0.0" ixz="0.001224"/>
   </inertial>
   <visual>
-    <origin xyz="0.169864 -0.000992 -1.000941" rpy="0 0 0"/>
+    <origin xyz="0.170502 8e-06 -1.002005" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://hcr5_description/meshes/link5_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
-    <origin xyz="0.169864 -0.000992 -1.000941" rpy="0 0 0"/>
+    <origin xyz="0.170502 8e-06 -1.002005" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://hcr5_description/meshes/link5_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
@@ -134,14 +182,14 @@
     <inertia ixx="0.001473" iyy="0.00094" izz="0.000976" ixy="0.0" iyz="0.0" ixz="-8e-06"/>
   </inertial>
   <visual>
-    <origin xyz="0.25946 -0.000992 -1.062941" rpy="0 0 0"/>
+    <origin xyz="0.303 8e-06 -1.064005" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://hcr5_description/meshes/link6_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
     <material name="silver"/>
   </visual>
   <collision>
-    <origin xyz="0.25946 -0.000992 -1.062941" rpy="0 0 0"/>
+    <origin xyz="0.303 8e-06 -1.064005" rpy="0 0 0"/>
     <geometry>
       <mesh filename="package://hcr5_description/meshes/link6_1.stl" scale="0.001 0.001 0.001"/>
     </geometry>
@@ -153,47 +201,63 @@
   <parent link="base_link"/>
   <child link="link1_1"/>
   <axis xyz="0.0 -0.0 1.0"/>
-  <limit upper="6.283185" lower="-6.283185" effort="100" velocity="3.1416"/>
+  <!-- 교정 대상 아님 (실측과 일치). 공식 ±360°, 180°/s -->
+  <limit upper="6.283185" lower="-6.283185" effort="100" velocity="3.141593"/>
 </joint>
 
 <joint name="joint_2" type="revolute">
-  <origin xyz="-0.0785 0.0 0.118778" rpy="0 0 0"/>
+  <!-- ★ 실측 교정: x −0.0785→−0.059138 (+19.36mm) · z 0.118778→0.119001
+       joint_3.x 와 짝을 이룬다 (joint_3 주석 참조) -->
+  <origin xyz="-0.059138 0.0 0.119001" rpy="0 0 0"/>
   <parent link="link1_1"/>
   <child link="link2_1"/>
   <axis xyz="-1.0 0.0 0.0"/>
-  <limit upper="1.570796" lower="-1.570796" effort="100" velocity="3.1416"/>
+  <!-- ★ ±90° → ±360°. 공식 가동범위는 ±360° 이고, 종전 ±90° 는 CAD 더미값이었다 -->
+  <limit upper="6.283185" lower="-6.283185" effort="100" velocity="3.141593"/>
 </joint>
 
 <joint name="joint_3" type="revolute">
-  <origin xyz="0.000652 0.001 0.424" rpy="0 0 0"/>
+  <!-- ★ 실측 교정: x 0.000652→−0.019348 · y 0.001→0 · z 0.424→0.425001 (상완 +1mm)
+       joint_2.x 와 joint_3.x 는 축이 평행해 겉보기엔 합만 의미 있을 것 같지만, 두 origin
+       사이에 J2 회전이 끼어 있어 실제로는 개별 식별된다. 합만 맞추면 RMS 0.28mm 가
+       남고, 최소제곱 해를 그대로 쓰면 0.0038mm 가 된다 -->
+  <origin xyz="-0.019348 0.0 0.425001" rpy="0 0 0"/>
   <parent link="link2_1"/>
   <child link="link3_1"/>
   <axis xyz="1.0 0.0 0.0"/>
-  <limit upper="2.879793" lower="-2.879793" effort="100" velocity="3.1416"/>
+  <!-- J3 만 별도 제한 ±165° 가 실제로 존재한다 (Appendix F) -->
+  <limit upper="2.879793" lower="-2.879793" effort="100" velocity="3.141593"/>
 </joint>
 
 <joint name="joint_4" type="revolute">
-  <origin xyz="-0.030016 -8e-06 0.338567" rpy="0 0 0"/>
+  <!-- ★ 실측 교정: z 0.338567→0.338499 (−0.07mm) -->
+  <origin xyz="-0.030016 -8e-06 0.338499" rpy="0 0 0"/>
   <parent link="link3_1"/>
   <child link="link4_1"/>
   <axis xyz="-1.0 0.0 -0.0"/>
-  <limit upper="2.96706" lower="-2.96706" effort="100" velocity="3.1416"/>
+  <!-- ★ ±170° → ±360° (CAD 더미값 → 공식값) -->
+  <limit upper="6.283185" lower="-6.283185" effort="100" velocity="3.141593"/>
 </joint>
 
 <joint name="joint_5" type="revolute">
-  <origin xyz="-0.062 0.0 0.089596" rpy="0 0 0"/>
+  <!-- ★ 실측 교정: z 0.089596→0.089504 (−0.09mm) -->
+  <origin xyz="-0.062 0.0 0.089504" rpy="0 0 0"/>
   <parent link="link4_1"/>
   <child link="link5_1"/>
   <axis xyz="-0.0 -0.0 1.0"/>
-  <limit upper="2.094395" lower="-2.094395" effort="100" velocity="3.1416"/>
+  <!-- ★ ±120° → ±360°. **실기 wrist2 가 −267° 로 관측된다** — 종전 ±120° 로는
+       실기의 현재 자세조차 URDF 로 표현할 수 없어 상태 브릿지가 깨진다 -->
+  <limit upper="6.283185" lower="-6.283185" effort="100" velocity="3.141593"/>
 </joint>
 
 <joint name="joint_6" type="revolute">
-  <origin xyz="-0.089596 0.0 0.062" rpy="0 0 0"/>
+  <!-- ★ 실측 교정: x −0.089596→−0.132498 (−42.90mm). J5 축에서 flange 까지 거리가
+       실기 132.5mm 인데 URDF 는 89.6mm 였다. **이 한 건이 전체 오차의 대부분이었다** -->
+  <origin xyz="-0.132498 0.0 0.062" rpy="0 0 0"/>
   <parent link="link5_1"/>
   <child link="link6_1"/>
   <axis xyz="-1.0 -0.0 0.0"/>
-  <limit upper="6.283185" lower="-6.283185" effort="100" velocity="3.1416"/>
+  <limit upper="6.283185" lower="-6.283185" effort="100" velocity="3.141593"/>
 </joint>
 
 </robot>

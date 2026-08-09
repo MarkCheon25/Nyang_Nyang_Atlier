@@ -13,12 +13,17 @@
         <chain base_link="base_link" tip_link="pen_tip"/>
     </group>
     <!--GROUP STATES: Purpose: Define a named state for a particular group, in terms of joint values. This is useful to define states like 'folded arms'-->
+    <!--★ 손보정: 종전값은 Setup Assistant 에서 임의로 잡은 자세였다. 실기가 `move/joint/home`
+        으로 실제 가는 자세로 교체했다 — 실기 [0,−90,−90,−90,90,0]° 를 SIGN/DELTA 규약으로
+        환산한 URDF [90,0,90,0,90,0]° 다. 이 자세의 flange 는 (490.0, −170.5, 441.5) mm 로
+        실측과 0.01mm 일치하며, pen_tip 은 그보다 150mm 아래(펜이 바닥을 향함)에 온다.
+        재생성 시 되돌아간다 — tools/ysh_check_moveit_config.py [G] 가 감시한다.-->
     <group_state name="home" group="hcr_arm">
-        <joint name="joint_1" value="0"/>
+        <joint name="joint_1" value="1.570796"/>
         <joint name="joint_2" value="0"/>
-        <joint name="joint_3" value="1.57"/>
-        <joint name="joint_4" value="-1.57"/>
-        <joint name="joint_5" value="-1.57"/>
+        <joint name="joint_3" value="1.570796"/>
+        <joint name="joint_4" value="0"/>
+        <joint name="joint_5" value="1.570796"/>
         <joint name="joint_6" value="0"/>
     </group_state>
     <!--VIRTUAL JOINT: Purpose: this element defines a virtual joint between a robot link and an external frame of reference (considered fixed with respect to the robot)-->

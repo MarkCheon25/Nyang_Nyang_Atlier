@@ -16,6 +16,16 @@ MoveIt Setup Assistant 를 재실행하면 config/ 아래 파일이 **전부 새
         hcr_arm_controller/follow_joint_trajectory"
        컨트롤러가 configure 에 실패해 아예 뜨지 않는다
 
+  3) hcr5.srdf 의 group_state 'home' 이 임의 자세로 되돌아감
+     → 실기 `move/joint/home` 이 가는 자세와 달라진다
+
+그리고 재생성과 무관하게, **더 조용히 틀리는** 것이 하나 더 있다:
+
+  4) URDF 관절 origin 이 교정 전 CAD 값으로 되돌아감  ← [F]
+     → 계획도 실행도 에러 없이 성공하고 **펜만 43mm 옆에 그린다.**
+       A4 폭이 210mm 이므로 이 상태로는 그림이 성립하지 않는다.
+       [F] 는 값 대조에 그치지 않고 **순기구학을 직접 풀어 실측 flange 좌표와 대조**한다.
+
 이 스크립트는 moveit_config **패키지 바깥**(src/moveit2/tools/)에 둔다. Setup Assistant 가
 건드리지 않는 위치라 재생성에도 살아남는다.
 
@@ -26,6 +36,7 @@ MoveIt Setup Assistant 를 재실행하면 config/ 아래 파일이 **전부 새
 
 Setup Assistant 를 다시 돌린 직후에는 **반드시** 한 번 실행할 것.
 """
+import math
 import re
 import sys
 import xml.etree.ElementTree as ET
@@ -46,6 +57,28 @@ TIP_LINK = "pen_tip"
 CMD_IF = ["position"]
 STATE_IF = ["position", "velocity"]
 JOINTS = [f"joint_{i}" for i in range(1, 7)]
+
+# ── 기구학 정본 ───────────────────────────────────────────────────────────────
+# 출처: 2026-08-05 실기 실측 교정 (FK RPC 108 샘플 스윕 → 최소제곱).
+#       109개 자세 위치오차 RMS 43.4mm → 0.0060mm.
+# ⚠️ 이 값이 CAD 원본으로 되돌아가면 아무 에러 없이 펜이 43mm 옆에 그린다.
+CANON_ORIGIN = {
+    "joint_1": (0.0,       0.0,     0.03),
+    "joint_2": (-0.059138, 0.0,     0.119001),
+    "joint_3": (-0.019348, 0.0,     0.425001),
+    "joint_4": (-0.030016, -8e-06,  0.338499),
+    "joint_5": (-0.062,    0.0,     0.089504),
+    "joint_6": (-0.132498, 0.0,     0.062),
+}
+# 공식 가동범위 (User Manual v2.0 Appendix F): ±360°, J3 만 ±165°.
+CANON_LIMIT = {j: (-FULL_TURN, FULL_TURN) for j in JOINTS}
+CANON_LIMIT["joint_3"] = (-JOINT3_UPPER, JOINT3_UPPER)
+
+# 실기 홈 [0,−90,−90,−90,90,0]° 를 SIGN/DELTA 규약으로 환산한 URDF 값(rad).
+HOME_URDF = [1.570796, 0.0, 1.570796, 0.0, 1.570796, 0.0]
+# 그 자세에서 펜던트가 읽은 flange 좌표 [m]. FK 결과가 여기 0.1mm 안으로 들어와야 한다.
+HOME_FLANGE_M = (0.490, -0.1705, 0.4415)
+FK_TOL_M = 1e-4             # 0.1mm — 로봇 반복정밀도와 같은 자릿수
 
 WS = Path(__file__).resolve().parent.parent / "ws_moveit2" / "src"
 DESC = WS / "hcr5_description"
@@ -80,51 +113,75 @@ def load_yaml(p):
     return yaml.safe_load(p.read_text())
 
 
-# ── A. URDF 관절 한계 (hcr5_description) ──────────────────────────────────────
-def check_urdf_limits():
-    print("\n[A] URDF 관절 한계  hcr5_description/urdf/hcr5_arm.xacro")
+# ── URDF 파싱 (A·F 공용) ──────────────────────────────────────────────────────
+def parse_arm():
+    """hcr5_arm.xacro 에서 관절별 origin·axis·limit 을 뽑는다. 실패하면 None."""
     f = DESC / "urdf" / "hcr5_arm.xacro"
     if not f.exists():
         bad(f"파일 없음: {f}")
-        return
+        return None
     text = f.read_text()
+    blocks = dict(re.findall(r'<joint name="(joint_\d)"[^>]*>(.*?)</joint>', text, re.S))
 
-    # <joint name="joint_N" ...> ... <limit upper=".." lower=".." velocity=".."/>
-    blocks = re.findall(
-        r'<joint name="(joint_\d)"[^>]*>(.*?)</joint>', text, re.S)
-    found = {name: body for name, body in blocks}
-
-    missing = [j for j in JOINTS if j not in found]
+    missing = [j for j in JOINTS if j not in blocks]
     if missing:
         bad(f"조인트 누락: {missing}")
-        return
+        return None
 
+    out = {}
     for j in JOINTS:
-        m = re.search(r'<limit\s+upper="([-\d.]+)"\s+lower="([-\d.]+)"[^>]*velocity="([-\d.]+)"',
-                      found[j])
-        if not m:
-            bad(f"{j}: <limit> 파싱 실패")
-            continue
-        upper, lower, vel = float(m.group(1)), float(m.group(2)), float(m.group(3))
+        body = blocks[j]
+        o = re.search(r'<origin\s+xyz="([^"]+)"\s+rpy="([^"]+)"', body)
+        a = re.search(r'<axis\s+xyz="([^"]+)"', body)
+        m = re.search(r'<limit\s+upper="([-\d.eE+]+)"\s+lower="([-\d.eE+]+)"'
+                      r'[^>]*velocity="([-\d.eE+]+)"', body)
+        if not (o and a and m):
+            bad(f"{j}: origin/axis/limit 파싱 실패")
+            return None
+        out[j] = {
+            "origin": tuple(float(v) for v in o.group(1).split()),
+            "rpy": tuple(float(v) for v in o.group(2).split()),
+            "axis": tuple(float(v) for v in a.group(1).split()),
+            "upper": float(m.group(1)),
+            "lower": float(m.group(2)),
+            "velocity": float(m.group(3)),
+        }
+    return out
 
-        if not near(vel, MAX_VELOCITY):
-            bad(f"{j}: velocity={vel} (기대 {MAX_VELOCITY})",
+
+# ── A. URDF 관절 한계 ─────────────────────────────────────────────────────────
+def check_urdf_limits(arm):
+    print("\n[A] URDF 관절 한계  hcr5_description/urdf/hcr5_arm.xacro")
+    if arm is None:
+        return
+    n_ok = 0
+    for j in JOINTS:
+        e = arm[j]
+        lo, hi = CANON_LIMIT[j]
+        good = True
+
+        if not near(e["velocity"], MAX_VELOCITY):
+            bad(f"{j}: velocity={e['velocity']} (기대 {MAX_VELOCITY} = 180°/s)",
                 f'{j} 의 <limit ... velocity="{MAX_VELOCITY}"/> 로 수정')
+            good = False
 
-        # joint_1 · joint_6 은 음수 방향이 열려 있어야 한다.
-        # 막혀 있으면 11° 이동이 348° 대회전으로 계획된다.
-        if j in ("joint_1", "joint_6"):
-            if lower >= 0:
-                bad(f"{j}: lower={lower} — 음수 방향이 막혀 있다",
-                    f'{j} 의 lower 를 -{FULL_TURN} 로 수정')
-            elif not near(lower, -FULL_TURN):
-                warn(f"{j}: lower={lower} (기대 -{FULL_TURN})")
+        # 가동범위가 실기보다 **좁으면** IK 해가 있어도 계획이 실패한다.
+        # 특히 joint_5 는 실기 wrist2 가 −267° 로 관측되므로 ±120° 로는
+        # 실기의 현재 자세조차 URDF 로 표현할 수 없다 (상태 브릿지가 깨진다).
+        if e["lower"] > lo + 1e-3 or e["upper"] < hi - 1e-3:
+            bad(f"{j}: 가동범위 [{e['lower']}, {e['upper']}] 가 공식값 "
+                f"[{lo:.6f}, {hi:.6f}] 보다 좁다",
+                f'{j} 의 <limit upper="{hi:.6f}" lower="{lo:.6f}" .../> 로 수정')
+            good = False
+        elif e["lower"] < lo - 1e-3 or e["upper"] > hi + 1e-3:
+            # 넓으면 로봇이 자체 정지를 건다 (매뉴얼 8.5)
+            warn(f"{j}: 가동범위 [{e['lower']}, {e['upper']}] 가 공식값보다 넓다 "
+                 f"— 로봇이 자체 정지를 걸 수 있다")
 
-        if j == "joint_3" and not near(upper, JOINT3_UPPER):
-            warn(f"joint_3: upper={upper} (실기 공식값 {JOINT3_UPPER} = ±165°)")
+        n_ok += good
 
-    if not _fail:
-        ok(f"6개 관절 velocity={MAX_VELOCITY}, joint_1·6 음수 방향 열림")
+    if n_ok == len(JOINTS):
+        ok(f"6개 관절 velocity={MAX_VELOCITY} · 가동범위 ±360° (J3 ±165°)")
 
 
 # ── B. joint_limits.yaml (MoveIt 이 실제로 읽는 파일) ─────────────────────────
@@ -244,6 +301,91 @@ def check_tool():
     ok(f"tool0 · {TIP_LINK} 정의됨" + (f" (flange_p={m.group(1)})" if m else ""))
 
 
+# ── F. 기구학 정본 대조 + 순기구학 실측 검증 ─────────────────────────────────
+def _rot(axis, th):
+    """축-각 회전행렬 (3×3, 리스트의 리스트). numpy 없이 돌아야 한다."""
+    n = math.sqrt(sum(v * v for v in axis))
+    x, y, z = (v / n for v in axis)
+    c, s, C = math.cos(th), math.sin(th), 1 - math.cos(th)
+    return [
+        [c + x * x * C,     x * y * C - z * s, x * z * C + y * s],
+        [y * x * C + z * s, c + y * y * C,     y * z * C - x * s],
+        [z * x * C - y * s, z * y * C + x * s, c + z * z * C],
+    ]
+
+
+def _fk_flange(arm, q):
+    """base_link → link6_1 위치 [m]. 모든 관절 rpy 가 0 인 것을 전제한다."""
+    R = [[1.0 if i == j else 0.0 for j in range(3)] for i in range(3)]
+    p = [0.0, 0.0, 0.0]
+    for i, j in enumerate(JOINTS):
+        d = arm[j]["origin"]
+        p = [p[k] + sum(R[k][m] * d[m] for m in range(3)) for k in range(3)]
+        Rj = _rot(arm[j]["axis"], q[i])
+        R = [[sum(R[a][k] * Rj[k][b] for k in range(3)) for b in range(3)] for a in range(3)]
+    return p
+
+
+def check_kinematics(arm):
+    print("\n[F] 기구학 정본  hcr5_description/urdf/hcr5_arm.xacro")
+    if arm is None:
+        return
+
+    # F-1. origin 값 대조
+    drift = []
+    for j in JOINTS:
+        got, want = arm[j]["origin"], CANON_ORIGIN[j]
+        d = math.dist(got, want)
+        if d > 1e-6:
+            drift.append((j, got, want, d))
+    if drift:
+        for j, got, want, d in drift:
+            bad(f"{j}: origin {got} ≠ 정본 {want}  (차이 {d * 1000:.2f}mm)",
+                f'{j} 의 <origin xyz="{want[0]} {want[1]} {want[2]}" rpy="0 0 0"/>')
+        print("      ↑ 값이 되돌아가면 **에러 없이 펜이 43mm 옆에 그린다.** "
+              "근거: 2026-08-05 실기 FK 스윕 교정")
+        return
+    ok("6개 관절 origin 이 실측 교정 정본과 일치")
+
+    # F-2. 순기구학 → 실측 flange 대조 (값 대조보다 강한 검증)
+    nonzero_rpy = [j for j in JOINTS if any(abs(v) > 1e-9 for v in arm[j]["rpy"])]
+    if nonzero_rpy:
+        warn(f"관절 rpy 가 0 이 아니다 {nonzero_rpy} — FK 검증을 건너뛴다")
+        return
+    p = _fk_flange(arm, HOME_URDF)
+    d = math.dist(p, HOME_FLANGE_M)
+    got = f"({p[0] * 1000:.2f}, {p[1] * 1000:.2f}, {p[2] * 1000:.2f})"
+    want = f"({HOME_FLANGE_M[0] * 1000:.2f}, {HOME_FLANGE_M[1] * 1000:.2f}, " \
+           f"{HOME_FLANGE_M[2] * 1000:.2f})"
+    if d > FK_TOL_M:
+        bad(f"홈 자세 FK flange={got} ≠ 실측 {want} mm  (차이 {d * 1000:.2f}mm)",
+            "관절 origin 을 정본으로 되돌릴 것 (F-1)")
+    else:
+        ok(f"홈 자세 FK flange={got} mm ≡ 실측 (차이 {d * 1000:.2f}mm)")
+
+
+# ── G. SRDF 홈 자세 ───────────────────────────────────────────────────────────
+def check_home_state():
+    print("\n[G] 홈 자세  hcr5_moveit_config/config/hcr5.srdf")
+    f = MCFG / "config" / "hcr5.srdf"
+    if not f.exists():
+        bad(f"파일 없음: {f}")
+        return
+    gs = ET.parse(f).getroot().find("./group_state[@name='home']")
+    if gs is None:
+        bad("group_state 'home' 없음",
+            "Setup Assistant Robot Poses 에서 home 을 다시 정의")
+        return
+    vals = {e.get("name"): float(e.get("value")) for e in gs.findall("joint")}
+    off = [j for i, j in enumerate(JOINTS) if not near(vals.get(j, 1e9), HOME_URDF[i], 1e-3)]
+    if off:
+        bad(f"home 자세가 실기와 다르다 — 어긋난 관절 {off}",
+            "URDF [1.570796, 0, 1.570796, 0, 1.570796, 0] "
+            "(= 실기 [0,−90,−90,−90,90,0]°) 로 수정")
+        return
+    ok("home = 실기 `move/joint/home` 자세 (URDF 90,0,90,0,90,0°)")
+
+
 def main():
     print("═" * 72)
     print(" HCR-5 MoveIt2 설정 검증")
@@ -253,11 +395,14 @@ def main():
     if not DESC.exists() or not MCFG.exists():
         sys.exit(f"\n패키지를 찾을 수 없습니다. WS 경로 확인: {WS}")
 
-    check_urdf_limits()
+    arm = parse_arm()
+    check_urdf_limits(arm)
     check_joint_limits()
     check_controllers()
     check_srdf()
     check_tool()
+    check_kinematics(arm)
+    check_home_state()
 
     print("\n" + "═" * 72)
     if _fail:
