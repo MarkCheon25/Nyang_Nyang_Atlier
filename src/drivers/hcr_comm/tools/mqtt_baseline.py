@@ -15,7 +15,7 @@
 
 사용: `python3 mqtt_baseline.py [호스트] [수집초]`   기본 192.168.0.20 · 30초
 """
-import socket, struct, sys, time, json, math, statistics
+import socket, struct, sys, time, json, math, statistics, bisect
 
 HOST = sys.argv[1] if len(sys.argv) > 1 else "192.168.0.20"
 DURATION = float(sys.argv[2]) if len(sys.argv) > 2 else 30.0
@@ -114,7 +114,7 @@ print(f"- 대상 `{HOST}:{PORT}` · 수집 **{DURATION:.0f}초** · "
 
 s.settimeout(1.0)
 arrivals = {t: [] for t in RATE_TOPICS}
-series = {t: [] for t in RATE_TOPICS}      # (도착시각, 알맹이) — §7 차분 품질용
+series = {t: [] for t in list(RATE_TOPICS) + ["monitor/robot"]}   # (도착시각, 알맹이)
 latest, raw_first, counts = {}, {}, {}
 end = time.time() + DURATION
 while time.time() < end:
@@ -159,15 +159,24 @@ if not mon:
 else:
     print(f"`power`=**{mon.get('power')}** · `voltage`=**{mon.get('voltage')}V** · "
           f"`current`=**{mon.get('current')}**\n")
-    print("| 축 | temp (°C) | current | voltage | 판정 |")
-    print("|---|---|---|---|---|")
+    peak, first = {}, {}
+    for _, m in series.get("monitor/robot", []):
+        for a in m.get("axis", []):
+            n, t = a.get("name"), a.get("temp")
+            if n is None or t is None: continue
+            peak[n] = max(peak.get(n, -999), t)
+            first.setdefault(n, t)
+    print("| 축 | temp (°C) | 수집 중 최대 | 시작 대비 | current | voltage | 판정 |")
+    print("|---|---|---|---|---|---|---|")
     alarm = False
     for ax in mon.get("axis", []):
-        t = ax.get("temp")
-        bad = (t is None) or (t == -1) or (t > TEMP_LIMIT)
+        n, t = ax.get("name"), ax.get("temp")
+        bad = (t is None) or (t == -1) or (t > TEMP_LIMIT) or (peak.get(n, -999) > TEMP_LIMIT)
         alarm = alarm or bad
-        mark = "🚨 **이상**" if bad else "정상"
-        print(f"| {ax.get('name')} | **{t}** | {ax.get('current')} | {ax.get('voltage')} | {mark} |")
+        d = (t - first[n]) if (n in first and t is not None) else None
+        delta = f"{d:+d}" if d is not None else "—"
+        print(f"| {n} | **{t}** | **{peak.get(n, '—')}** | {delta} | {ax.get('current')} | "
+              f"{ax.get('voltage')} | {'🚨 **이상**' if bad else '정상'} |")
     print()
 print(("🚨 **축온 이상 — 그 자리에서 멈추고 Mark 에게 올린다.**"
        if alarm else
@@ -259,9 +268,22 @@ if jp:
 else:
     print("⚠️ `motion/joint/position` 미수신\n")
 
-# ── 7. 차분 velocity 품질 (정지 상태) ─────────────────────────────────────────
-print("## 7. 차분 velocity 품질 — 정지 상태 (중간결과물 V-5)\n")
+# ── 7. 차분 velocity 품질 ─────────────────────────────────────────────────────
+MOVE_EPS_DEG = 0.05   # 이 이상 움직인 관절만 '움직였다'고 본다 (인코딩 격자 ≈460카운트)
+VEL_EPS_DPS = 0.5     # 이 이상 속도가 난 표본만 대조에 집계 (도/s)
+
 sp = series["motion/joint/position"]
+ss = series["motion/joint/speed"]
+moved = []
+if len(sp) > 2:
+    for i, k in enumerate(MQTT_KEYS):
+        vals = [x[1].get(k) for x in sp]
+        if any(v is None for v in vals): continue
+        if max(vals) - min(vals) > MOVE_EPS_DEG:
+            moved.append((i, k, min(vals), max(vals)))
+
+state = "이동 포함" if moved else "정지 상태"
+print(f"## 7. 차분 velocity 품질 — {state} (중간결과물 V-5)\n")
 if len(sp) > 2:
     ts = [x[0] for x in sp]
     print("| 관절 | 값 SD (도) | peak-to-peak (도) | 차분 \\|v\\| 최대 (rad/s) | 차분 v RMS (rad/s) |")
@@ -274,11 +296,13 @@ if len(sp) > 2:
         rms = math.sqrt(statistics.fmean([v * v for v in vel]))
         print(f"| {k} | {statistics.stdev(vals):.6f} | {max(vals) - min(vals):.6f} | "
               f"**{max(abs(v) for v in vel):.4f}** | {rms:.4f} |")
-    print("\n- 로봇이 **정지**해 있으므로 참값은 **0 rad/s**다. 위 수치가 곧 정지 시 헛노이즈 폭이다.\n")
+    print()
+    print("- 로봇이 **정지**해 있으므로 참값은 **0 rad/s**다. 위 수치가 곧 정지 시 헛노이즈 폭이다.\n"
+          if not moved else
+          "- **이동 구간이 섞여 있다** — 위 수치는 노이즈가 아니라 실제 운동을 포함한다. 정지 시 품질은 별도 측정.\n")
 else:
     print("표본 부족\n")
 
-ss = series["motion/joint/speed"]
 if ss:
     print("같은 구간 `motion/joint/speed` 값 범위 — **단위 미상, 관찰만**:\n")
     print("| 관절 | 최소 | 최대 | 평균 |")
@@ -287,6 +311,60 @@ if ss:
         vals = [x[1].get(k) for x in ss if x[1].get(k) is not None]
         if vals:
             print(f"| {k} | {min(vals):.8g} | {max(vals):.8g} | {statistics.fmean(vals):.8g} |")
+    print()
+
+
+# ── 8. 움직임 대조 — speed ↔ position 차분 (업무목록 T19) ──────────────────────
+print("## 8. `motion/joint/speed` 단위·부호 대조 (T19)\n")
+if len(sp) < 3 or len(ss) < 3:
+    print("표본 부족 — 대조 불가\n")
+elif not moved:
+    print(f"**움직임 없음** — 6축 전부 p-p ≤ **{MOVE_EPS_DEG}°**. "
+          f"정지 상태에서는 단위·부호를 판정할 수 없다(관찰만).\n")
+else:
+    pt = [x[0] for x in sp]
+    print(f"움직인 관절 **{len(moved)}개** (p-p > {MOVE_EPS_DEG}°). "
+          f"`v` = position 차분(도/s), `s` = speed 값.\n")
+    print("| 관절 | 이동 범위 (도) | p-p | 집계 표본 | \\|v\\| 최대 | s 최대 | "
+          "**s/\\|v\\| 중앙값** | s/v 중앙값 | 부호 일치 |")
+    print("|---|---|---|---|---|---|---|---|---|")
+    verdicts = []
+    for i, k, lo, hi in moved:
+        pv = [x[1].get(k) for x in sp]
+        rows = []
+        for ts_, sd in ss:
+            sv = sd.get(k)
+            if sv is None: continue
+            j = bisect.bisect_left(pt, ts_)
+            if j <= 0 or j >= len(pt): continue
+            dt = pt[j] - pt[j - 1]
+            if dt <= 0: continue
+            v = (pv[j] - pv[j - 1]) / dt          # 도/s (실기 규약 그대로)
+            if abs(v) < VEL_EPS_DPS: continue
+            rows.append((v, sv))
+        if not rows:
+            print(f"| {k} | {lo:.3f} ~ {hi:.3f} | {hi - lo:.3f} | **0** | — | — | — | — | — |")
+            continue
+        r_abs = statistics.median([s / abs(v) for v, s in rows])
+        r_sgn = statistics.median([s / v for v, s in rows])
+        same = sum(1 for v, s in rows if (s >= 0) == (v >= 0))
+        verdicts.append((k, r_abs, same, len(rows)))
+        print(f"| {k} | {lo:.3f} ~ {hi:.3f} | {hi - lo:.3f} | {len(rows)} | "
+              f"{max(abs(v) for v, _ in rows):.4f} | {max(s for _, s in rows):.6g} | "
+              f"**{r_abs:.5g}** | {r_sgn:.5g} | {same}/{len(rows)} |")
+    print()
+    print("**단위 판정 기준** — `s/|v|` 중앙값이 **1 근처면 도/s**, **0.017453 근처면 rad/s**, "
+          "**60 근처면 도/min**, 그 밖이면 배율이거나 다른 물리량이다.")
+    print("**부호 판정 기준** — `부호 일치`가 표본 수와 같으면 speed 에 **방향이 실린다**. "
+          "절반 근처면 **크기만** 싣는 것이다(음의 이동 구간에서 어긋난다).\n")
+    for k, r, same, n in verdicts:
+        for name, ref in (("도/s", 1.0), ("rad/s", math.pi / 180), ("도/min", 60.0)):
+            if 0.8 * ref <= r <= 1.25 * ref:
+                print(f"- `{k}`: `s/|v|` = **{r:.5g}** → **{name}** 에 부합 · "
+                      f"부호 {'있음' if same == n else '없음(크기만)' if same < n * 0.9 else '혼재'}")
+                break
+        else:
+            print(f"- `{k}`: `s/|v|` = **{r:.5g}** → 알려진 단위와 안 맞음 (배율/다른 물리량 — 판정 보류)")
     print()
 
 print("## 수신 집계\n")
