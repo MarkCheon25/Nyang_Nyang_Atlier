@@ -141,8 +141,27 @@ Setup Assistant 생성본 + **손보정 3건**.
 | `pose_goal` | `02_pose_goal.cpp` | **IK 가 펜 끝 기준**으로 풀리는지 |
 | `cartesian_square` | `03_cartesian_square.cpp` | ★ **데카르트 직선 경로** — 그리기의 원형 |
 | `4_cartesian_square` | `04_cartesian_square.cpp` | 실험용 (곡선+대각선+계단 복합 도형) |
+| **`draw_contour`** | **`05_draw_contour.cpp`** | ★★ **비전 좌표를 그대로 그린다** — 실제 작업 |
 
-- 셋 다 **절대 좌표를 박지 않고 현재 자세 기준 상대 이동** → 어디서 실행해도 대체로 도달 가능
+- 01~04 는 **절대 좌표를 박지 않고 현재 자세 기준 상대 이동** → 어디서 실행해도 대체로 도달 가능
+- **05 는 다르다.** SRDF `home`(펜이 수직으로 아래를 향하는 자세)로 먼저 이동한 뒤,
+  그 자세의 pen_tip 위치를 중심으로 수평 XY 평면에 그린다
+
+**05 가 하는 일**
+
+```
+① SRDF home 으로 이동          펜이 −Z 를 향하게 (RPY 180,0,0)
+② 픽셀 → 로봇 좌표 변환         x = cx − (v−v_c)·s ,  y = cy − (u−u_c)·s
+③ 입력 도형을 초록 선으로 발행   /hcr5_examples/target_shape
+④ 펜 든 채 시작점 위로 이동      (이 선이 자취에 남지 않게 그리기와 분리)
+⑤ /pen_trail/clear 호출         자취에 "그린 것만" 남기려고
+⑥ 하강 → 윤곽선 → 상승          한 번의 데카르트 경로
+```
+
+② 의 **u·v 양쪽에 음부호가 붙는 것이 핵심**이다. 한쪽만 뒤집으면 거울상이 된다
+(이미지 v 가 아래로 증가하는 보정 하나, 관찰자 오른쪽이 −Y 인 보정 하나).
+
+좌표는 지금 `kContour` 에 박혀 있다(고양이 70점). vision 이 넘겨주면 **거기만 갈아끼우면 된다.**
 - `launch/example.launch.py` 가 `robot_description`·SRDF·kinematics·joint_limits 를 주입한다.
   **`ros2 run` 으로는 뜨지 않는다** (§3.3)
 
@@ -226,7 +245,68 @@ ros2 launch hcr5_examples example.launch.py example:=joint_goal
 ros2 launch hcr5_examples example.launch.py example:=pose_goal
 ros2 launch hcr5_examples example.launch.py example:=cartesian_square
 ros2 launch hcr5_examples example.launch.py example:=4_cartesian_square
+ros2 launch hcr5_examples example.launch.py example:=draw_contour
 ```
+
+**`draw_contour` 인자** — 재빌드 없이 실험한다.
+
+| 인자 | 기본 | 뜻 |
+|---|---|---|
+| `draw_size` | `0.15` | 도형의 긴 변 [m] |
+| `eef_step` | `0.002` | 데카르트 보간 간격 [m] — 작을수록 매끄럽다 |
+| `hover` | `0.03` | 펜을 들고 이동할 높이 [m] |
+| `vel_scale`·`acc_scale` | `0.1` | 속도·가속도 스케일 |
+| `execute` | `true` | `false` 면 계획만 (도달 가능성만 빠르게 확인) |
+| `go_home` | `true` | `false` 면 현재 자세에서 바로 |
+
+```bash
+ros2 launch hcr5_examples example.launch.py example:=draw_contour draw_size:=0.25
+ros2 launch hcr5_examples example.launch.py example:=draw_contour execute:=false
+```
+
+> ⚠️ **`ros2 launch` 에 `--ros-args -p x:=y` 를 붙여도 노드로 전달되지 않는다.**
+> 위처럼 `key:=value` 런치 인자로 줘야 한다. (launch 가 `ParameterValue(..., value_type=)`
+> 로 타입을 붙여 노드에 실어 준다 — 타입을 안 붙이면 문자열로 들어가 노드가 예외를 낸다)
+
+### 2.5.1 05 검증 결과 (mock, 2026-08-09)
+
+고양이 윤곽선 70점, `draw_size:=0.15` 기본값.
+
+```
+입력 도형   70 점 · bbox 475×535 px → 133.2×150.0 mm (배율 0.00028 m/px)
+달성률      100.0%  ·  궤적 구간 195  ·  소요 19.3 초
+종료점 오차 0.01 mm
+```
+
+`pen_trail` 자취(249점, 펜 다운 구간)를 입력 도형과 대조한 결과:
+
+| 항목 | 값 |
+|---|---|
+| 입력 대비 편차 평균 | **0.064 mm** |
+| 〃 중앙 / 95% / 최대 | 0.040 / 0.211 / **0.404 mm** |
+| **평면 이탈 (z 폭)** | **0.261 mm** |
+| 자취 bbox | 150.0 × 133.0 mm (입력 150.0 × 133.2) |
+
+**편차의 정체** — mock 하드웨어는 명령을 그대로 따르므로 이 오차는 로봇이 아니라
+**우리 파이프라인**에서 나온다. `computeCartesianPath` 가 2mm 간격으로 IK 를 풀고, 그
+사이는 컨트롤러가 **관절 공간에서 선형 보간**한다. 관절 공간 직선은 데카르트 공간에서
+직선이 아니라서 살짝 부풀고, 그것이 평면 이탈 0.26mm 로 나타난다.
+→ **`eef_step` 을 줄이면 줄어든다.** 실기 선 품질 예산을 짤 때 이 값을 먼저 확보할 것.
+
+**크기 스윕** — 어디서 깨지는지 확인했다 (`execute:=false` 로 계획만):
+
+| `draw_size` | 실제 크기 | 달성률 |
+|---|---|---|
+| 0.15 | 133×150 mm | 100.0% |
+| 0.20 | 178×200 mm | 100.0% |
+| 0.28 | 249×280 mm | 100.0% |
+| 0.35 | 311×350 mm | 100.0% |
+| 0.45 | 400×450 mm | 100.0% |
+| 0.55 | 488×550 mm | 100.0% |
+
+**A4(210×297) 는 여유롭게 통과한다.** 홈 자세 기준 그리기 평면(z=291.5mm, 중심
+x=490mm)이 작업반경 915mm 안쪽 한가운데라 550mm 까지도 IK 가 끊기지 않는다.
+실기에서는 이보다 **관절 속도·가속도와 특이점 회피가 먼저 한계가 될 가능성이 높다.**
 
 ### 2.6 자취 시각화
 

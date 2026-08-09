@@ -17,6 +17,8 @@
   <depend>moveit_core</depend>
   <depend>geometry_msgs</depend>
   <depend>moveit_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>std_srvs</depend>
 
   <exec_depend>hcr5_moveit_config</exec_depend>
   <exec_depend>launch</exec_depend>

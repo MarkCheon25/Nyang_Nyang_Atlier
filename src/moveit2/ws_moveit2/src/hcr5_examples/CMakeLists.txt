@@ -16,6 +16,8 @@ find_package(moveit_ros_planning_interface REQUIRED)
 find_package(moveit_core REQUIRED)
 find_package(geometry_msgs REQUIRED)
 find_package(moveit_msgs REQUIRED)
+find_package(visualization_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
 
 # 예제 실행파일. 파일명 앞의 번호는 학습 순서이고 타겟명은 번호를 뺀다.
 set(EXAMPLES
@@ -23,6 +25,7 @@ set(EXAMPLES
   pose_goal:02_pose_goal
   cartesian_square:03_cartesian_square
   4_cartesian_square:04_cartesian_square
+  draw_contour:05_draw_contour
 )
 
 foreach(pair IN LISTS EXAMPLES)
@@ -36,7 +39,9 @@ foreach(pair IN LISTS EXAMPLES)
     moveit_ros_planning_interface
     moveit_core
     geometry_msgs
-    moveit_msgs)
+    moveit_msgs
+    visualization_msgs
+    std_srvs)
   install(TARGETS ${target} DESTINATION lib/${PROJECT_NAME})
 endforeach()
 
