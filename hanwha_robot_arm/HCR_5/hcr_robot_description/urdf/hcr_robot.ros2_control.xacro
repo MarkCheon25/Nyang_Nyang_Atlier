@@ -1,15 +1,42 @@
 <?xml version="1.0"?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <xacro:macro name="hcr_robot_ros2_control" params="name:=hcr_robot_system">
-    <ros2_control name="${name}" type="system">
+  <!--
+    ══ 하드웨어 추상화 경계 ═══════════════════════════════════════════════════
+    sim 과 실기가 **같은 URDF 를 쓰고 플러그인만 갈아끼운다.** 셋 다 기본값이 있어
+    인자 없이 부르던 기존 사용처(display.launch.py · MoveIt2 demo)는 그대로 동작한다.
+
+      plugin    실기는 hcr_bridge/HcrSystemInterface.
+                인자명을 동료 ysh 의 hcr5_description 과 맞춰 이식을 한 줄로 뒀다
+      rw_rate   이 하드웨어 컴포넌트만의 read()/write() 주기(Hz).
+                controller_manager 의 update_rate 와 분리된다 (ros2_control 4.45.2).
+                기본 100 = update_rate 와 같은 값이라 mock 거동이 종전과 같다.
+                ⚠️ 파서가 양의 정수를 요구한다 — 0 을 기본값으로 두면 뜨지 않는다
+      is_async  실기 명령 RPC 왕복이 115~137ms 라 동기 발행은 100Hz 루프를 막는다.
+                워커 스레드로 분리할 때 true
+
+    실기 경로는 `rw_rate:=30 is_async:=true` 로 연다 — 상태 버스 실측이 29.1Hz 다.
+    근거: src/drivers/hcr_comm/ros2_control_hw_interface/중간결과물.md §2
+    ════════════════════════════════════════════════════════════════════════ -->
+  <xacro:macro name="hcr_robot_ros2_control"
+               params="name:=hcr_robot_system
+                       plugin:=mock_components/GenericSystem
+                       rw_rate:=100
+                       is_async:=false">
+    <ros2_control name="${name}" type="system" rw_rate="${rw_rate}" is_async="${is_async}">
       <hardware>
-        <plugin>mock_components/GenericSystem</plugin>
+        <plugin>${plugin}</plugin>
       </hardware>
+
+      <!-- initial_value = URDF 홈 [90, 0, 90, 0, 90, 0]°.
+           실기 홈 [0, −90, −90, −90, 90, 0]° 에 규약변환 q_URDF = s·q_실기 + δ 를
+           적용한 값이고 SRDF `hcr_home` 과 일치한다.
+           종전 값 [0, 0, 1.5669, −1.59, −1.4695, 0] 은 폐기된 SRDF 값이었다 —
+           실기 홈에서 715mm 떨어진 자세다. 근거: 업무목록 T16 ③ -->
       <joint name="joint_1">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">0</param>
+          <param name="initial_value">1.570796</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>
@@ -23,21 +50,21 @@
       <joint name="joint_3">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">1.5669</param>
+          <param name="initial_value">1.570796</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>
       <joint name="joint_4">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">-1.59</param>
+          <param name="initial_value">0</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>
       <joint name="joint_5">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">-1.4695</param>
+          <param name="initial_value">1.570796</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>

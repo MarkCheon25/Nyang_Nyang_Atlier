@@ -1,11 +1,27 @@
 <?xml version="1.0" ?>
 <robot name="hcr_robot" xmlns:xacro="http://www.ros.org/wiki/xacro">
 
+<!-- ── 인자 (하드웨어 추상화 경계) ────────────────────────────────────────────
+  선언을 **이 파일에** 두는 이유 — 이 URDF 를 읽는 진입점이 둘이다.
+    · hcr_robot_description/launch/display.launch.py  → 이 파일을 직접 읽는다
+    · hcr_moveit_config/config/hcr_robot.urdf.xacro   → 이 파일을 include 한다
+  기본값을 여기 두어야 두 경로가 다 산다. moveit 쪽에서 넘기는 mappings 가 이 기본값을 덮는다.
+
+    xacro hcr_robot.xacro                                          # mock (기본)
+    xacro hcr_robot.xacro hardware_plugin:=hcr_bridge/HcrSystemInterface \
+                          rw_rate:=30 is_async:=true               # 실기
+  값의 의미·근거는 hcr_robot.ros2_control.xacro 머리말 -->
+<xacro:arg name="hardware_plugin" default="mock_components/GenericSystem"/>
+<xacro:arg name="rw_rate"         default="100"/>
+<xacro:arg name="is_async"        default="false"/>
+
 <xacro:include filename="$(find hcr_robot_description)/urdf/materials.xacro" />
 <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.trans" />
 <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.gazebo" />
 <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.ros2_control.xacro" />
-<xacro:hcr_robot_ros2_control/>
+<xacro:hcr_robot_ros2_control plugin="$(arg hardware_plugin)"
+                              rw_rate="$(arg rw_rate)"
+                              is_async="$(arg is_async)"/>
 <link name="base_link">
   <inertial>
     <origin xyz="0.044693591972953806 -9.689819846991377e-05 0.013982771179495564" rpy="0 0 0"/>

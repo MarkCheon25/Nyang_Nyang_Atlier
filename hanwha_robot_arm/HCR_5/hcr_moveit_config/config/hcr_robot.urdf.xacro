@@ -1,4 +1,10 @@
 <?xml version="1.0"?>
+<!--
+  MoveIt2 진입점. 인자 `hardware_plugin` · `rw_rate` · `is_async` 를 그대로 통과시킨다
+  (demo.launch.py 의 mappings → 여기 → hcr_robot.xacro → ros2_control 매크로).
+  선언과 기본값은 여기 두지 않는다 — 원본은 hcr_robot_description/urdf/hcr_robot.xacro
+  한 곳이고, display.launch.py 도 같은 선언을 쓴다. 두 곳에 두면 기본값이 갈린다.
+-->
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="hcr_robot">
   <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.xacro" />
 </robot>
