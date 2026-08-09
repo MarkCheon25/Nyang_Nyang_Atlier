@@ -386,6 +386,62 @@ def check_home_state():
     ok("home = 실기 `move/joint/home` 자세 (URDF 90,0,90,0,90,0°)")
 
 
+# ── H. RViz 손보정 ────────────────────────────────────────────────────────────
+def check_rviz():
+    print("\n[H] RViz 설정  hcr5_moveit_config/config/moveit.rviz")
+    f = MCFG / "config" / "moveit.rviz"
+    d = load_yaml(f)
+    if d is None:
+        return
+    disp = d.get("Visualization Manager", {}).get("Displays") or []
+    n_bad = 0
+
+    mp = next((x for x in disp if x.get("Class", "").endswith("MotionPlanning")), None)
+    if mp is None:
+        bad("MotionPlanning 디스플레이가 없다")
+        n_bad += 1
+    else:
+        if mp.get("Planned Path", {}).get("Loop Animation", True):
+            bad("Loop Animation=true — 실행이 끝나도 유령 로봇이 계속 재생돼 "
+                "실제 동작과 헷갈린다",
+                "moveit.rviz 의 Planned Path.Loop Animation 을 false 로")
+            n_bad += 1
+        alpha = mp.get("Scene Robot", {}).get("Robot Alpha")
+        if alpha is None or float(alpha) < 0.99:
+            bad(f"Scene Robot.Robot Alpha={alpha} — 실제 로봇이 반투명이라 "
+                f"주황색 Query Goal State 와 뒤바뀌어 읽힌다",
+                "moveit.rviz 의 Scene Robot.Robot Alpha 를 1.0 으로")
+            n_bad += 1
+
+    # 그리기 검증용 마커 2개. 없으면 매번 손으로 Add → By topic 해야 한다.
+    want = {
+        "/pen_trail/trail": None,
+        "/hcr5_examples/target_shape": "Transient Local",
+    }
+    found = {}
+    for x in disp:
+        if not x.get("Class", "").endswith("MarkerArray"):
+            continue
+        t = x.get("Topic")
+        if isinstance(t, dict):
+            found[t.get("Value")] = t.get("Durability Policy")
+
+    for topic, need_dur in want.items():
+        if topic not in found:
+            bad(f"MarkerArray 디스플레이 없음: {topic}",
+                f"moveit.rviz 의 Displays 에 {topic} MarkerArray 추가 "
+                f"(없으면 RViz 에서 매번 Add → By topic 해야 한다)")
+            n_bad += 1
+        elif need_dur and found[topic] != need_dur:
+            bad(f"{topic}: Durability Policy={found[topic]} (기대 {need_dur})",
+                f"{topic} 은 발행자가 한 번만 쏘므로 {need_dur} 이어야 "
+                f"늦게 붙어도 받는다")
+            n_bad += 1
+
+    if n_bad == 0:
+        ok("Loop Animation=false · Robot Alpha=1.0 · 검증용 마커 2개 등록됨")
+
+
 def main():
     print("═" * 72)
     print(" HCR-5 MoveIt2 설정 검증")
@@ -403,6 +459,7 @@ def main():
     check_tool()
     check_kinematics(arm)
     check_home_state()
+    check_rviz()
 
     print("\n" + "═" * 72)
     if _fail:

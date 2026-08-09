@@ -19,7 +19,11 @@
       → 직전 점에서 min_point_distance 이상 움직였으면 점 추가
         → MarkerArray 발행 (LINE_STRIP = 자취, SPHERE = 현재 펜 끝)
 
-RViz 에서 Add → MarkerArray → Topic 을 /hcr5_viz/pen_trail 로 잡으면 보인다.
+RViz 표시
+--------
+`hcr5_moveit_config/config/moveit.rviz` 에 MarkerArray 디스플레이가 **이미 등록돼 있다**
+(`펜 자취 (실제)`). demo.launch.py 로 띄웠다면 손으로 추가할 필요가 없다.
+직접 RViz 를 띄웠다면: Add → By topic → /pen_trail/trail → MarkerArray
 
 자취 지우기
 -----------
@@ -98,7 +102,8 @@ class PenTrail(Node):
             f"펜 자취 시각화 시작: {self.base_frame} → {self.tip_frame}, "
             f"{rate:.0f}Hz, 최소간격 {self.min_dist * 1000:.1f}mm"
         )
-        self.get_logger().info("RViz: Add → MarkerArray → Topic = /pen_trail/trail")
+        self.get_logger().info(
+            "RViz: /pen_trail/trail (moveit.rviz 에 '펜 자취 (실제)' 로 등록돼 있다)")
         self.get_logger().info("자취 지우기: ros2 service call /pen_trail/clear std_srvs/srv/Empty")
 
     # ─────────────────────────────────────────────────────────────────────────

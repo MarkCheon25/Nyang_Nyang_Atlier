@@ -20,13 +20,16 @@
 //   터미널2  ros2 run hcr5_viz pen_trail --ros-args -p min_point_distance:=0.0002
 //   터미널3  ros2 launch hcr5_examples example.launch.py example:=draw_contour
 //
-//   RViz 에서 Add → By topic →  /pen_trail/trail           (빨강 = 실제 자취)
-//                            →  /hcr5_examples/target_shape (초록 = 입력 도형)
+//   RViz 는 손댈 것이 없다 — moveit.rviz 에 두 디스플레이가 이미 등록돼 있다.
+//     /pen_trail/trail            빨강 = 실제 자취
+//     /hcr5_examples/target_shape 초록 = 입력 도형  (Transient Local 로 구독해야 한다)
 //
 // 크기를 바꿔가며 실험 (재빌드 불필요):
-//   ros2 launch hcr5_examples example.launch.py example:=draw_contour
-//        --ros-args -p draw_size:=0.25
-//   (한 줄로 이어서 입력할 것)
+//   ros2 launch hcr5_examples example.launch.py example:=draw_contour draw_size:=0.25
+//   ros2 launch hcr5_examples example.launch.py example:=draw_contour execute:=false
+//
+// ⚠️ `ros2 launch` 에 `--ros-args -p x:=y` 를 붙여도 **노드로 전달되지 않는다.**
+//    위처럼 `key:=value` 런치 인자로 줄 것 (example.launch.py 가 타입을 붙여 실어 준다).
 //
 // 파라미터:  draw_size 긴 변 [m] 0.15 · eef_step 0.002 · hover 0.03
 //            vel_scale 0.1 · acc_scale 0.1 · execute true · go_home true

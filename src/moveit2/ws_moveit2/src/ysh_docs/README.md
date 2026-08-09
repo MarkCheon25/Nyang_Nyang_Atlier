@@ -61,8 +61,8 @@ JointTrajectoryController
 
 ```
 hcr5_description/     로봇 기술서 (URDF · 메쉬 · 관절한계)
-hcr5_moveit_config/   MoveIt 설정 (Setup Assistant 생성 + 손보정 3건)
-hcr5_examples/        C++ 예제 4종 (관절목표 → IK → 데카르트 경로)
+hcr5_moveit_config/   MoveIt 설정 (Setup Assistant 생성 + 손보정 5건)
+hcr5_examples/        C++ 예제 5종 (관절목표 → IK → 데카르트 경로 → 윤곽선 그리기)
 hcr5_viz/             펜 끝 자취 시각화 (Python, 읽기 전용)
 ```
 
@@ -132,15 +132,17 @@ q_URDF[i](도) = SIGN[i] * q_real[i](도) + DELTA[i]
 
 ### 1.2 `hcr5_moveit_config` — MoveIt 설정
 
-Setup Assistant 생성본 + **손보정 3건**.
+Setup Assistant 생성본 + **손보정 5건**.
 
 | 파일 | 손본 내용 | 왜 |
 |---|---|---|
 | `config/joint_limits.yaml` | `has_acceleration_limits: true` / `max_acceleration: 3.5` | URDF `<limit>` 에 가속도 항목이 **없어서** TOTG 가 실패한다 |
 | `config/ros2_controllers.yaml` | `command_interfaces: [position]` / `state_interfaces: [position, velocity]` | 빈 `[]` 로 생성되어 컨트롤러가 configure 에 실패한다 |
 | `config/moveit.rviz` | `Loop Animation: false` / `Robot Alpha: 1.0` | 실제 로봇이 흐리게 보여 목표 미리보기와 뒤바뀌어 읽혔다 |
+| `config/moveit.rviz` | **MarkerArray 2개 등록** (`/pen_trail/trail`, `/hcr5_examples/target_shape`) | RViz 는 외부 노드가 Display 를 추가할 API 가 없다. 설정에 박아 둬야 매번 손으로 Add 하지 않는다 (08-09) |
+| `config/hcr5.srdf` | `group_state home` 을 실기 자세로 | Setup Assistant 가 임의로 잡은 자세였다 (08-09) |
 
-⚠️ **Setup Assistant 를 다시 돌리면 위 3건이 전부 초기화된다.** 검증 스크립트로 확인할 것 (§3.1).
+⚠️ **Setup Assistant 를 다시 돌리면 위 항목이 전부 초기화된다.** 검증 스크립트로 확인할 것 (§3.1).
 
 **SRDF 핵심**
 ```xml
@@ -178,8 +180,9 @@ Setup Assistant 생성본 + **손보정 3건**.
 (이미지 v 가 아래로 증가하는 보정 하나, 관찰자 오른쪽이 −Y 인 보정 하나).
 
 좌표는 지금 `kContour` 에 박혀 있다(고양이 70점). vision 이 넘겨주면 **거기만 갈아끼우면 된다.**
-- `launch/example.launch.py` 가 `robot_description`·SRDF·kinematics·joint_limits 를 주입한다.
-  **`ros2 run` 으로는 뜨지 않는다** (§3.3)
+
+> `launch/example.launch.py` 가 `robot_description`·SRDF·kinematics·joint_limits 를 주입한다.
+> **`ros2 run` 으로는 뜨지 않는다** (§3.3). 05 의 인자도 이 launch 가 실어 준다 (§2.5).
 
 ### 1.4 `hcr5_viz` — 펜 끝 자취 시각화
 
@@ -334,7 +337,9 @@ ros2 run hcr5_viz pen_trail --ros-args -p tip_frame:=link6_1           # 플랜�
 ros2 service call /pen_trail/clear std_srvs/srv/Empty                  # 자취 지우기
 ```
 
-**RViz 설정** — `Add` → `By topic` → `/pen_trail/trail` → `MarkerArray`
+**RViz 설정** — **필요 없다.** `moveit.rviz` 에 `펜 자취 (실제)` · `입력 도형 (계획)`
+두 MarkerArray 디스플레이가 이미 등록돼 있다 (2026-08-09).
+따로 띄운 RViz 라면: `Add` → `By topic` → `/pen_trail/trail` → `MarkerArray`
 
 | 파라미터 | 기본 | 뜻 |
 |---|---|---|
@@ -391,6 +396,7 @@ echo $?     # 0 = 통과 / 1 = 문제
 | E | `hcr5_tool.xacro` | `tool0` · `pen_tip` 정의 |
 | **F** | `hcr5_arm.xacro` | ★ **관절 origin 이 실측 정본과 같은지** + **순기구학을 직접 풀어** 홈 자세 flange 를 실측(490.0, −170.5, 441.5)과 대조 |
 | **G** | `hcr5.srdf` | `home` 이 실기 `move/joint/home` 자세인지 |
+| **H** | `moveit.rviz` | Loop Animation · Robot Alpha · **검증용 MarkerArray 2개 등록 여부와 Durability** |
 
 **[F] 가 가장 중요하다.** 다른 검사는 전부 "에러가 나서 알 수 있는" 것을 앞당겨 잡는 것이지만,
 기구학이 되돌아가면 **아무 에러 없이 펜이 43mm 옆에 그린다.** 그래서 [F] 는 값 대조에 그치지 않고

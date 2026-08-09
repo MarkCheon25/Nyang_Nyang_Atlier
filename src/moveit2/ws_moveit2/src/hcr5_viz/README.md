@@ -33,6 +33,10 @@ ros2 launch hcr5_examples example.launch.py example:=cartesian_square
 
 ## RViz 설정
 
+**demo.launch.py 로 띄웠다면 손댈 것이 없다.** `moveit.rviz` 에 MarkerArray 디스플레이가
+`펜 자취 (실제)` 라는 이름으로 이미 등록돼 있다 (2026-08-09 추가).
+
+RViz 를 따로 띄웠거나 디스플레이가 없다면:
 `Add` → `By topic` → **`/pen_trail/trail`** → `MarkerArray`
 
 | 마커 | 색 | 뜻 |

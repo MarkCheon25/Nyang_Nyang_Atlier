@@ -36,6 +36,48 @@ Visualization Manager:
         # 주황색이 아예 사라져 더 깔끔하다 (수동으로 마커를 끌 때는 다시 켤 것).
         Robot Alpha: 1.0
       Value: true
+
+    # ── 그리기 검증용 마커 2개 ────────────────────────────────────────────────
+    # RViz 는 외부 노드가 Display 를 추가할 방법이 없다(그런 API 자체가 없다).
+    # 그래서 여기에 미리 박아 둔다 — demo.launch.py 를 띄우면 처음부터 올라와 있고,
+    # 토픽이 아직 없어도 Display 는 남아 기다린다. 매번 Add → By topic 할 필요가 없다.
+    #
+    # 이 둘을 **겹쳐 보는 것**이 선 품질 확인의 핵심이다.
+    #   초록 위에 빨강이 정확히 얹히면 계획대로 그려진 것이다.
+    - Class: rviz_default_plugins/MarkerArray
+      Name: 펜 자취 (실제)
+      # hcr5_viz/pen_trail 이 TF 를 따라가며 그리는 빨간 LINE_STRIP + 노란 구슬(현재 위치).
+      # 노드를 안 띄우면 아무것도 안 나온다:
+      #   ros2 run hcr5_viz pen_trail --ros-args -p min_point_distance:=0.0002
+      Topic:
+        Value: /pen_trail/trail
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Namespaces: {}
+      Value: true
+
+    - Class: rviz_default_plugins/MarkerArray
+      Name: 입력 도형 (계획)
+      # 05_draw_contour 가 그리기 **직전에 딱 한 번** 발행하는 초록 LINE_STRIP.
+      #
+      # ★ Durability 를 Transient Local 로 맞춰야 한다. 발행자도 transient_local 이라
+      #   Volatile 로 두면 QoS 는 호환되지만(발행자가 더 강한 보장을 제공) **이미 지나간
+      #   메시지를 못 받는다.** 즉 Display 를 나중에 켜거나 RViz 를 늦게 띄우면 빈 화면이다.
+      #   Transient Local 이면 발행자가 살아 있는 동안 뒤늦게 붙어도 마지막 메시지를 받는다.
+      #   (실측 확인: 발행 후 4초 뒤 붙은 구독자가 정상 수신)
+      #
+      # 단, 예제 노드가 끝나면 발행자가 사라지므로 그 뒤에 새로 붙는 구독자는 못 받는다.
+      # 이미 받은 RViz 는 계속 보인다 — Marker 의 lifetime 기본값이 0(영구)이기 때문이다.
+      Topic:
+        Value: /hcr5_examples/target_shape
+        Depth: 5
+        Durability Policy: Transient Local
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+      Namespaces: {}
+      Value: true
   Global Options:
     Fixed Frame: base_link
   Tools:
