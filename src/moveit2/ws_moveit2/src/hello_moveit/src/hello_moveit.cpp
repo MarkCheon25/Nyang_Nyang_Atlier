@@ -23,14 +23,15 @@ int main(int argc, char * argv[])
   auto spinner = std::thread([&executor]() { executor.spin(); });
 
   using moveit::planning_interface::MoveGroupInterface;
-  auto move_group = MoveGroupInterface(node, "panda_arm");
+  // auto move_group = MoveGroupInterface(node, "panda_arm");
+  auto move_group = MoveGroupInterface(node, "hcr_arm");
 
   RCLCPP_INFO(logger, "Planning frame  : %s", move_group.getPlanningFrame().c_str());
   RCLCPP_INFO(logger, "End effector    : %s", move_group.getEndEffectorLink().c_str());
 
   // 목표 pose: 로봇 앞쪽으로 살짝 이동
   geometry_msgs::msg::Pose target_pose;
-  target_pose.orientation.w = 1.0;
+  target_pose.orientation.w = 1;
   target_pose.position.x = 0.28;
   target_pose.position.y = -0.2;
   target_pose.position.z = 0.5;

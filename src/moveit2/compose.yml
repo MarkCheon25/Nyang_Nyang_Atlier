@@ -38,16 +38,16 @@ services:
     #
     #  ── (A) AMD / Intel GPU — 아래가 기본값 ──────────────────────────
     #     /dev/dri 를 통째로 넘기므로 cardN 번호를 신경 쓸 필요가 없다.
-    devices:
-      - /dev/dri:/dev/dri
+    #devices:
+    #  - /dev/dri:/dev/dri
     #
     #     렌더 노드 접근 권한은 호스트 GID 기준이라 PC마다 다르다
     #     (video 는 대개 44 지만 render 는 992·993 등 제각각).
     #     run_container.sh 가 호스트에서 읽어 넘겨주므로 손댈 필요 없다.
     #     docker compose 를 직접 호출하면 아래 기본값이 쓰인다.
-    group_add:
-      - "${VIDEO_GID:-44}"
-      - "${RENDER_GID:-992}"
+    #group_add:
+    #  - "${VIDEO_GID:-44}"
+    #  - "${RENDER_GID:-992}"
     #
     #  ── (B) NVIDIA GPU ───────────────────────────────────────────────
     #     위 devices 블록을 지우고 아래를 사용.
@@ -56,13 +56,13 @@ services:
     #        sudo nvidia-ctk runtime configure --runtime=docker
     #        sudo systemctl restart docker
     #
-    #     deploy:
-    #       resources:
-    #         reservations:
-    #           devices:
-    #             - driver: nvidia
-    #               count: all
-    #               capabilities: [gpu]
+    deploy:
+           resources:
+             reservations:
+               devices:
+                 - driver: nvidia
+                   count: all
+                   capabilities: [gpu]
     #     # environment 에 아래 두 줄 추가:
     #     #   - NVIDIA_VISIBLE_DEVICES=all
     #     #   - NVIDIA_DRIVER_CAPABILITIES=all
@@ -80,6 +80,8 @@ services:
       - XDG_RUNTIME_DIR=/tmp/runtime-rosuser
       # ROS 2 도메인 — 다른 노드와 통신하려면 상대와 같은 값이어야 한다
       - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+      - NVIDIA_VISIBLE_DEVICES=all
+      - NVIDIA_DRIVER_CAPABILITIES=all
 
     volumes:
       # X11 소켓 — 실행 전 호스트에서 1회: xhost +local:root

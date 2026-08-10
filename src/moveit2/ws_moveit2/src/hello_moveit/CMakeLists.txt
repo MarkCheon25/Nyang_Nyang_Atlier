@@ -15,7 +15,14 @@ find_package(rclcpp REQUIRED)
 find_package(moveit_ros_planning_interface REQUIRED)
 find_package(geometry_msgs REQUIRED)
 
+
+find_package(moveit_visual_tools REQUIRED)
+
+
 add_executable(hello_moveit src/hello_moveit.cpp)
+add_executable(box_test src/box_test.cpp)
+add_executable(cartesian src/cartesian.cpp)
+
 target_include_directories(hello_moveit PUBLIC
   $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
   $<INSTALL_INTERFACE:include>)
@@ -24,7 +31,29 @@ ament_target_dependencies(hello_moveit
   moveit_ros_planning_interface
   geometry_msgs)
 
-install(TARGETS hello_moveit
-  DESTINATION lib/${PROJECT_NAME})
+target_include_directories(box_test PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+ament_target_dependencies(box_test
+  rclcpp
+  moveit_ros_planning_interface
+  geometry_msgs)
+
+target_include_directories(cartesian PUBLIC
+  $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+  $<INSTALL_INTERFACE:include>)
+ament_target_dependencies(cartesian
+  rclcpp
+  moveit_ros_planning_interface
+  geometry_msgs
+  moveit_visual_tools)
+
+
+install(TARGETS
+  hello_moveit
+  box_test
+  cartesian
+  DESTINATION lib/${PROJECT_NAME}
+)
 
 ament_package()
