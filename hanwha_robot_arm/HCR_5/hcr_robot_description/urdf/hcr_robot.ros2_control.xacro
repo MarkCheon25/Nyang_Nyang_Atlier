@@ -15,17 +15,28 @@
       is_async  실기 명령 RPC 왕복이 115~137ms 라 동기 발행은 100Hz 루프를 막는다.
                 워커 스레드로 분리할 때 true
 
-    실기 경로는 `rw_rate:=30 is_async:=true` 로 연다 — 상태 버스 실측이 29.1Hz 다.
-    근거: src/drivers/hcr_comm/ros2_control_hw_interface/중간결과물.md §2
+    앞의 셋은 `<ros2_control>` **속성**이고, 아래 하나는 `<hardware>` 안의 **`<param>`** 이다.
+    ros2_control 이 둘을 다른 자리에서 읽으므로 실리는 곳이 다르다.
+
+      allow_motion  실기를 **실제로 움직일지**의 안전 잠금. 플러그인 기본값이 false 이고
+                    이 param 만이 켜는 유일한 통로다 (hcr_system_interface.cpp:108-118).
+                    false 면 write() 가 무동작 — 실기 '읽기 전용' 모드가 이 상태다.
+                    ⚠️ true 는 로봇이 움직인다. 서보 ON·e-stop 대기·입회를 갖추고서만 쓴다
+
+    실기 읽기는 `rw_rate:=30 is_async:=true` 로 연다 — 상태 버스 실측이 29.1Hz 다.
+    실기 쓰기는 거기에 `allow_motion:=true` 를 더한다.
+    근거: src/drivers/hcr_comm/ros2_control_hw_interface/중간결과물.md §2·§5
     ════════════════════════════════════════════════════════════════════════ -->
   <xacro:macro name="hcr_robot_ros2_control"
                params="name:=hcr_robot_system
                        plugin:=mock_components/GenericSystem
                        rw_rate:=100
-                       is_async:=false">
+                       is_async:=false
+                       allow_motion:=false">
     <ros2_control name="${name}" type="system" rw_rate="${rw_rate}" is_async="${is_async}">
       <hardware>
         <plugin>${plugin}</plugin>
+        <param name="allow_motion">${allow_motion}</param>
       </hardware>
 
       <!-- initial_value = URDF 홈 [90, 0, 90, 0, 90, 0]°.

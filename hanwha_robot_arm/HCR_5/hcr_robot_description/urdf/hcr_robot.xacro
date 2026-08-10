@@ -9,11 +9,16 @@
 
     xacro hcr_robot.xacro                                          # mock (기본)
     xacro hcr_robot.xacro hardware_plugin:=hcr_bridge/HcrSystemInterface \
-                          rw_rate:=30 is_async:=true               # 실기
+                          rw_rate:=30 is_async:=true               # 실기 읽기
+    xacro hcr_robot.xacro hardware_plugin:=hcr_bridge/HcrSystemInterface \
+                          rw_rate:=30 is_async:=true \
+                          allow_motion:=true                       # 실기 쓰기 ⚠️ 움직인다
   값의 의미·근거는 hcr_robot.ros2_control.xacro 머리말 -->
 <xacro:arg name="hardware_plugin" default="mock_components/GenericSystem"/>
 <xacro:arg name="rw_rate"         default="100"/>
 <xacro:arg name="is_async"        default="false"/>
+<!-- 기본값 false 는 플러그인 기본값과 같다 — 인자를 잊어도 로봇은 안 움직인다 -->
+<xacro:arg name="allow_motion"    default="false"/>
 
 <xacro:include filename="$(find hcr_robot_description)/urdf/materials.xacro" />
 <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.trans" />
@@ -21,7 +26,8 @@
 <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.ros2_control.xacro" />
 <xacro:hcr_robot_ros2_control plugin="$(arg hardware_plugin)"
                               rw_rate="$(arg rw_rate)"
-                              is_async="$(arg is_async)"/>
+                              is_async="$(arg is_async)"
+                              allow_motion="$(arg allow_motion)"/>
 <link name="base_link">
   <inertial>
     <origin xyz="0.044693591972953806 -9.689819846991377e-05 0.013982771179495564" rpy="0 0 0"/>

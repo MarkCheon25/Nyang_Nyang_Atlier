@@ -3,6 +3,10 @@
 #    ros2 launch hcr_moveit_config demo.launch.py                    # mock (기본)
 #    ros2 launch hcr_moveit_config demo.launch.py \
 #        hardware_plugin:=hcr_bridge/HcrSystemInterface rw_rate:=30 is_async:=true
+#                                                                    # 실기 읽기 (안 움직인다)
+#    ros2 launch hcr_moveit_config demo.launch.py \
+#        hardware_plugin:=hcr_bridge/HcrSystemInterface rw_rate:=30 is_async:=true \
+#        allow_motion:=true                            # 실기 쓰기 ⚠️ 로봇이 움직인다
 #
 #  인자는 xacro mappings 로 흘러 hcr_robot.urdf.xacro → hcr_robot.xacro → ros2_control
 #  매크로에 닿는다. 기본값의 원본은 hcr_robot_description/urdf/hcr_robot.xacro 한 곳이다.
@@ -23,7 +27,7 @@ def launch_setup(context, *args, **kwargs):
     #    빈 값은 빼고 넘겨서 xacro 쪽 기본값이 그대로 살게 한다 (기본값 원본은 한 곳이다).
     mappings = {
         name: LaunchConfiguration(name).perform(context)
-        for name in ("hardware_plugin", "rw_rate", "is_async")
+        for name in ("hardware_plugin", "rw_rate", "is_async", "allow_motion")
     }
     mappings = {k: v for k, v in mappings.items() if v}
 
@@ -152,6 +156,13 @@ def generate_launch_description():
             default_value="",
             description="하드웨어 read/write 를 워커 스레드로 분리할지."
             " 비우면 xacro 기본값 false. 실기는 true (명령 RPC 왕복 115~137ms)",
+        ),
+        DeclareLaunchArgument(
+            "allow_motion",
+            default_value="",
+            description="⚠️ 실기를 실제로 움직일지의 안전 잠금."
+            " 비우면 xacro 기본값 false = write() 무동작(실기 읽기 전용)."
+            " true 로 켤 때만 로봇이 움직인다 — 서보 ON·e-stop 대기·입회 전제",
         ),
     ]
 
