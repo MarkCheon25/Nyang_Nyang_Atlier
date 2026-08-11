@@ -383,14 +383,32 @@ MOVING ─(충돌)→ event/collision (EVENT_COLLISION_DETECTED, 204000)
 
 | 파일 | 용도 | 쓰기? |
 |---|---|---|
-| `mqtt_sub.py` | 임의 토픽 구독 관찰 (`host port sec topic`) | 읽기 |
+| `mqtt_sub.py` | 임의 토픽 구독 관찰 (`host port sec topic`) — **신규 토픽만** 찍는다 | 읽기 |
 | `mqtt_full.py` | 핵심 토픽 전체 페이로드/스키마 덤프 | 읽기 |
+| `mqtt_baseline.py` | 순수 구독 — 착수 게이트 계측(축온 · `controllerStatus`) | 읽기 |
+| `mqtt_trace.py` | **전량 타임스탬프 JSONL** — 발행 간격·선점·이벤트 순서 (`host sec out.jsonl`) | 읽기 |
 | `capture.py` | 명령 캡처 — baseline(상태) 대비 **새 명령 토픽만** 분리 기록 (`host port outdir`) | 읽기 |
 | `mqtt_cmd.py` | **명령 송신** — 아래 서브커맨드 | **쓰기** |
+| `ros_trace.py` | **ROS 쪽** — 추종오차·값 갱신빈도·velocity 품질 (`sec out.json`) ⚠️ 컨테이너에서 실행 | 읽기 |
 | `discover/arpsweep.sh` | 서브넷 ARP 스윕(호스트 발견) | 읽기 |
 | `discover/portscan.sh` | TCP 포트 스캔 | 읽기 |
 
-순수 Python 표준 라이브러리만 사용(브로커 라이브러리 불필요). 대상 IP는 각 스크립트 상단/인자로 조정.
+`ros_trace.py` 를 뺀 전부가 순수 Python 표준 라이브러리다(브로커 라이브러리 불필요). 대상 IP는 각 스크립트 상단/인자로 조정.
+
+**집계와 시각은 다른 도구다** — `mqtt_sub.py` 는 신규 토픽만 찍어 **0건이 '안 왔다'인지 '안 듣고 있었다'인지 구분되지 않는다**.
+발행 간격·순서처럼 **시각이 있어야 재는 것**은 `mqtt_trace.py` 로 뜬다. 플러그인은 성공 발행을 로그로 남기지 않으므로
+(실패만 찍는다) 재발행 간격은 ROS 로그가 아니라 **버스에서** 떠야 한다.
+
+⚠️ **`ros_trace.py` 는 컨테이너 안에서 돈다**(rclpy·control_msgs). 그런데 `compose.yml` 은 `ws_moveit2` 와
+`hanwha_robot_arm` 만 마운트하고 **`src/drivers/` 는 마운트하지 않아 이 파일이 컨테이너에 안 보인다.** 넣어서 쓴다:
+```bash
+docker cp tools/ros_trace.py markch_moveit2_dev:/tmp/ros_trace.py
+docker exec markch_moveit2_dev bash -lc 'source install/setup.bash && python3 /tmp/ros_trace.py 45'
+```
+마운트 범위 확장은 **T15 곁가지**로 열려 있다 — 닫히면 이 복사 단계가 없어진다.
+
+`mqtt_trace.py`·`ros_trace.py` 는 **T15 C 구간(실기 쓰기) 계측기**다. 왜 이 값들을 재는지는
+[`ros2_control_hw_interface/중간결과물.md`](ros2_control_hw_interface/중간결과물.md) §3-C.
 
 ### `mqtt_cmd.py` 서브커맨드
 
