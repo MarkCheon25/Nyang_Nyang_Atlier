@@ -108,11 +108,71 @@ RViz 에 `RobotModel` 을 띄우면 **실기의 실제 자세가 그대로 보�
 
 **ros2_control 경로 — 점대점 + 상태 피드백** (08-09 신설)
 
+### 기동 전 — 컨테이너 진입
+
+아래 명령은 전부 **개발 컨테이너 안에서** 돈다. 환경 구축은
+[`src/moveit2/README.md`](../../../README.md) 가 원본이고, 여기서는 **들어가는 법만** 든다.
+
+```bash
+# 표준 경로 — 이 PC에 이 클론 하나뿐이면 이걸로 끝난다
+cd src/moveit2 && ./run_container.sh shell
+```
+
+⚠️ **같은 리포의 클론이 이 PC에 둘 이상이면 위 명령을 쓰면 안 된다.**
+compose 는 **디렉터리 이름**으로 프로젝트를 식별하는데 양쪽 다 `moveit2` 라, 클론이 둘이면
+프로젝트명이 겹쳐 **compose 가 남의 컨테이너를 자기 것으로 인식해 지우고 다시 만든다.**
+`container_name` 만 바꿔서는 못 막는다 — compose 는 이름이 아니라 **라벨**로 찾기 때문이다.
+(04pc 실측, 2026-08-10. 트리 밖에 08-05 이전 클론이 살아 있어 실제로 성립해 있었다)
+
+격리하려면 PC 로컬 `compose.override.yml`(커밋 대상 아님)에 **셋을 다 갈라 놓는다** —
+최상위 `name:`(프로젝트) · `container_name:` · `image:`. 이미지 태그까지 가르는 이유는
+`compose.yml` 의 `image: moveit2_dev:jazzy` 가 **남의 이미지 이름이기도 해서** 그냥 build 하면 덮어쓰기 때문이다.
+
+```bash
+# 격리한 PC — 자기 컨테이너 이름부터 확인한다
+docker ps -a --filter name=moveit2_dev --format '{{.Names}}\t{{.Image}}\t{{.Status}}'
+#   markch_moveit2_dev   moveit2_dev:jazzy-markch   Up 15 minutes        ← 내 것
+#   moveit2_dev          moveit2_dev:jazzy          Exited (137) 42시간   ← 남의 것
+
+# 이름이 비슷해 헷갈리면 마운트 경로가 판정한다 — 내 클론을 물고 있는 쪽이 내 것이다
+docker inspect <이름> --format '{{range .Mounts}}{{println .Source}}{{end}}'
+
+docker exec -it <이름> bash        # ← 진입
+```
+
+> `--filter ancestor=moveit2_dev` 는 쓰지 마라 — **태그까지 정확히** 맞아야 걸려서 빈 결과가 나온다.
+> 위처럼 `name=` 부분일치가 안전하다(실측).
+
+> ⚠️ 격리한 PC에서는 **`run_container.sh` 를 쓰지 마라.** 그 스크립트는 `compose.override.yml` 을
+> 자동으로 읽지만 내부 `CONTAINER="moveit2_dev"` 가 **하드코딩**이라 `shell`·`logs` 가 남의 컨테이너를 가리킨다.
+> `docker compose -f compose.yml -f compose.override.yml <up|down|build>` 와 `docker exec` 를 직접 쓴다.
+
+**이미지를 재사용해도 되는지는 크기가 아니라 `Dockerfile` 대조로 판단한다.**
+04pc 에서 기존 `moveit2_dev:jazzy`(6.13GB, 크기 동일)를 그대로 썼다가
+`libmosquitto-dev`·`nlohmann-json3-dev` 가 빠져 있어 `find_package(nlohmann_json)` 에서 빌드가 깨졌다 —
+**남의 Dockerfile 로 만들어진 이미지**였기 때문이다(그 2종은 2026-08-05 에 우리 쪽에만 들어갔다).
+진입 후 한 줄로 확인할 수 있다:
+
+```bash
+ls /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake /usr/include/mosquitto.h
+```
+
+### 기동
+
 ```bash
 # 실기 전환은 인자 하나다. 기본값은 mock 이라 인자 없이 띄우면 로봇이 필요 없다.
 ros2 launch hcr_moveit_config demo.launch.py \
     hardware_plugin:=hcr_bridge/HcrSystemInterface rw_rate:=30 is_async:=true
+
+# 실기 쓰기 — ⚠️ 로봇이 움직인다. 서보 ON·e-stop 대기·입회를 갖추고서만
+ros2 launch hcr_moveit_config demo.launch.py \
+    hardware_plugin:=hcr_bridge/HcrSystemInterface rw_rate:=30 is_async:=true \
+    allow_motion:=true
 ```
+
+`allow_motion` 은 §4 의 잠금과 **같은 이름·같은 기본값(`false`)** 이지만 전달 경로가 다르다 —
+독립 노드는 ROS 파라미터로 받고, 플러그인은 **URDF `<hardware>` 의 `<param>`** 으로 받는다.
+xacro 4단 관통은 `cc5a319`(2026-08-10). 인자를 잊으면 `false` 라 로봇은 움직이지 않는다.
 
 - [x] `HcrSystemInterface` 구현 — 라이프사이클 9행·안전게이트 7건. 빌드·플러그인 로드까지 실측
 - [ ] **실기 읽기 검증(B)** — 상태 정합·`read()` 실효 주기·통신 두절 거동·차분 velocity 품질
