@@ -457,4 +457,46 @@ python3 tools/mqtt_cmd.py movestop                 # movej 중단
 - [ ] **필압 ↔ 충돌감지 간섭 실험** — 펜이 종이를 누르는 반력이 전류 기반 충돌감지를 트립시키면 PAUSED 래치로 작화가 반복 중단된다.
 - [ ] 미규명 스키마 — Script 노드 컨테이너 형식 · `arc`/`circle` 의 `middlePoint` · waypoint `relative`/`variable` · `:4000`/`:8000` REST 라우트.
 - [ ] **ROS2 궤적 실행 층** — `FollowJointTrajectory` 액션 서버 → `program/plan` 변환 → `program/play`.
-      설계는 [`hcr_bridge/README.md`](../../moveit2/ws_moveit2/src/hcr_bridge/README.md) §5.
+      설계는 [`hcr_bridge/README.md`](../../moveit2/ws_moveit2/src/hcr_bridge/README.md) §5. **접점 ①**.
+- [ ] **ros2_control 하드웨어 인터페이스** — **접점 ②**. 진행 중이다 → **§12**.
+
+## 12. ros2_control 하드웨어 인터페이스 (T15) — 현황
+
+같은 폴더의 [`ros2_control_hw_interface/`](ros2_control_hw_interface/) 가 이 작업의 **문서 3종**을 든다.
+§4 의 명령 프로토콜을 ros2_control **하드웨어 컴포넌트**로 감싸 MoveIt2 가 실기를 직접 잡게 하는 경로다.
+§11 의 액션서버 경로(**접점 ①**)와 **다른 접점**이고, 둘은 배타가 아니다 — 어느 쪽으로 수렴하는지는
+`ros2_control_hw_interface/최종결과물.md` '차이' 절이 판정한다.
+
+⚠️ **구현 실물은 여기 없다.** `compose.yml` 이 `src/drivers/` 를 마운트하지 않아 컨테이너에서 안 보인다 —
+플러그인은 [`src/moveit2/ws_moveit2/src/hcr_bridge/`](../../moveit2/ws_moveit2/src/hcr_bridge/) 에 있고
+**이 디렉터리는 문서 전용**이다. 기동·컨테이너 진입은 `hcr_bridge/README.md` §0·§5.
+
+### 문서 3종 진척
+
+| 문서 | 상태 | 남은 것 |
+|---|---|---|
+| `중간결과물.md` | 🟡 채워짐 | **'완료 · 실기 미검증' 칸** — B·C 실기 대면으로만 닫힌다 |
+| `검증.md` | 🟨 **15행 중 3 통과 / 12 미검증** | 실기 읽기 6행 · 실기 쓰기 5행 · V-11 판정 대기 |
+| `최종결과물.md` | ⬜ 백지 | 마무리 세션 1개 |
+
+### 실기 없이 닫히는 것은 다 닫혔다 (2026-08-11 실측, 04pc)
+
+| 확인 | 결과 |
+|---|---|
+| 빌드 (V-1) | ✅ 경고 **0건**. ⚠️ `hcr_bridge` 만 지으면 기동이 안 된다 — `hcr_robot_description`·`hcr_moveit_config` 도 같이 짓는다 |
+| mock 회귀 (V-10) | ✅ `100 Hz`·`is_async False`·`/joint_states` **99.99~100.01Hz**·`hcr_home` 편차 **0**. **`<param name="allow_motion">` 을 `mock_components/GenericSystem` 이 거부하지 않는다** |
+| 실기 없이 실기 모드 로드 (V-11) | ✅ 3경로 **3003 / 0 / 3022ms** 사유별 ERROR — OS 타임아웃(수십 초)에 안 잡힌다 |
+| CM abort 완화책 (V-12) | ✅ **완화 가능.** `hardware_components_initial_state.shutdown_on_initial_state_failure:false` 또는 `.unconfigured:[<컴포넌트>]` — **둘 다 같은 네임스페이스 하위다** |
+| 실기 도달 | ✅ §1 절차 재확인 — `192.168.0.100/24` 에서 `ping` **3/3**, RTT **0.252~0.551ms**, TTL **128** |
+| **B 실기 읽기 · C 실기 쓰기** | ⬜ **미착수** — `on_activate`·`read`·`write` 는 실기에서 **한 번도 안 돌았다** |
+
+**지금 구조적으로 막는 것은 없다.** 남은 선행은 착수 게이트뿐이다 — 축온 **≤50°C**(§8 함정 3) ·
+`controllerStatus` = `FIELD_BUS_SW_STATE_CONNECTED` · `move_group` 중복 **0**. 게이트 계측은
+`tools/mqtt_baseline.py`(§9, 순수 구독).
+
+> ⚠️ **실기 없이 실기 모드를 띄우면 `controller_manager` 가 프로세스째 abort 한다.** 플러그인은 계약대로
+> ERROR 를 반환하고 abort 는 프레임워크 거동이다 — 데모 기동 절차에서는 위 완화책 파라미터를 쓴다.
+>
+> ⚠️ **`host`·`port` 는 xacro 로 관통돼 있지 않다.** URDF `<hardware>` 에 노출된 `<param>` 은
+> `allow_motion` 하나뿐이고 나머지 6종은 코드 기본값을 쓴다(`192.168.0.20:1883` 등). 다른 주소로 시험하려면
+> 전개된 URDF 에 `<param>` 을 직접 넣는다 — V-11 이 그 방식으로 측정됐다.
