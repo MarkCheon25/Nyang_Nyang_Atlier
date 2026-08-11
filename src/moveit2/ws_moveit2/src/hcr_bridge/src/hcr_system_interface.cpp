@@ -36,6 +36,11 @@ constexpr const char * kFieldBusConnected = "FIELD_BUS_SW_STATE_CONNECTED";
 /// 목표가 '멎었다'로 볼 변화량(도). 부동소수 지터만 흡수하는 크기다.
 constexpr double kSettleEpsDeg = 1e-9;
 
+/// on_activate 가 필드버스 CONNECTED 를 기다리는 상한.
+/// status/operation 실측 주기 51.5ms 의 약 9.7배 — 몇 주기 놓쳐도 통과하되,
+/// 필드버스가 정말 죽어 있으면 여기서 끊고 ERROR 로 간다.
+constexpr std::chrono::milliseconds kFieldbusWait{500};
+
 /// 브로커에 TCP 로 닿는지 **시간 상한을 걸어** 확인한다.
 ///
 /// mosquitto_connect 는 블로킹이고 취소가 안 된다 — 응답 없는 호스트를 물면 OS 기본
@@ -204,6 +209,12 @@ CallbackReturn HcrSystemInterface::on_configure(const rclcpp_lifecycle::State &)
   collision_latched_ = false;
   fieldbus_ok_ = false;
   {
+    // 리셋하지 않으면 on_activate 의 실패 메시지가 자기모순이 된다
+    // ("CONNECTED 가 아니다 (현재 'CONNECTED')") — 직전 세션 값이 그대로 남기 때문이다.
+    std::lock_guard<std::mutex> lk(fieldbus_mutex_);
+    last_fieldbus_.clear();
+  }
+  {
     std::lock_guard<std::mutex> lk(state_mutex_);
     have_state_ = false;
     sample_seq_ = 0;
@@ -255,6 +266,12 @@ bool HcrSystemInterface::waitForFirstSample(std::chrono::milliseconds timeout)
   return state_cv_.wait_for(lk, timeout, [this] { return have_state_; });
 }
 
+bool HcrSystemInterface::waitForFieldbus(std::chrono::milliseconds timeout)
+{
+  std::unique_lock<std::mutex> lk(fieldbus_mutex_);
+  return fieldbus_cv_.wait_for(lk, timeout, [this] { return fieldbus_ok_.load(); });
+}
+
 // ══ on_activate ══════════════════════════════════════════════════════════
 // 필드버스·상태 신선도 확인 후 **명령 버퍼를 현재 실기 자세로 초기화**한다.
 // 이걸 빼면 첫 write() 가 0 이나 낡은 값으로 도약한다.
@@ -265,11 +282,16 @@ CallbackReturn HcrSystemInterface::on_activate(const rclcpp_lifecycle::State &)
     return CallbackReturn::ERROR;
   }
 
-  if (!fieldbus_ok_) {
+  // on_configure 는 motion/joint/position 첫 표본만 기다린다(29Hz). 필드버스 플래그를 세우는
+  // status/operation 은 51.5ms 주기라 configure 직후엔 아직 안 와 있을 수 있다 — 즉시 요구하면
+  // configure→activate 간격이 짧을 때(재활성은 1ms 미만) 반드시 실패한다.
+  if (!waitForFieldbus(kFieldbusWait)) {
     std::lock_guard<std::mutex> lk(fieldbus_mutex_);
     RCLCPP_ERROR(
-      get_logger(), "필드버스가 %s 가 아니다 (현재 '%s') — 드라이브 통신을 먼저 살려야 한다",
-      kFieldBusConnected, last_fieldbus_.empty() ? "미수신" : last_fieldbus_.c_str());
+      get_logger(),
+      "필드버스가 %s 가 아니다 (%lldms 대기, 현재 '%s') — 드라이브 통신을 먼저 살려야 한다",
+      kFieldBusConnected, static_cast<long long>(kFieldbusWait.count()),
+      last_fieldbus_.empty() ? "미수신" : last_fieldbus_.c_str());
     return CallbackReturn::ERROR;
   }
 
@@ -615,17 +637,20 @@ void HcrSystemInterface::onOperation(const Json & envelope)
   const auto status = d.value("controllerStatus", std::string{});
   if (status.empty()) { return; }
 
-  fieldbus_ok_ = (status == kFieldBusConnected);
-
-  std::lock_guard<std::mutex> lk(fieldbus_mutex_);
-  if (status != last_fieldbus_) {
-    if (!fieldbus_ok_) {
-      RCLCPP_ERROR(get_logger(), "필드버스 상태: %s — 드라이브 통신 확인 필요", status.c_str());
-    } else if (!last_fieldbus_.empty()) {
-      RCLCPP_INFO(get_logger(), "필드버스 복구: %s", status.c_str());
+  {
+    // 플래그를 뮤텍스 **안에서** 세운다 — 밖에서 세우면 on_activate 의 대기가 갱신을 놓칠 수 있다.
+    std::lock_guard<std::mutex> lk(fieldbus_mutex_);
+    fieldbus_ok_ = (status == kFieldBusConnected);
+    if (status != last_fieldbus_) {
+      if (!fieldbus_ok_) {
+        RCLCPP_ERROR(get_logger(), "필드버스 상태: %s — 드라이브 통신 확인 필요", status.c_str());
+      } else if (!last_fieldbus_.empty()) {
+        RCLCPP_INFO(get_logger(), "필드버스 복구: %s", status.c_str());
+      }
+      last_fieldbus_ = status;
     }
-    last_fieldbus_ = status;
   }
+  fieldbus_cv_.notify_all();
 }
 
 void HcrSystemInterface::onCollision()

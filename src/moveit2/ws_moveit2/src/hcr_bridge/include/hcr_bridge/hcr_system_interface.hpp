@@ -84,6 +84,9 @@ private:
   void publishStop();
 
   bool waitForFirstSample(std::chrono::milliseconds timeout);
+  /// status/operation 이 필드버스 CONNECTED 를 세울 때까지 상한을 걸고 기다린다.
+  /// 그 토픽은 51.5ms 주기라 on_configure 직후엔 아직 안 와 있다 — 즉시 요구하면 경합이 난다.
+  bool waitForFieldbus(std::chrono::milliseconds timeout);
   /// URDF 선언이 계약(§1)과 맞는지 대조. 어긋나면 사유를 로그에 남기고 false.
   bool validateInterfaces();
 
@@ -117,6 +120,7 @@ private:
   std::atomic<bool> fieldbus_ok_{false};
   std::atomic<bool> collision_latched_{false};
   std::mutex fieldbus_mutex_;
+  std::condition_variable fieldbus_cv_;
   std::string last_fieldbus_;
 
   // ── 명령: write() → 워커 ───────────────────────────────────────────────
