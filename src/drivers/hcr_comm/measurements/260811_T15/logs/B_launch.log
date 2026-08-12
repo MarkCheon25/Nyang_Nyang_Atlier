@@ -1,0 +1,361 @@
+[INFO] [launch]: All log files can be found below /home/rosuser/.ros/log/2026-08-11-04-36-34-188340-moveit2-80
+[INFO] [launch]: Default logging verbosity is set to INFO
+WARNING:root:[33;21mCannot infer SRDF from `/home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config`. -- using config/hcr_robot.srdf[0m
+[INFO] [rviz2-1]: process started with pid [105]
+[INFO] [static_transform_publisher-2]: process started with pid [106]
+[INFO] [robot_state_publisher-3]: process started with pid [107]
+[INFO] [move_group-4]: process started with pid [108]
+[INFO] [ros2_control_node-5]: process started with pid [109]
+[INFO] [spawner-6]: process started with pid [110]
+[INFO] [spawner-7]: process started with pid [111]
+[static_transform_publisher-2] [WARN] [1786422996.737515933] []: Old-style arguments are deprecated; see --help for new-style arguments
+[static_transform_publisher-2] [INFO] [1786422997.619066046] [static_transform_publisher]: Spinning until stopped - publishing transform
+[static_transform_publisher-2] translation: ('0.000000', '0.000000', '0.000000')
+[static_transform_publisher-2] rotation: ('0.000000', '0.000000', '0.000000', '1.000000')
+[static_transform_publisher-2] from 'world' to 'base_link'
+[robot_state_publisher-3] [WARN] [1786422997.835245466] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-3] [INFO] [1786422997.835388884] [robot_state_publisher]: Robot initialized
+[ros2_control_node-5] [INFO] [1786422998.577671530] [controller_manager]: Using Steady (Monotonic) clock for triggering controller manager cycles.
+[ros2_control_node-5] [INFO] [1786422998.906265851] [controller_manager]: Subscribing to '/robot_description' topic for robot description.
+[ros2_control_node-5] [INFO] [1786422998.958584534] [controller_manager]: update rate is 100 Hz
+[ros2_control_node-5] [INFO] [1786422998.958622391] [controller_manager]: Overruns handling is : enabled
+[ros2_control_node-5] [INFO] [1786422998.958629066] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50
+[ros2_control_node-5] [WARN] [1786422998.958709475] [controller_manager]: Could not enable FIFO RT scheduling policy: with error number <1>(Operation not permitted). See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details on how to enable realtime scheduling.
+[ros2_control_node-5] [INFO] [1786422998.959364052] [controller_manager]: Received robot description from topic.
+[ros2_control_node-5] [INFO] [1786422998.959394016] [controller_manager]: Enforcing command limits is disabled. Command limits from URDF will be ignored.
+[ros2_control_node-5] [INFO] [1786422998.962272116] [controller_manager]: Loading hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786422999.146583043] [controller_manager]: Loaded hardware 'hcr_robot_system' from plugin 'hcr_bridge/HcrSystemInterface'
+[ros2_control_node-5] [INFO] [1786422999.146695665] [controller_manager]: Initialize hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786422999.146720564] [controller_manager.hardware_component.system.hcr_robot_system]: Starting async handler with scheduler priority: 50 and policy : synchronized
+[ros2_control_node-5] [WARN] [1786422999.146847650] [controller_manager.hardware_component.system.hcr_robot_system]: Could not enable FIFO RT scheduling policy. Consider setting up your user to do FIFO RT scheduling. See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details.
+[ros2_control_node-5] [INFO] [1786422999.160865354] [controller_manager.hardware_component.system.hcr_robot_system]: HcrSystemInterface on_init — 192.168.0.20:1883 · allow_motion=false · deadband=0.0100° · rw_rate=30Hz · is_async=true
+[ros2_control_node-5] [INFO] [1786422999.160917322] [controller_manager.hardware_component.system.hcr_robot_system]: allow_motion=false — write() 는 아무것도 발행하지 않는다 (읽기 전용)
+[ros2_control_node-5] [INFO] [1786422999.160944792] [controller_manager]: Successful initialization of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786422999.161158696] [controller_manager]: Activating component 'hcr_robot_system'.
+[ros2_control_node-5] [INFO] [1786422999.161178781] [resource_manager]: 'configure' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786422999.421011926] [controller_manager.hardware_component.system.hcr_robot_system]: MQTT 접속·첫 표본 수신: 192.168.0.20:1883
+[ros2_control_node-5] [INFO] [1786422999.421054992] [resource_manager]: Successful 'configure' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786422999.421065947] [resource_manager]: 'activate' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786422999.468904585] [controller_manager.hardware_component.system.hcr_robot_system]: 활성화 — 명령 버퍼 = 실기 [0.003 -90.005 -90.004 -90.048 90.001 0.001]° (get/command/pos)
+[ros2_control_node-5] [INFO] [1786422999.468993731] [resource_manager]: Successful 'activate' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786422999.469073571] [controller_manager]: Registering statistics for : hcr_robot_system
+[ros2_control_node-5] [INFO] [1786422999.469194315] [controller_manager]: Resource Manager has been successfully initialized. Starting Controller Manager services...
+[move_group-4] [INFO] [1786422999.545087625] [move_group.moveit.moveit.ros.rdf_loader]: Loaded robot model in 0.00578696 seconds
+[move_group-4] [INFO] [1786422999.545276789] [move_group.moveit.moveit.core.robot_model]: Loading robot model 'hcr_robot'...
+[ros2_control_node-5] [INFO] [1786422999.638609953] [controller_manager]: Received robot description from topic.
+[ros2_control_node-5] [WARN] [1786422999.638668678] [controller_manager]: ResourceManager has already loaded a urdf. Ignoring attempt to reload a robot description.
+[move_group-4] [WARN] [1786423000.741411205] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[move_group-4] [INFO] [1786423000.741566738] [move_group.moveit.moveit.kinematics.kdl_kinematics_plugin]: Joint weights for group 'hcr_arm': 1 1 1 1 1 1
+[move_group-4] [INFO] [1786423001.535157475] [move_group.moveit.moveit.ros.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'
+[move_group-4] [INFO] [1786423001.535370295] [move_group.moveit.moveit.ros.moveit_cpp]: Listening to 'joint_states' for joint states
+[move_group-4] [INFO] [1786423001.536625761] [move_group.moveit.moveit.ros.current_state_monitor]: Listening to joint states on topic 'joint_states'
+[move_group-4] [INFO] [1786423001.537543867] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to '/attached_collision_object' for attached collision objects
+[move_group-4] [INFO] [1786423001.537578534] [move_group.moveit.moveit.ros.planning_scene_monitor]: Stopping existing planning scene publisher.
+[move_group-4] [INFO] [1786423001.537721138] [move_group.moveit.moveit.ros.planning_scene_monitor]: Stopped publishing maintained planning scene.
+[move_group-4] [INFO] [1786423001.538388578] [move_group.moveit.moveit.ros.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'
+[move_group-4] [INFO] [1786423001.538497716] [move_group.moveit.moveit.ros.planning_scene_monitor]: Starting planning scene monitor
+[move_group-4] [INFO] [1786423001.539265428] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to '/planning_scene'
+[move_group-4] [INFO] [1786423001.539458319] [move_group.moveit.moveit.ros.planning_scene_monitor]: Starting world geometry update monitor for collision objects, attached objects, octomap updates.
+[move_group-4] [INFO] [1786423001.544490446] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to 'collision_object'
+[move_group-4] [INFO] [1786423001.545199531] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to 'planning_scene_world' for planning scene world geometry
+[move_group-4] [WARN] [1786423001.545417717] [move_group.moveit.moveit.ros.occupancy_map_monitor]: Resolution not specified for Octomap. Assuming resolution = 0.1 instead
+[move_group-4] [ERROR] [1786423001.545436188] [move_group.moveit.moveit.ros.occupancy_map_monitor]: No 3D sensor plugin(s) defined for octomap updates
+[ros2_control_node-5] [INFO] [1786423001.786016032] [controller_manager]: Loading controller : 'hcr_arm_controller' of type 'joint_trajectory_controller/JointTrajectoryController'
+[ros2_control_node-5] [INFO] [1786423001.786065244] [controller_manager]: Loading controller 'hcr_arm_controller'
+[ros2_control_node-5] [INFO] [1786423001.914081071] [controller_manager]: Controller 'hcr_arm_controller' node arguments: --ros-args --params-file /home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config/config/ros2_controllers.yaml 
+[spawner-7] [INFO] [1786423002.004628874] [spawner_hcr_arm_controller]: Loaded hcr_arm_controller
+[ros2_control_node-5] [INFO] [1786423002.006211391] [controller_manager]: Configuring controller: 'hcr_arm_controller'
+[ros2_control_node-5] [INFO] [1786423002.006652682] [hcr_arm_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
+[ros2_control_node-5] [INFO] [1786423002.006711407] [hcr_arm_controller]: Command interfaces are [position] and state interfaces are [position velocity].
+[ros2_control_node-5] [INFO] [1786423002.006827286] [hcr_arm_controller]: Using 'splines' interpolation method.
+[ros2_control_node-5] [INFO] [1786423002.188550258] [hcr_arm_controller]: Action status changes will be monitored at 20.00 Hz.
+[ros2_control_node-5] [INFO] [1786423002.209216060] [hcr_arm_controller]: Setting initial scaling factor to 1.000000
+[ros2_control_node-5] [INFO] [1786423002.209259740] [hcr_arm_controller]: No scaling interface set. This controller will not read speed scaling from the hardware.
+[ros2_control_node-5] [INFO] [1786423002.220691150] [controller_manager]: Activating controllers: [ hcr_arm_controller ]
+[ros2_control_node-5] [INFO] [1786423002.229559111] [controller_manager]: Successfully switched controllers!
+[spawner-7] [INFO] [1786423002.240961767] [spawner_hcr_arm_controller]: Configured and activated hcr_arm_controller
+[move_group-4] [INFO] [1786423002.260186978] [move_group.moveit.moveit.ros.planning_pipeline]: Successfully loaded planner 'OMPL'
+[move_group-4] [INFO] [1786423002.261739794] [move_group]: Try loading adapter 'default_planning_request_adapters/ResolveConstraintFrames'
+[move_group-4] [INFO] [1786423002.323344683] [move_group]: Loaded adapter 'default_planning_request_adapters/ResolveConstraintFrames'
+[move_group-4] [INFO] [1786423002.323471957] [move_group]: Try loading adapter 'default_planning_request_adapters/ValidateWorkspaceBounds'
+[move_group-4] [INFO] [1786423002.323928876] [move_group]: Loaded adapter 'default_planning_request_adapters/ValidateWorkspaceBounds'
+[move_group-4] [INFO] [1786423002.323956211] [move_group]: Try loading adapter 'default_planning_request_adapters/CheckStartStateBounds'
+[move_group-4] [INFO] [1786423002.324010704] [move_group]: Loaded adapter 'default_planning_request_adapters/CheckStartStateBounds'
+[move_group-4] [INFO] [1786423002.324021996] [move_group]: Try loading adapter 'default_planning_request_adapters/CheckStartStateCollision'
+[move_group-4] [INFO] [1786423002.324037585] [move_group]: Loaded adapter 'default_planning_request_adapters/CheckStartStateCollision'
+[move_group-4] [INFO] [1786423002.325573180] [move_group]: Try loading adapter 'default_planning_response_adapters/AddTimeOptimalParameterization'
+[spawner-6] [INFO] [1786423002.415138483] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[INFO] [spawner-7]: process has finished cleanly [pid 111]
+[move_group-4] [INFO] [1786423002.615577654] [move_group]: Loaded adapter 'default_planning_response_adapters/AddTimeOptimalParameterization'
+[move_group-4] [INFO] [1786423002.615608604] [move_group]: Try loading adapter 'default_planning_response_adapters/ValidateSolution'
+[move_group-4] [INFO] [1786423002.665813395] [move_group]: Loaded adapter 'default_planning_response_adapters/ValidateSolution'
+[move_group-4] [INFO] [1786423002.665856420] [move_group]: Try loading adapter 'default_planning_response_adapters/DisplayMotionPath'
+[move_group-4] [INFO] [1786423002.666831912] [move_group]: Loaded adapter 'default_planning_response_adapters/DisplayMotionPath'
+[ros2_control_node-5] [INFO] [1786423002.667593172] [controller_manager]: Loading controller : 'joint_state_broadcaster' of type 'joint_state_broadcaster/JointStateBroadcaster'
+[ros2_control_node-5] [INFO] [1786423002.667624249] [controller_manager]: Loading controller 'joint_state_broadcaster'
+[ros2_control_node-5] [INFO] [1786423002.861787342] [controller_manager]: Controller 'joint_state_broadcaster' node arguments: --ros-args --params-file /home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config/config/ros2_controllers.yaml 
+[spawner-6] [INFO] [1786423002.880620096] [spawner_joint_state_broadcaster]: Loaded joint_state_broadcaster
+[ros2_control_node-5] [INFO] [1786423002.882063166] [controller_manager]: Configuring controller: 'joint_state_broadcaster'
+[ros2_control_node-5] [INFO] [1786423002.882152795] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published
+[ros2_control_node-5] [INFO] [1786423002.890952298] [controller_manager]: Activating controllers: [ joint_state_broadcaster ]
+[ros2_control_node-5] [INFO] [1786423002.899223055] [controller_manager]: Successfully switched controllers!
+[spawner-6] [INFO] [1786423002.911556736] [spawner_joint_state_broadcaster]: Configured and activated joint_state_broadcaster
+[move_group-4] [INFO] [1786423003.032993593] [move_group.moveit.moveit.plugins.simple_controller_manager]: Added FollowJointTrajectory controller for hcr_arm_controller
+[move_group-4] [INFO] [1786423003.033289327] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786423003.033341007] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786423003.034321343] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Trajectory execution is managing controllers
+[move_group-4] [INFO] [1786423003.034372222] [move_group]: MoveGroup debug mode is ON
+[INFO] [spawner-6]: process has finished cleanly [pid 110]
+[move_group-4] [INFO] [1786423003.562281931] [move_group.moveit.moveit.ros.move_group.executable]: 
+[move_group-4] 
+[move_group-4] ********************************************************
+[move_group-4] * MoveGroup using: 
+[move_group-4] *     - apply_planning_scene_service
+[move_group-4] *     - clear_octomap_service
+[move_group-4] *     - get_group_urdf
+[move_group-4] *     - load_geometry_from_file
+[move_group-4] *     - CartesianPathService
+[move_group-4] *     - execute_trajectory_action
+[move_group-4] *     - get_planning_scene_service
+[move_group-4] *     - kinematics_service
+[move_group-4] *     - move_action
+[move_group-4] *     - motion_plan_service
+[move_group-4] *     - query_planners_service
+[move_group-4] *     - state_validation_service
+[move_group-4] *     - save_geometry_to_file
+[move_group-4] ********************************************************
+[move_group-4] 
+[move_group-4] [INFO] [1786423003.562361050] [move_group.moveit.moveit.ros.move_group.context]: MoveGroup context using pipeline ompl
+[move_group-4] [INFO] [1786423003.562381012] [move_group.moveit.moveit.ros.move_group.context]: MoveGroup context initialization complete
+[move_group-4] [96mLoading 'move_group/ApplyPlanningSceneService'...[0m
+[move_group-4] [96mLoading 'move_group/ClearOctomapService'...[0m
+[move_group-4] [96mLoading 'move_group/GetUrdfService'...[0m
+[move_group-4] [96mLoading 'move_group/LoadGeometryFromFileService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupCartesianPathService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupExecuteTrajectoryAction'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupGetPlanningSceneService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupKinematicsService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupMoveAction'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupPlanService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupQueryPlannersService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupStateValidationService'...[0m
+[move_group-4] [96mLoading 'move_group/SaveGeometryToFileService'...[0m
+[move_group-4] 
+[move_group-4] [92mYou can start planning now![0m
+[move_group-4] 
+[rviz2-1] [INFO] [1786423005.800651735] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-1] [INFO] [1786423005.800910891] [rviz2]: OpenGl version: 4.6 (GLSL 4.6)
+[rviz2-1] [INFO] [1786423005.901223069] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-1] Warning: class_loader.impl: SEVERE WARNING!!! A namespace collision has occurred with plugin factory for class rviz_default_plugins::displays::InteractiveMarkerDisplay. New factory will OVERWRITE existing one. This situation occurs when libraries containing plugins are directly linked against an executable (the one running right now generating this message). Please separate plugins out into their own library or just don't link against the library and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.
+[rviz2-1]          at line 321 in /opt/ros/jazzy/include/class_loader/class_loader/class_loader_core.hpp
+[rviz2-1] [WARN] [1786423006.558419290] [rcl.logging_rosout]: Publisher already registered for node name: 'rviz2'. If this is due to multiple nodes with the same name then all logs for the logger named 'rviz2' will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[rviz2-1] [ERROR] [1786423009.630836795] [rviz2.moveit.ros.motion_planning_frame]: Action server: /recognize_objects not available
+[rviz2-1] [INFO] [1786423009.682264682] [rviz2.moveit.ros.motion_planning_frame]: MoveGroup namespace changed: / -> . Reloading params.
+[rviz2-1] [INFO] [1786423009.937155645] [rviz2.moveit.ros.rdf_loader]: Loaded robot model in 0.0159931 seconds
+[rviz2-1] [INFO] [1786423009.937296216] [rviz2.moveit.core.robot_model]: Loading robot model 'hcr_robot'...
+[rviz2-1] [WARN] [1786423010.109118843] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[rviz2-1] [INFO] [1786423010.110309205] [rviz2.moveit.kinematics.kdl_kinematics_plugin]: Joint weights for group 'hcr_arm': 1 1 1 1 1 1
+[rviz2-1] [INFO] [1786423010.539508841] [rviz2.moveit.ros.planning_scene_monitor]: Starting planning scene monitor
+[rviz2-1] [INFO] [1786423010.540676431] [rviz2.moveit.ros.planning_scene_monitor]: Listening to '/monitored_planning_scene'
+[rviz2-1] [INFO] [1786423010.677059416] [interactive_marker_display_104604020461824]: Connected on namespace: /rviz_moveit_motion_planning_display/robot_interaction_interactive_marker_topic
+[rviz2-1] [WARN] [1786423010.679833662] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[rviz2-1] [INFO] [1786423010.686192224] [rviz2.moveit.ros.motion_planning_frame]: group hcr_arm
+[rviz2-1] [INFO] [1786423010.686237845] [rviz2.moveit.ros.motion_planning_frame]: Constructing new MoveGroup connection for group 'hcr_arm' in namespace ''
+[rviz2-1] [INFO] [1786423010.705888702] [rviz2.moveit.ros.move_group_interface]: Ready to take commands for planning group hcr_arm.
+[rviz2-1] [INFO] [1786423010.717470609] [interactive_marker_display_104604020461824]: Sending request for interactive markers
+[rviz2-1] [INFO] [1786423010.749895745] [interactive_marker_display_104604020461824]: Service response received for initialization
+[ros2_control_node-5] [ERROR] [1786424605.379064712] [controller_manager.hardware_component.system.hcr_robot_system]: 상태 수신 중단(1028ms > 1000ms) — 낡은 자세를 참으로 믿게 두지 않는다. 비활성으로 내린다
+[ros2_control_node-5] [WARN] [1786424605.409007268] [controller_manager]: DEACTIVATE returned from read cycle is treated the same as ERROR.
+[ros2_control_node-5] [ERROR] [1786424605.409843500] [controller_manager.hardware_component.system.hcr_robot_system]: 에러 — move/stop 발행·발행 영구 잠금
+[ros2_control_node-5] [ERROR] [1786424605.409973907] [controller_manager]: Deactivating following hardware components as their read cycle resulted in an error: [ hcr_robot_system ]
+[ros2_control_node-5] [ERROR] [1786424605.410020847] [controller_manager]: Deactivating following controllers as their hardware components read cycle resulted in an error: [ hcr_arm_controller joint_state_broadcaster ]
+[ros2_control_node-5] [ERROR] [1786424605.410147329] [controller_manager]: Not acceptable command interfaces combination: 
+[ros2_control_node-5] Start interfaces: 
+[ros2_control_node-5] [
+[ros2_control_node-5] ]
+[ros2_control_node-5] Stop interfaces: 
+[ros2_control_node-5] [
+[ros2_control_node-5]   joint_1/position
+[ros2_control_node-5]   joint_2/position
+[ros2_control_node-5]   joint_3/position
+[ros2_control_node-5]   joint_4/position
+[ros2_control_node-5]   joint_5/position
+[ros2_control_node-5]   joint_6/position
+[ros2_control_node-5] ]
+[ros2_control_node-5] Not available: 
+[ros2_control_node-5] [
+[ros2_control_node-5]  joint_1/position
+[ros2_control_node-5]  joint_2/position
+[ros2_control_node-5]  joint_3/position
+[ros2_control_node-5]  joint_4/position
+[ros2_control_node-5]  joint_5/position
+[ros2_control_node-5]  joint_6/position
+[ros2_control_node-5] ]
+[ros2_control_node-5] 
+[ros2_control_node-5] [ERROR] [1786424605.410171033] [controller_manager]: Error while attempting mode switch when deactivating controllers in read cycle!
+[ros2_control_node-5] [WARN] [1786424605.410245935] [joint_1/position]: LoanedStateInterface joint_1/position has 2 (0.0012 %) timeouts and 1605 (0.9912 %) missed calls out of 161922 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410262073] [joint_1/velocity]: LoanedStateInterface joint_1/velocity has 0 (0.0000 %) timeouts and 89 (0.0555 %) missed calls out of 160408 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410270540] [joint_2/position]: LoanedStateInterface joint_2/position has 0 (0.0000 %) timeouts and 243 (0.1513 %) missed calls out of 160562 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410277845] [joint_2/velocity]: LoanedStateInterface joint_2/velocity has 1 (0.0006 %) timeouts and 146 (0.0910 %) missed calls out of 160464 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410286413] [joint_3/position]: LoanedStateInterface joint_3/position has 0 (0.0000 %) timeouts and 157 (0.0978 %) missed calls out of 160476 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410294120] [joint_3/velocity]: LoanedStateInterface joint_3/velocity has 0 (0.0000 %) timeouts and 138 (0.0860 %) missed calls out of 160457 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410301246] [joint_4/position]: LoanedStateInterface joint_4/position has 0 (0.0000 %) timeouts and 109 (0.0679 %) missed calls out of 160428 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410309114] [joint_4/velocity]: LoanedStateInterface joint_4/velocity has 0 (0.0000 %) timeouts and 113 (0.0704 %) missed calls out of 160432 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410316181] [joint_5/position]: LoanedStateInterface joint_5/position has 0 (0.0000 %) timeouts and 90 (0.0561 %) missed calls out of 160409 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410323457] [joint_5/velocity]: LoanedStateInterface joint_5/velocity has 0 (0.0000 %) timeouts and 102 (0.0636 %) missed calls out of 160421 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410330893] [joint_6/position]: LoanedStateInterface joint_6/position has 0 (0.0000 %) timeouts and 81 (0.0505 %) missed calls out of 160400 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410338925] [joint_6/velocity]: LoanedStateInterface joint_6/velocity has 0 (0.0000 %) timeouts and 77 (0.0480 %) missed calls out of 160396 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410363081] [joint_1/position]: LoanedStateInterface joint_1/position has 21 (0.0131 %) timeouts and 21 (0.0131 %) missed calls out of 160250 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410372643] [joint_1/velocity]: LoanedStateInterface joint_1/velocity has 6 (0.0037 %) timeouts and 6 (0.0037 %) missed calls out of 160250 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410379999] [joint_3/position]: LoanedStateInterface joint_3/position has 6 (0.0037 %) timeouts and 6 (0.0037 %) missed calls out of 160250 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410387860] [joint_2/position]: LoanedStateInterface joint_2/position has 3 (0.0019 %) timeouts and 3 (0.0019 %) missed calls out of 160250 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410395445] [joint_2/velocity]: LoanedStateInterface joint_2/velocity has 1 (0.0006 %) timeouts and 1 (0.0006 %) missed calls out of 160250 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410402945] [joint_3/velocity]: LoanedStateInterface joint_3/velocity has 2 (0.0012 %) timeouts and 2 (0.0012 %) missed calls out of 160250 get_value calls
+[ros2_control_node-5] [WARN] [1786424605.410410256] [joint_4/position]: LoanedStateInterface joint_4/position has 12 (0.0075 %) timeouts and 12 (0.0075 %) missed calls out of 160250 get_value calls
+[ros2_control_node-5] [INFO] [1786424732.243455652] [resource_manager]: 'configure' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786424800.534072319] [controller_manager.hardware_component.system.hcr_robot_system]: MQTT 접속·첫 표본 수신: 192.168.0.20:1883
+[ros2_control_node-5] [INFO] [1786424800.534127129] [resource_manager]: Successful 'configure' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786424800.534138585] [resource_manager]: 'activate' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [ERROR] [1786424800.534144957] [controller_manager.hardware_component.system.hcr_robot_system]: 필드버스가 FIELD_BUS_SW_STATE_CONNECTED 가 아니다 (현재 'FIELD_BUS_SW_STATE_CONNECTED') — 드라이브 통신을 먼저 살려야 한다
+[ros2_control_node-5] [ERROR] [1786424800.534252205] [controller_manager.hardware_component.system.hcr_robot_system]: 에러 — move/stop 발행·발행 영구 잠금
+[ros2_control_node-5] [ERROR] [1786424800.534272011] [resource_manager]: Failed to 'activate' hardware 'hcr_robot_system'
+[ros2_control_node-5] [WARN] [1786424800.634819213] [controller_manager.rclcpp]: failed to send response to /controller_manager/list_hardware_components (timeout): client will not receive response, at ./src/rmw_response.cpp:153, at ./src/rcl/service.c:400
+[ros2_control_node-5] [WARN] [1786424800.735528464] [controller_manager.rclcpp]: failed to send response to /controller_manager/list_hardware_components (timeout): client will not receive response, at ./src/rmw_response.cpp:153, at ./src/rcl/service.c:400
+[ros2_control_node-5] [INFO] [1786424800.737209633] [resource_manager]: 'configure' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786424800.738525999] [controller_manager.hardware_component.system.hcr_robot_system]: MQTT 접속·첫 표본 수신: 192.168.0.20:1883
+[ros2_control_node-5] [INFO] [1786424800.738636590] [resource_manager]: Successful 'configure' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [WARN] [1786424800.738646594] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_5/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738660628] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_5/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738674262] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_4/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738687891] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_1/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738699124] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_6/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738709510] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_6/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738719697] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_1/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738730063] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_3/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738739838] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_2/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738750155] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_2/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738776178] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_3/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738788607] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_4/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738812130] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_6/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738826241] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_5/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738836985] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_4/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738847288] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_2/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738878127] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_3/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.738941929] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_1/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [INFO] [1786424800.738959595] [resource_manager]: 'activate' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [ERROR] [1786424800.738979546] [controller_manager.hardware_component.system.hcr_robot_system]: 필드버스가 FIELD_BUS_SW_STATE_CONNECTED 가 아니다 (현재 'FIELD_BUS_SW_STATE_CONNECTED') — 드라이브 통신을 먼저 살려야 한다
+[ros2_control_node-5] [ERROR] [1786424800.739232836] [controller_manager.hardware_component.system.hcr_robot_system]: 에러 — move/stop 발행·발행 영구 잠금
+[ros2_control_node-5] [ERROR] [1786424800.739304277] [resource_manager]: Failed to 'activate' hardware 'hcr_robot_system'
+[ros2_control_node-5] [WARN] [1786424800.839513920] [controller_manager.rclcpp]: failed to send response to /controller_manager/set_hardware_component_state (timeout): client will not receive response, at ./src/rmw_response.cpp:153, at ./src/rcl/service.c:400
+[ros2_control_node-5] [INFO] [1786424800.839957765] [controller_manager]: Activating controllers: [ joint_state_broadcaster ]
+[ros2_control_node-5] [INFO] [1786424800.849142601] [controller_manager]: Activated controllers: [ joint_state_broadcaster ]
+[ros2_control_node-5] [INFO] [1786424800.849194624] [controller_manager]: Successfully switched controllers!
+[ros2_control_node-5] [INFO] [1786424800.859919367] [resource_manager]: 'configure' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786424800.883542463] [controller_manager.hardware_component.system.hcr_robot_system]: MQTT 접속·첫 표본 수신: 192.168.0.20:1883
+[ros2_control_node-5] [INFO] [1786424800.883733103] [resource_manager]: Successful 'configure' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [WARN] [1786424800.883742705] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_5/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883776970] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_5/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883789902] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_4/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883796458] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_1/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883802454] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_6/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883808875] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_6/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883815108] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_1/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883821500] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_3/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883826980] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_2/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883833065] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_2/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883839201] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_3/velocity' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883844780] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_4/position' state interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883853074] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_6/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883859999] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_5/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883866247] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_4/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883871797] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_2/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883877459] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_3/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [WARN] [1786424800.883943921] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_1/position' command interface already in available list. This can happen due to multiple calls to 'configure'
+[ros2_control_node-5] [INFO] [1786424800.883956366] [resource_manager]: 'activate' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [ERROR] [1786424800.883968004] [controller_manager.hardware_component.system.hcr_robot_system]: 필드버스가 FIELD_BUS_SW_STATE_CONNECTED 가 아니다 (현재 'FIELD_BUS_SW_STATE_CONNECTED') — 드라이브 통신을 먼저 살려야 한다
+[ros2_control_node-5] [ERROR] [1786424800.884110054] [controller_manager.hardware_component.system.hcr_robot_system]: 에러 — move/stop 발행·발행 영구 잠금
+[ros2_control_node-5] [ERROR] [1786424800.884138615] [resource_manager]: Failed to 'activate' hardware 'hcr_robot_system'
+[ros2_control_node-5] [WARN] [1786424800.984300937] [controller_manager.rclcpp]: failed to send response to /controller_manager/set_hardware_component_state (timeout): client will not receive response, at ./src/rmw_response.cpp:153, at ./src/rcl/service.c:400
+[ros2_control_node-5] [INFO] [1786424804.101113438] [controller_manager]: Activating controllers: [ hcr_arm_controller ]
+[ros2_control_node-5] [WARN] [1786424804.101476676] [controller_manager]: Component 'hcr_robot_system' is not in INACTIVE or ACTIVE state, skipping the prepare switch
+[ros2_control_node-5] [ERROR] [1786424804.101604821] [controller_manager]: Could not switch controllers since prepare command mode switch was rejected.
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [ros2_control_node-5]: sending signal 'SIGINT' to process[ros2_control_node-5]
+[INFO] [move_group-4]: sending signal 'SIGINT' to process[move_group-4]
+[INFO] [robot_state_publisher-3]: sending signal 'SIGINT' to process[robot_state_publisher-3]
+[INFO] [static_transform_publisher-2]: sending signal 'SIGINT' to process[static_transform_publisher-2]
+[INFO] [rviz2-1]: sending signal 'SIGINT' to process[rviz2-1]
+[ros2_control_node-5] [INFO] [1786425014.035572938] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[ros2_control_node-5] [INFO] [1786425014.035648038] [controller_manager]: Shutdown request received....
+[ros2_control_node-5] [INFO] [1786425014.035746855] [controller_manager]: Shutting down all controllers in the controller manager.
+[ros2_control_node-5] [INFO] [1786425014.035795119] [controller_manager]: Deactivating controller 'joint_state_broadcaster'
+[ros2_control_node-5] [INFO] [1786425014.035847858] [controller_manager]: Shutting down controller 'joint_state_broadcaster'
+[ros2_control_node-5] [INFO] [1786425014.036062657] [controller_manager]: Shutting down controller 'hcr_arm_controller'
+[ros2_control_node-5] [INFO] [1786425014.036151416] [resource_manager]: 'shutdown' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786425014.036172205] [resource_manager]: Successful 'shutdown' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786425014.036207157] [controller_manager]: Shutting down the controller manager.
+[ros2_control_node-5] [ERROR] [1786425014.036312267] [controller_manager.pal_statistics]: Exception in publisher thread: context cannot be slept with because it's invalid!. Aborting!
+[ros2_control_node-5] [ERROR] [1786425014.036312224] [controller_manager.pal_statistics]: Exception in publisher thread: context cannot be slept with because it's invalid!. Aborting!
+[move_group-4] [INFO] [1786425014.037285572] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-3] [INFO] [1786425014.041826737] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[static_transform_publisher-2] [INFO] [1786425014.049291919] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[rviz2-1] [INFO] [1786425014.053848085] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[rviz2-1] [WARN] [1786425014.056112585] [interactive_marker_display_104604020461824]: Server not available while running, resetting
+[rviz2-1] 
+[rviz2-1] >>> [rcutils|error_handling.c:108] rcutils_set_error_state()
+[rviz2-1] This error state is being overwritten:
+[rviz2-1] 
+[rviz2-1]   'rcl node's context is invalid, at ./src/rcl/node.c:404'
+[rviz2-1] 
+[rviz2-1] with this new error message:
+[rviz2-1] 
+[rviz2-1]   'publisher's context is invalid, at ./src/rcl/publisher.c:423'
+[rviz2-1] 
+[rviz2-1] rcutils_reset_error() should be called after error handling to avoid this.
+[rviz2-1] <<<
+[rviz2-1] Failed to publish log message to rosout: publisher's context is invalid, at ./src/rcl/publisher.c:423
+[ros2_control_node-5] [INFO] [1786425014.056200323] [controller_manager.pal_statistics]: Async messages lost 0
+[ros2_control_node-5] [INFO] [1786425014.056226145] [controller_manager.pal_statistics]: publish_async_failures_ 0
+[ros2_control_node-5] [INFO] [1786425014.063568407] [controller_manager.pal_statistics]: Async messages lost 0
+[ros2_control_node-5] [INFO] [1786425014.063595464] [controller_manager.pal_statistics]: publish_async_failures_ 0
+[move_group-4] [INFO] [1786425014.122980768] [move_group.moveit.moveit.ros.moveit_cpp]: Deleting MoveItCpp
+[move_group-4] Stack trace (most recent call last):
+[rviz2-1] 
+[rviz2-1] >>> [rcutils|error_handling.c:108] rcutils_set_error_state()
+[rviz2-1] This error state is being overwritten:
+[rviz2-1] 
+[rviz2-1]   'rcl node's context is invalid, at ./src/rcl/node.c:404'
+[rviz2-1] 
+[rviz2-1] with this new error message:
+[rviz2-1] 
+[rviz2-1]   'publisher's context is invalid, at ./src/rcl/publisher.c:423'
+[rviz2-1] 
+[rviz2-1] rcutils_reset_error() should be called after error handling to avoid this.
+[rviz2-1] <<<
+[rviz2-1] [INFO] [1786425014.167003217] [rviz2.moveit.ros.planning_scene_monitor]: Stopping planning scene monitor
+[move_group-4] #15   Object "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2", at 0xffffffffffffffff, in 
+[move_group-4] #14   Object "/opt/ros/jazzy/lib/moveit_ros_move_group/move_group", at 0x642a1407aa44, in _start
+[move_group-4] #13   Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x78e34865a28a, in __libc_start_main
+[move_group-4] #12   Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x78e34865a1c9, in 
+[move_group-4] #11   Object "/opt/ros/jazzy/lib/moveit_ros_move_group/move_group", at 0x642a14079539, in main
+[move_group-4] #10   Object "/opt/ros/jazzy/lib/moveit_ros_move_group/move_group", at 0x642a1407c159, in 
+[move_group-4] #9    Object "/opt/ros/jazzy/lib/libmoveit_cpp.so.2.12.4", at 0x78e348fe2ad0, in moveit_cpp::MoveItCpp::~MoveItCpp()
+[move_group-4] #8    Object "/opt/ros/jazzy/lib/libmoveit_cpp.so.2.12.4", at 0x78e348fe2989, in 
+[move_group-4] #7    Object "/opt/ros/jazzy/lib/libmoveit_trajectory_execution_manager.so.2.12.4", at 0x78e34834f44a, in trajectory_execution_manager::TrajectoryExecutionManager::~TrajectoryExecutionManager()
+[move_group-4] #6    Object "/opt/ros/jazzy/lib/libmoveit_trajectory_execution_manager.so.2.12.4", at 0x78e3483615a5, in 
+[move_group-4] #5    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x78e348c80294, in rclcpp::Node::~Node()
+[move_group-4] #4    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x78e348c2a485, in 
+[move_group-4] #3    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x78e348c7eb60, in 
+[move_group-4] #2    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x78e348c7eaa3, in rclcpp::node_interfaces::NodeBase::~NodeBase()
+[move_group-4] #1    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x78e348c2a549, in 
+[move_group-4] #0    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x78e348c2eb19, in rclcpp::CallbackGroup::~CallbackGroup()
+[move_group-4] Segmentation fault (Address not mapped to object [0x78e31e1aada0])
+[INFO] [static_transform_publisher-2]: process has finished cleanly [pid 106]
+[INFO] [robot_state_publisher-3]: process has finished cleanly [pid 107]
+[INFO] [ros2_control_node-5]: process has finished cleanly [pid 109]
+[INFO] [rviz2-1]: process has finished cleanly [pid 105]
+[ERROR] [move_group-4]: process[move_group-4] failed to terminate '5' seconds after receiving 'SIGINT', escalating to 'SIGTERM'
+[INFO] [move_group-4]: sending signal 'SIGTERM' to process[move_group-4]
+[ERROR] [move_group-4]: process[move_group-4] failed to terminate '10.0' seconds after receiving 'SIGTERM', escalating to 'SIGKILL'
+[INFO] [move_group-4]: sending signal 'SIGKILL' to process[move_group-4]
+[ERROR] [move_group-4]: process has died [pid 108, exit code -9, cmd '/opt/ros/jazzy/lib/moveit_ros_move_group/move_group --ros-args --log-level info --ros-args --params-file /tmp/launch_params_cc4vax3u'].

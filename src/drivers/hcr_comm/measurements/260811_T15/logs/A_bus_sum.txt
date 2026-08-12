@@ -1,0 +1,23 @@
+=== 수집 10237건 / 22개 토픽 / 45.0초 → /tmp/claude-1000/-home-markch04-Markch-ws-260809-Nyang-Nyang-Atlier/04466e83-7a3c-4f05-b227-4cad6be7f394/scratchpad/A_bus.jsonl
+    1315회  motion/joint/position
+    1315회  motion/flange/position
+    1315회  motion/tool/position
+     875회  status/operation
+     875회  status/program
+     874회  status/robot
+     441회  status/safety
+     440회  motion/joint/range
+     440회  motion/joint/speed
+     440회  monitor/robot
+     440회  monitor/io/configurable
+     440회  monitor/io/digital
+     440회  monitor/io/analog
+     440회  monitor/io/tool
+     135회  heartbeat
+       4회  modbus/device/error
+       2회  set/operation
+       2회  mongoLog
+       1회  set/velocity
+       1회  7691935c-954e-11f1-b41a-4ccc6adc1261
+       1회  76cff677-954e-11f1-bc8c-4ccc6adc1261
+       1회  811bc52a-954e-11f1-9032-4ccc6adc1261

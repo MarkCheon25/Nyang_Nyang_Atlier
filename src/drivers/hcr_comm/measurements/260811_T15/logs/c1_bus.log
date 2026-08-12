@@ -1,0 +1,38 @@
+[CONNACK] return_code=0 (수락)
+[SUBSCRIBE] topic='#', 24.0초 수신...
+
+[SUBACK] 000100
+🆕 [status/safety]  {"type":"pub","uuid":"d75a9f60-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"reduced":false,"normalVelocity":0,"reducedVelocity":0.5}}}
+🆕 [motion/joint/range]  {"type":"pub","uuid":"d75ac670-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1"}}
+🆕 [motion/joint/speed]  {"type":"pub","uuid":"d75ac671-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"base":0.00021755105198019802,"shoulder":0.00016316328898514852,"elbow":0.00038071434096534655,"wrist1":0.0001
+🆕 [monitor/robot]  {"type":"pub","uuid":"d75ac672-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"power":0,"voltage":48,"current":0,"axis":[{"name":"base","current":0,"voltage":48,"temp":47},{"name":"shoulde
+🆕 [monitor/io/configurable]  {"type":"pub","uuid":"d75ac673-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"input":[0,0,0,0,0,0,0,0],"output":[0,0,0,0,0,0,0,0]}}}
+🆕 [motion/joint/position]  {"type":"pub","uuid":"d75aed80-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"base":0.003100102490717822,"shoulder":-90.00473173538059,"elbow":-90.00358959235767,"wrist1":-90.048241945776
+🆕 [monitor/io/digital]  {"type":"pub","uuid":"d75aed81-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"input":[0,0,0,0,0,0,0,0],"output":[0,0,0,0,0,0,0,0]}}}
+🆕 [monitor/io/analog]  {"type":"pub","uuid":"d75aed82-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"input":[{"unit":false,"value":0},{"unit":false,"value":0}],"output":[{"unit":false,"value":0},{"unit":false,"
+🆕 [monitor/io/tool]  {"type":"pub","uuid":"d75b1490-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"input":[0,0,0,0],"output":[0,0,0,0],"analog":{"input":[{"unit":false,"value":0},{"unit":false,"value":0}]},"p
+🆕 [motion/flange/position]  {"type":"pub","uuid":"d75b3ba0-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"x":489.913489474062,"y":-170.47129644566573,"z":441.30107169995836,"rx":179.9433999809359,"ry":0.000948863501
+🆕 [motion/tool/position]  {"type":"pub","uuid":"d75b62b0-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"x":489.9036109031472,"y":-170.47113117386868,"z":431.30107658063343,"rx":179.9433999809359,"ry":0.00094886350
+🆕 [status/robot]  {"type":"pub","uuid":"d75b62b1-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":"ROBOT_STATE_STOPPED"}}
+🆕 [status/operation]  {"type":"pub","uuid":"d75b89c0-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"operationStatus":"SERVO_OFF","robotState":"ROBOT_STATE_STOPPED","controllerStatus":"FIELD_BUS_SW_STATE_CONNEC
+🆕 [status/program]  {"type":"pub","uuid":"d75bb0d0-95d1-11f1-a786-13068c9c498a","data":{"thng_id":"1","data":{"status":"PROGRAM_STATE_INIT","repeat":0,"start":1786331235020,"repeatFlag":false,"velocity":1}}}
+🆕 [heartbeat]  {"svcName":"hcr-data-svc"}
+🆕 [modbus/device/error]  {"type":"pub","uuid":"dd8fac40-95d1-11f1-a553-a572e6dee97f","data":{"dev_id":1,"error_msg":"connection_attempt_timed_out","error_code":5}}
+
+=== 요약: 5491건 수신, 16개 토픽 ===
+    706회  motion/joint/position
+    705회  motion/flange/position
+    705회  motion/tool/position
+    471회  status/robot
+    471회  status/operation
+    471회  status/program
+    236회  status/safety
+    236회  motion/joint/range
+    236회  motion/joint/speed
+    236회  monitor/robot
+    236회  monitor/io/configurable
+    236회  monitor/io/digital
+    236회  monitor/io/analog
+    236회  monitor/io/tool
+     72회  heartbeat
+      2회  modbus/device/error
