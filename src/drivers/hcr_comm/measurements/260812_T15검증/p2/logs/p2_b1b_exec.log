@@ -1,0 +1,624 @@
+Waiting for an action server to become available...
+Sending goal:
+     request:
+  workspace_parameters:
+    header:
+      stamp:
+        sec: 0
+        nanosec: 0
+      frame_id: ''
+    min_corner:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+    max_corner:
+      x: 0.0
+      y: 0.0
+      z: 0.0
+  start_state:
+    joint_state:
+      header:
+        stamp:
+          sec: 0
+          nanosec: 0
+        frame_id: ''
+      name: []
+      position: []
+      velocity: []
+      effort: []
+    multi_dof_joint_state:
+      header:
+        stamp:
+          sec: 0
+          nanosec: 0
+        frame_id: ''
+      joint_names: []
+      transforms: []
+      twist: []
+      wrench: []
+    attached_collision_objects: []
+    is_diff: false
+  goal_constraints:
+  - name: ''
+    joint_constraints: []
+    position_constraints:
+    - header:
+        stamp:
+          sec: 0
+          nanosec: 0
+        frame_id: base_link
+      link_name: link6_1
+      target_point_offset:
+        x: 0.0
+        y: 0.0
+        z: 0.0
+      constraint_region:
+        primitives:
+        - type: 2
+          dimensions:
+          - 0.0001
+          polygon:
+            points: []
+        primitive_poses:
+        - position:
+            x: 0.496593774
+            y: -0.170508746
+            z: 0.396813759
+          orientation:
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            w: 1.0
+        meshes: []
+        mesh_poses: []
+      weight: 1.0
+    orientation_constraints:
+    - header:
+        stamp:
+          sec: 0
+          nanosec: 0
+        frame_id: base_link
+      orientation:
+        x: 0.766046142
+        y: -5.6903e-05
+        z: 0.642785583
+        w: 1.089e-06
+      link_name: link6_1
+      absolute_x_axis_tolerance: 0.001
+      absolute_y_axis_tolerance: 0.001
+      absolute_z_axis_tolerance: 0.001
+      parameterization: 0
+      weight: 1.0
+    visibility_constraints: []
+  path_constraints:
+    name: ''
+    joint_constraints: []
+    position_constraints: []
+    orientation_constraints: []
+    visibility_constraints: []
+  trajectory_constraints:
+    constraints: []
+  reference_trajectories: []
+  pipeline_id: ''
+  planner_id: ''
+  group_name: hcr_arm
+  num_planning_attempts: 5
+  allowed_planning_time: 5.0
+  max_velocity_scaling_factor: 0.1
+  max_acceleration_scaling_factor: 0.1
+  cartesian_speed_limited_link: ''
+  max_cartesian_speed: 0.0
+planning_options:
+  planning_scene_diff:
+    name: ''
+    robot_state:
+      joint_state:
+        header:
+          stamp:
+            sec: 0
+            nanosec: 0
+          frame_id: ''
+        name: []
+        position: []
+        velocity: []
+        effort: []
+      multi_dof_joint_state:
+        header:
+          stamp:
+            sec: 0
+            nanosec: 0
+          frame_id: ''
+        joint_names: []
+        transforms: []
+        twist: []
+        wrench: []
+      attached_collision_objects: []
+      is_diff: true
+    robot_model_name: ''
+    fixed_frame_transforms: []
+    allowed_collision_matrix:
+      entry_names: []
+      entry_values: []
+      default_entry_names: []
+      default_entry_values: []
+    link_padding: []
+    link_scale: []
+    object_colors: []
+    world:
+      collision_objects: []
+      octomap:
+        header:
+          stamp:
+            sec: 0
+            nanosec: 0
+          frame_id: ''
+        origin:
+          position:
+            x: 0.0
+            y: 0.0
+            z: 0.0
+          orientation:
+            x: 0.0
+            y: 0.0
+            z: 0.0
+            w: 1.0
+        octomap:
+          header:
+            stamp:
+              sec: 0
+              nanosec: 0
+            frame_id: ''
+          binary: false
+          id: ''
+          resolution: 0.0
+          data: []
+    is_diff: true
+  plan_only: false
+  look_around: false
+  look_around_attempts: 0
+  max_safe_execution_cost: 0.0
+  replan: false
+  replan_attempts: 0
+  replan_delay: 0.0
+
+Goal accepted with ID: 41ab195a1bd54704b8121b49ba196f78
+
+Result:
+    error_code:
+  val: 1
+  message: ''
+  source: ''
+trajectory_start:
+  joint_state:
+    header:
+      stamp:
+        sec: 0
+        nanosec: 0
+      frame_id: base_link
+    name:
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - joint_6
+    position:
+    - 1.570761470172787
+    - -0.0872851770682726
+    - 1.6580097556062507
+    - -3.960819356143475e-05
+    - 1.570876053740084
+    - 4.04945384245366e-05
+    velocity:
+    - -5.78752453111565e-07
+    - 2.8402146472678123e-05
+    - -0.00027318234263345363
+    - -0.0003000000000000001
+    - 1.5692164226055811e-06
+    - 1.2182263844833469e-06
+    effort: []
+  multi_dof_joint_state:
+    header:
+      stamp:
+        sec: 0
+        nanosec: 0
+      frame_id: base_link
+    joint_names: []
+    transforms: []
+    twist: []
+    wrench: []
+  attached_collision_objects: []
+  is_diff: false
+planned_trajectory:
+  joint_trajectory:
+    header:
+      stamp:
+        sec: 0
+        nanosec: 0
+      frame_id: base_link
+    joint_names:
+    - joint_1
+    - joint_2
+    - joint_3
+    - joint_4
+    - joint_5
+    - joint_6
+    points:
+    - positions:
+      - 1.570761470172787
+      - -0.0872851770682726
+      - 1.6580097556062507
+      - -3.960819356143475e-05
+      - 1.570876053740084
+      - 4.04945384245366e-05
+      velocities:
+      - -5.78752453111565e-07
+      - 2.8402146472678123e-05
+      - -0.00027318234263345363
+      - -0.0003000000000000001
+      - 1.5692164226055811e-06
+      - 1.2182263844833469e-06
+      accelerations:
+      - -0.000578752453111565
+      - 0.028402146472678122
+      - -0.27318234263345365
+      - -0.3000000000000001
+      - 0.0015692164226055812
+      - 0.0012182263844833468
+      effort: []
+      time_from_start:
+        sec: 0
+        nanosec: 0
+    - positions:
+      - 1.5707585764105214
+      - -0.08714316633590921
+      - 1.6566438438930835
+      - -0.0015396081935614354
+      - 1.5708838998221972
+      - 4.658567034695333e-05
+      velocities:
+      - -5.787524531115668e-05
+      - 0.002840214647267821
+      - -0.027318234263345446
+      - -0.0300000000000001
+      - 0.0001569216422605586
+      - 0.00012182263844833507
+      accelerations:
+      - -0.0005787524531117202
+      - 0.028402146472685807
+      - -0.27318234263352575
+      - -0.3000000000000812
+      - 0.0015692164226060023
+      - 0.0012182263844836823
+      effort: []
+      time_from_start:
+        sec: 0
+        nanosec: 100000000
+    - positions:
+      - 1.5707498951237246
+      - -0.08671713413881904
+      - 1.6525461087535815
+      - -0.006039608193561429
+      - 1.5709074380685364
+      - 6.48590661142035e-05
+      velocities:
+      - -0.00011575049062231308
+      - 0.005680429294535628
+      - -0.05463646852669076
+      - -0.06000000000000005
+      - 0.0003138432845211164
+      - 0.00024364527689666954
+      accelerations:
+      - -0.0005787524531114356
+      - 0.02840214647267193
+      - -0.2731823426333905
+      - -0.299999999999932
+      - 0.0015692164226051891
+      - 0.0012182263844830589
+      effort: []
+      time_from_start:
+        sec: 0
+        nanosec: 200000000
+    - positions:
+      - 1.5707354263123972
+      - -0.08600708047700208
+      - 1.6457165501877453
+      - -0.013539608193561453
+      - 1.5709466684791014
+      - 9.531472572628727e-05
+      velocities:
+      - -0.00017362573593346527
+      - 0.00852064394180323
+      - -0.0819547027900341
+      - -0.08999999999999783
+      - 0.0004707649267816629
+      - 0.0003654679153449952
+      accelerations:
+      - -0.0005787524531064076
+      - 0.028402146472426466
+      - -0.27318234263103125
+      - -0.2999999999973299
+      - 0.0015692164225916366
+      - 0.001218226384472515
+      effort: []
+      time_from_start:
+        sec: 0
+        nanosec: 300000000
+    - positions:
+      - 1.570715169976538
+      - -0.08501300535045835
+      - 1.6361551681955744
+      - -0.0240396081935615
+      - 1.5710015910538926
+      - 0.00013795264918320459
+      velocities:
+      - -0.00023150098124463228
+      - 0.011360858589071557
+      - -0.10927293705338441
+      - -0.12000000000000328
+      - 0.0006276865690422494
+      - 0.000487290553793352
+      accelerations:
+      - -0.0005787524531161925
+      - 0.02840214647290525
+      - -0.2731823426356387
+      - -0.3000000000024092
+      - 0.0015692164226180911
+      - 0.0012182263844930606
+      effort: []
+      time_from_start:
+        sec: 0
+        nanosec: 400000000
+    - positions:
+      - 1.5706891261161482
+      - -0.08373490875918782
+      - 1.623861962777069
+      - -0.037539608193561586
+      - 1.5710722057929098
+      - 0.0001927728364849555
+      velocities:
+      - -0.00028937622655575727
+      - 0.014201073236337822
+      - -0.13659117131671492
+      - -0.14999999999998695
+      - 0.0007846082113027222
+      - 0.0006091131922416203
+      accelerations:
+      - -0.0005787524530839597
+      - 0.028402146471321603
+      - -0.2731823426204273
+      - -0.29999999998568366
+      - 0.0015692164225307257
+      - 0.001218226384425122
+      effort: []
+      time_from_start:
+        sec: 0
+        nanosec: 500000000
+    - positions:
+      - 1.5706572947312267
+      - -0.0821727907031905
+      - 1.6088369339322288
+      - -0.05403960819356171
+      - 1.5711585126961531
+      - 0.00025977528763154007
+      velocities:
+      - -0.0003472514718669465
+      - 0.01704128788360724
+      - -0.16390940558007572
+      - -0.1800000000000039
+      - 0.0009415298535633689
+      - 0.0007309358306900239
+      accelerations:
+      - -0.0005787524531159757
+      - 0.028402146472893106
+      - -0.27318234263554153
+      - -0.3000000000022704
+      - 0.0015692164226174406
+      - 0.0012182263844925185
+      effort: []
+      time_from_start:
+        sec: 0
+        nanosec: 600000000
+    - positions:
+      - 1.5706230065213616
+      - -0.08049010451560926
+      - 1.592652236234025
+      - -0.07181311896536145
+      - 1.5712514809794547
+      - 0.0003319491535218914
+      velocities:
+      - -0.00031715634430513017
+      - 0.015564376267027247
+      - -0.14970392376312908
+      - -0.1643999999999962
+      - 0.0008599305995878383
+      - 0.0006675880586968585
+      accelerations:
+      - 0.000578752453121722
+      - -0.028402146473175866
+      - 0.2731823426382616
+      - 0.300000000005268
+      - -0.0015692164226330531
+      - -0.00121822638450477
+      effort: []
+      time_from_start:
+        sec: 0
+        nanosec: 700000000
+    - positions:
+      - 1.5705941686153877
+      - -0.07907489076569461
+      - 1.5790401873031223
+      - -0.08676143019186715
+      - 1.5713296714310108
+      - 0.000392650577320551
+      velocities:
+      - -0.00025928109899397305
+      - 0.012724161619759403
+      - -0.12238568949978341
+      - -0.13439999999999586
+      - 0.0007030089573272784
+      - 0.0005457654202485224
+      accelerations:
+      - 0.0005787524531216136
+      - -0.028402146473172397
+      - 0.27318234263820607
+      - 0.3000000000052125
+      - -0.0015692164226329447
+      - -0.0012182263845045532
+      effort: []
+      time_from_start:
+        sec: 0
+        nanosec: 800000000
+    - positions:
+      - 1.5705711182339446
+      - -0.07794369848050675
+      - 1.5681599617985542
+      - -0.0987097414183728
+      - 1.571392169718341
+      - 0.00044116973727437685
+      velocities:
+      - -0.000201405853682816
+      - 0.009883946972491562
+      - -0.09506745523643778
+      - -0.10439999999999555
+      - 0.0005460873150667188
+      - 0.00042394278180018656
+      accelerations:
+      - 0.000578752453121478
+      - -0.028402146473165458
+      - 0.2731823426381367
+      - 0.3000000000051431
+      - -0.001569216422632511
+      - -0.001218226384504228
+      effort: []
+      time_from_start:
+        sec: 0
+        nanosec: 900000000
+    - positions:
+      - 1.5705538553770326
+      - -0.07709652766004567
+      - 1.5600115597203208
+      - -0.10765805264487846
+      - 1.5714389758414449
+      - 0.00047750663338336924
+      velocities:
+      - -0.00014353060837166636
+      - 0.007043732325224089
+      - -0.06774922097309567
+      - -0.0743999999999991
+      - 0.0003891656728061794
+      - 0.00030212014335186636
+      accelerations:
+      - 0.0005787524531138244
+      - -0.02840214647278847
+      - 0.27318234263451197
+      - 0.3000000000011685
+      - -0.0015692164226116826
+      - -0.0012182263844881006
+      effort: []
+      time_from_start:
+        sec: 1
+        nanosec: 0
+    - positions:
+      - 1.570542380044652
+      - -0.07653337830431137
+      - 1.5545949810684219
+      - -0.1136063638713841
+      - 1.571470089800323
+      - 0.0005016612656475282
+      velocities:
+      - -8.565536306052075e-05
+      - 0.00420351767795681
+      - -0.040430986709755444
+      - -0.04440000000000474
+      - 0.00023224403054565077
+      - 0.00018029750490355457
+      accelerations:
+      - 0.000578752453102379
+      - -0.028402146472227524
+      - 0.2731823426291256
+      - 0.2999999999952399
+      - -0.0015692164225806706
+      - -0.001218226384464031
+      effort: []
+      time_from_start:
+        sec: 1
+        nanosec: 100000000
+    - positions:
+      - 1.5705366922368025
+      - -0.07625425041330387
+      - 1.5519102258428574
+      - -0.11655467509788969
+      - 1.571485511594975
+      - 0.0005136336340668534
+      velocities:
+      - -2.778011774935203e-05
+      - 0.0013633030306883982
+      - -0.013112752446404315
+      - -0.0143999999999984
+      - 7.532238828505951e-05
+      - 5.847486645519415e-05
+      accelerations:
+      - 0.0005787524531143501
+      - -0.028402146472814888
+      - 0.2731823426347688
+      - 0.30000000000144467
+      - -0.0015692164226131407
+      - -0.0012182263844892063
+      effort: []
+      time_from_start:
+        sec: 1
+        nanosec: 200000000
+    - positions:
+      - 1.570536017795538
+      - -0.07622115235993539
+      - 1.5515918765320227
+      - -0.1169042759993601
+      - 1.5714873402598948
+      - 0.0005150532775408881
+      velocities:
+      - 1.3267279903937187e-20
+      - -6.510887774207053e-19
+      - 6.2624125134077595e-18
+      - 6.8771785757146574e-18
+      - -3.597260520734233e-20
+      - -2.792653463913066e-20
+      accelerations:
+      - 0.0005787524530746313
+      - -0.028402146470865614
+      - 0.27318234261602026
+      - 0.2999999999808553
+      - -0.0015692164225054402
+      - -0.0012182263844056048
+      effort: []
+      time_from_start:
+        sec: 1
+        nanosec: 248277040
+  multi_dof_joint_trajectory:
+    header:
+      stamp:
+        sec: 0
+        nanosec: 0
+      frame_id: ''
+    joint_names: []
+    points: []
+executed_trajectory:
+  joint_trajectory:
+    header:
+      stamp:
+        sec: 0
+        nanosec: 0
+      frame_id: ''
+    joint_names: []
+    points: []
+  multi_dof_joint_trajectory:
+    header:
+      stamp:
+        sec: 0
+        nanosec: 0
+      frame_id: ''
+    joint_names: []
+    points: []
+planning_time: 0.0
+
+Goal finished with status: SUCCEEDED
