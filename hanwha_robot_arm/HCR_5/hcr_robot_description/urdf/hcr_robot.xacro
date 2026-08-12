@@ -254,4 +254,16 @@
   <limit upper="6.283185" lower="-6.283185" effort="100" velocity="3.141593"/>
 </joint>
 
+<!-- ── 공구: 펜홀더 nyang_pen ─────────────────────────────────────────────────
+  플랜지(link6_1) 아래로 tool0 → 홀더 → 펜 → pen_tip 을 잇는다. pose goal 은
+  pen_tip 을 겨눈다 — 이 include 가 없으면 IK 가 **플랜지 기준**으로 풀린다.
+
+  본체와 분리된 패키지인 이유 · 명목 치수 · 강성 가정 · 축 방향 근거는 전부
+  src/drivers/nyang_pen/urdf/nyang_pen.xacro 머리말에 있다. 여기 옮겨 적지 않는다.
+  치수를 바꿀 때도 그 파일의 매크로 기본값만 고친다 (P1 판정 — 인자 관통 안 함).
+
+  ⚠️ 이 패키지는 compose.yml 이 src/drivers/ 를 마운트해야 컨테이너에서 보인다 -->
+<xacro:include filename="$(find nyang_pen)/urdf/nyang_pen.xacro"/>
+<xacro:nyang_pen parent="link6_1"/>
+
 </robot>
