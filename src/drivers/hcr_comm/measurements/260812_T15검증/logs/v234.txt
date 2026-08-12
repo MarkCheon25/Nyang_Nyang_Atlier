@@ -1,0 +1,42 @@
+######## V-2  list_hardware_components ########
+Hardware Component 1
+	name: hcr_robot_system
+	type: system
+	plugin name: hcr_bridge/HcrSystemInterface
+	state: id=3 label=active
+	read/write rate: 30 Hz
+	is_async: True
+	command interfaces
+		joint_6/position [available] [claimed]
+		joint_5/position [available] [claimed]
+		joint_4/position [available] [claimed]
+		joint_2/position [available] [claimed]
+		joint_3/position [available] [claimed]
+		joint_1/position [available] [claimed]
+
+######## V-3  list_hardware_interfaces ########
+[INFO] [1786497731.575320311] [_ros2cli_881]: waiting for service /controller_manager/list_hardware_interfaces to become available...
+command interfaces
+	joint_1/position [available] [claimed]
+	joint_2/position [available] [claimed]
+	joint_3/position [available] [claimed]
+	joint_4/position [available] [claimed]
+	joint_5/position [available] [claimed]
+	joint_6/position [available] [claimed]
+state interfaces
+	joint_1/position
+	joint_1/velocity
+	joint_2/position
+	joint_2/velocity
+	joint_3/position
+	joint_3/velocity
+	joint_4/position
+	joint_4/velocity
+	joint_5/position
+	joint_5/velocity
+	joint_6/position
+	joint_6/velocity
+
+######## V-4  list_controllers ########
+joint_state_broadcaster joint_state_broadcaster/JointStateBroadcaster          active
+hcr_arm_controller      joint_trajectory_controller/JointTrajectoryController  active

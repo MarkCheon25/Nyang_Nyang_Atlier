@@ -1,0 +1,49 @@
+[INFO] [1786419476.220080610] [controller_manager]: Using Steady (Monotonic) clock for triggering controller manager cycles.
+[INFO] [1786419476.223626211] [controller_manager]: Subscribing to '/robot_description' topic for robot description.
+[INFO] [1786419476.226128752] [controller_manager]: update rate is 100 Hz
+[INFO] [1786419476.226180904] [controller_manager]: Overruns handling is : enabled
+[INFO] [1786419476.226190337] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50
+[WARN] [1786419476.226257546] [controller_manager]: Could not enable FIFO RT scheduling policy: with error number <1>(Operation not permitted). See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details on how to enable realtime scheduling.
+[INFO] [1786419476.388230968] [controller_manager]: Received robot description from topic.
+[INFO] [1786419476.388280587] [controller_manager]: Enforcing command limits is disabled. Command limits from URDF will be ignored.
+[INFO] [1786419476.392086835] [controller_manager]: Loading hardware 'hcr_robot_system' 
+[INFO] [1786419476.393637901] [controller_manager]: Loaded hardware 'hcr_robot_system' from plugin 'hcr_bridge/HcrSystemInterface'
+[INFO] [1786419476.394011388] [controller_manager]: Initialize hardware 'hcr_robot_system' 
+[INFO] [1786419476.394116688] [controller_manager.hardware_component.system.hcr_robot_system]: Starting async handler with scheduler priority: 50 and policy : synchronized
+[WARN] [1786419476.394709982] [controller_manager.hardware_component.system.hcr_robot_system]: Could not enable FIFO RT scheduling policy. Consider setting up your user to do FIFO RT scheduling. See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details.
+[INFO] [1786419476.402964314] [controller_manager.hardware_component.system.hcr_robot_system]: HcrSystemInterface on_init — 192.168.0.99:1883 · allow_motion=false · deadband=0.0100° · rw_rate=30Hz · is_async=true
+[INFO] [1786419476.403018331] [controller_manager.hardware_component.system.hcr_robot_system]: allow_motion=false — write() 는 아무것도 발행하지 않는다 (읽기 전용)
+[INFO] [1786419476.403044457] [controller_manager]: Successful initialization of hardware 'hcr_robot_system'
+[INFO] [1786419476.403279837] [controller_manager]: Setting component 'hcr_robot_system' to 'unconfigured' state.
+[INFO] [1786419476.403362728] [controller_manager]: Registering statistics for : hcr_robot_system
+[INFO] [1786419476.403486406] [controller_manager]: Resource Manager has been successfully initialized. Starting Controller Manager services...
+[INFO] [1786419535.905248563] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[INFO] [1786419535.905787520] [controller_manager]: Shutdown request received....
+[INFO] [1786419535.906084103] [controller_manager]: Shutting down all controllers in the controller manager.
+[INFO] [1786419535.906249320] [resource_manager]: 'shutdown' hardware 'hcr_robot_system' 
+[INFO] [1786419535.906350089] [resource_manager]: Successful 'shutdown' of hardware 'hcr_robot_system'
+[WARN] [1786419535.906378047] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_6/position' command interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906407166] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_5/position' command interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906428510] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_4/position' command interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906452644] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_2/position' command interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906474118] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_3/position' command interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906573047] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_1/position' command interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906616629] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_5/velocity' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906647309] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_5/position' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906671610] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_4/velocity' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906692413] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_1/position' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906711454] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_6/velocity' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906743740] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_6/position' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906767435] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_1/velocity' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906829751] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_3/position' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906846014] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_2/position' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906862000] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_2/velocity' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906876799] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_3/velocity' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[WARN] [1786419535.906892613] [controller_manager]: (hardware 'hcr_robot_system'): 'joint_4/position' state interface not in available list. This should not happen (hint: multiple cleanup calls).
+[INFO] [1786419535.907015151] [controller_manager]: Shutting down the controller manager.
+[ERROR] [1786419535.907287089] [controller_manager.pal_statistics]: Exception in publisher thread: context cannot be slept with because it's invalid!. Aborting!
+[ERROR] [1786419535.907287240] [controller_manager.pal_statistics]: Exception in publisher thread: context cannot be slept with because it's invalid!. Aborting!
+[INFO] [1786419535.916783956] [controller_manager.pal_statistics]: Async messages lost 0
+[INFO] [1786419535.916817999] [controller_manager.pal_statistics]: publish_async_failures_ 0
+[INFO] [1786419535.918014349] [controller_manager.pal_statistics]: Async messages lost 0
+[INFO] [1786419535.918054777] [controller_manager.pal_statistics]: publish_async_failures_ 0
