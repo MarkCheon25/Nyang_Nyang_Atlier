@@ -1,0 +1,56 @@
+=== B2 — RViz 인터랙티브 마커 드래그 → Plan & Execute (260812-플랜지베어링, Rokey6 손) ===
+실기 무접촉 · mock(GenericSystem) · hcr_bridge 미기동 → 실물 무동작은 정상이다
+
+--- /move_action 구조 ---
+Action servers: 1  (/move_group)
+Action clients: 2  (/rviz2)      ← 마커와 pose_goal.sh 가 같은 문으로 들어간다
+
+--- 기준선 (드래그 전, 홈) ---
+A message was lost!!!
+	total count change:1
+	total count: 1---
+array('d', [1.570796, 0.0, 1.570796, 0.0, 1.570796, 0.0])
+---
+POS 0.490003058 -0.170502269 0.241496160
+QUAT 1.000000000 -0.000000163 0.000000177 0.000000163
+AXIS_X +1.000000 -0.000000 +0.000000
+AXIS_Y -0.000000 -1.000000 +0.000000
+AXIS_Z +0.000000 -0.000000 -1.000000
+
+--- 실행 후 ---
+A message was lost!!!
+	total count change:1
+	total count: 1---
+array('d', [1.4672915960909643, -0.06179170799042165, 0.7469067235706494, -0.7644581810617769, 1.5939526755167868, -0.10350163977144917])
+---
+POS 0.402757424 -0.205516040 0.474133012
+QUAT 0.999932277 -0.000015209 0.000022477 -0.011637869
+AXIS_X +1.000000 -0.000031 +0.000045
+AXIS_Y -0.000030 -0.999729 -0.023274
+AXIS_Z +0.000045 +0.023274 -0.999729
+
+--- move_group 로그 발췌 (2회 실행 모두 SUCCEEDED) ---
+[move_group-4] [INFO] [1786541836.878627092] [move_group.moveit.moveit.ros.move_group.move_action]: MoveGroupMoveAction: Received request
+[move_group-4] [INFO] [1786541836.890309286] [move_group.moveit.moveit.ros.move_group.move_action]: Combined planning and execution request received for MoveGroup action. Forwarding to planning and execution pipeline.
+[move_group-4] [INFO] [1786541836.890531289] [move_group.moveit.moveit.ros.plan_execution]: Planning attempt 1 of at most 1
+[move_group-4] [INFO] [1786541836.950867423] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Starting trajectory execution ...
+[ros2_control_node-5] [INFO] [1786541836.952371540] [hcr_arm_controller]: Received new action goal
+[ros2_control_node-5] [INFO] [1786541836.952516319] [hcr_arm_controller]: Accepted new action goal
+[move_group-4] [INFO] [1786541839.080268421] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...
+[move_group-4] [INFO] [1786541839.081111068] [move_group.moveit.moveit.ros.move_group.move_action]: Solution was found and executed.
+[move_group-4] [INFO] [1786541886.924021783] [move_group.moveit.moveit.ros.move_group.move_action]: MoveGroupMoveAction: Received request
+[move_group-4] [INFO] [1786541886.930111523] [move_group.moveit.moveit.ros.move_group.move_action]: Combined planning and execution request received for MoveGroup action. Forwarding to planning and execution pipeline.
+[move_group-4] [INFO] [1786541886.930226503] [move_group.moveit.moveit.ros.plan_execution]: Planning attempt 1 of at most 1
+[move_group-4] [INFO] [1786541886.990210044] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Starting trajectory execution ...
+[ros2_control_node-5] [INFO] [1786541886.990716092] [hcr_arm_controller]: Received new action goal
+[ros2_control_node-5] [INFO] [1786541886.990754319] [hcr_arm_controller]: Accepted new action goal
+[move_group-4] [INFO] [1786541890.370190045] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...
+[move_group-4] [INFO] [1786541890.380298471] [move_group.moveit.moveit.ros.move_group.move_action]: Solution was found and executed.
+[move_group-4] [INFO] [1786552326.433204579] [move_group.moveit.moveit.ros.move_group.move_action]: MoveGroupMoveAction: Received request
+[move_group-4] [INFO] [1786552326.440524315] [move_group.moveit.moveit.ros.move_group.move_action]: Combined planning and execution request received for MoveGroup action. Forwarding to planning and execution pipeline.
+[move_group-4] [INFO] [1786552326.440695330] [move_group.moveit.moveit.ros.plan_execution]: Planning attempt 1 of at most 1
+[move_group-4] [INFO] [1786552326.480172223] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Starting trajectory execution ...
+[ros2_control_node-5] [INFO] [1786552326.481053704] [hcr_arm_controller]: Received new action goal
+[ros2_control_node-5] [INFO] [1786552326.481833463] [hcr_arm_controller]: Accepted new action goal
+[move_group-4] [INFO] [1786552330.210223823] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...
+[move_group-4] [INFO] [1786552330.220293245] [move_group.moveit.moveit.ros.move_group.move_action]: Solution was found and executed.
