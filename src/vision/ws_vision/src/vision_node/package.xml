@@ -2,18 +2,32 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>vision_node</name>
-  <version>0.1.0</version>
-  <description>
-    vision_core 의 ROS 2 래퍼. 경계 인터페이스(토픽/서비스/메시지 타입)는 미정이며,
-    현재는 ROS 파라미터로 받은 이미지 경로를 코어에 넘겨 결과를 로그로 남긴다.
-  </description>
-  <maintainer email="cocoffeechan09@gmail.com">Mark Cheon</maintainer>
+  <version>0.0.1</version>
+  <description>SAM3 비전 파이프라인과 MoveIt 그리기 노드 모음</description>
+  <maintainer email="dorong@example.com">dorong</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <depend>rclcpp</depend>
-  <depend>vision_core</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <!-- <depend>moveit_msgs</depend> -->
+  <depend>std_srvs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>vision_interfaces</depend>
+  <!-- <depend>moveit_ros_planning_interface</depend>
+  <depend>moveit_visual_tools</depend> -->
+
+  <!-- contour_pixel 타겟(비전 컨테이너)에만 필요. json 관련 의존성은 이제 없음 -->
+  <build_depend>libopencv-dev</build_depend>
+  <exec_depend>libopencv-dev</exec_depend>
+
+  <!-- sam(파이썬) 실행에 필요 -->
+  <exec_depend>rclpy</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
