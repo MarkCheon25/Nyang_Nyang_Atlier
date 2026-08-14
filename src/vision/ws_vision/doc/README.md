@@ -122,11 +122,11 @@ python3 sam3_extract_ros_node.py
 
 
 
-## sam3.pt 다운로드 링크 **필수**
+## sam3.pt 다운로드 링크 **필수, 용량 큼 주의(3GB)**
 https://drive.google.com/file/d/1uDDGdN8Jnu9_qB_AGL1S3BcMPAl3R2f9/view?usp=sharing
 -> 설치 위치 : src/vision/ws_vision/src/vision_node/src
 
-
+*참고 : sam3 실행이 어려울 경우를 대비해 sam3_output 예시 이미지를 업로드했습니다*
 
 
 

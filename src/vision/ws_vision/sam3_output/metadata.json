@@ -1,0 +1,37 @@
+{
+  "image_path": "/home/dorong/cat_char.png",
+  "image_width": 480,
+  "image_height": 538,
+  "parts": [
+    {
+      "instance_label": "cat",
+      "class_name": "cat",
+      "confidence": 0.9723,
+      "mask_file": "mask_00_cat.png"
+    },
+    {
+      "instance_label": "eye of cat_left",
+      "class_name": "eye of cat",
+      "confidence": 0.9077,
+      "mask_file": "mask_01_eye of cat_left.png"
+    },
+    {
+      "instance_label": "eye of cat_right",
+      "class_name": "eye of cat",
+      "confidence": 0.9138,
+      "mask_file": "mask_02_eye of cat_right.png"
+    },
+    {
+      "instance_label": "nose of cat",
+      "class_name": "nose of cat",
+      "confidence": 0.8621,
+      "mask_file": "mask_03_nose of cat.png"
+    },
+    {
+      "instance_label": "mouth of cat",
+      "class_name": "mouth of cat",
+      "confidence": 0.8323,
+      "mask_file": "mask_04_mouth of cat.png"
+    }
+  ]
+}
