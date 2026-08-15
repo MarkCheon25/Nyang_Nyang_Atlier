@@ -1,0 +1,43 @@
+# vision 의 map.csv 를 읽어 고양이 외곽선(폐곡선)을 그리는 예시 설정.
+#
+#   ros2 launch drawing_cat draw_cat.launch.py \
+#     params_file:=$(ros2 pkg prefix drawing_cat --share)/config/csv_example.yaml
+#
+# draw_cat_params.yaml 의 기본값 위에 여기 적힌 것만 덮어쓰는 게 아니라 **이 파일이
+# 통째로 파라미터 파일을 대체한다.** 여기 없는 값은 draw_cat.cpp 의 기본값이 쓰인다
+# (그 기본값은 draw_cat_params.yaml 의 값과 같게 맞춰 두었다).
+draw_cat_node:
+  ros__parameters:
+
+    paper:
+      # vision 좌표는 범위를 미리 알 수 없으므로 자동 중심 맞추기를 켠다.
+      auto_center: true
+      # A4 크기(210×297mm) 그림을 그대로 그릴 수는 없다. 0.0005 = 1/2000 로
+      # 줄이면 아래 샘플(80×90mm)이 약 40×45mm 가 된다.
+      scale: 0.0005
+      pen_lift: 0.008
+
+    planning:
+      min_fraction: 0.9
+
+    marker:
+      color_rgba: [0.1, 0.8, 0.2, 1.0]   # 외곽선은 초록으로 구분
+      line_width: 0.002
+
+    strokes:
+      source: "csv"
+
+      # ⚠️ **실제로는 vision 이 만든 파일을 가리켜야 한다.**
+      #     ros2 run vision_core stroke_map_cli --in ~/data/cat.png --out-dir ~/data/out
+      #     → ~/data/out/map.csv
+      #
+      # ⚠️ 다만 moveit2 컨테이너에는 지금 `~/data` 마운트가 없다
+      #    (simulation/compose.yml 에는 `./data:/home/rosuser/data` 가 있는데
+      #     moveit2/compose.yml 에는 없다). 그래서 아래 기본값은 패키지에 같이
+      #    설치되는 **샘플**을 가리킨다. 마운트를 추가하기 전까지는 vision 이 만든
+      #    파일을 컨테이너 안으로 직접 복사해야 한다:
+      #        docker cp map.csv moveit2_dev:/tmp/map.csv
+      #
+      # 샘플은 data/gen_sample_map.py 로 만든 것이고, vision 과 같은 형식이지만
+      # 실제 이미지에서 뽑은 것이 아니라 수식으로 그린 고양이 머리 윤곽이다.
+      csv_path: "/home/rosuser/ws_moveit2/install/drawing_cat/share/drawing_cat/data/sample_cat_map.csv"

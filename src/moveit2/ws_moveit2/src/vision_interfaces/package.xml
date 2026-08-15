@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>vision_interfaces</name>
+  <version>0.0.0</version>
+  <description>
+    ⚠️ vision 팀 패키지의 **미러**다. 원본은 vision 컨테이너에 있고 여기 것은 moveit2 가
+    구독하기 위한 복제본이다. 두 정의가 어긋나면 토픽은 보이는데 메시지를 못 받는다.
+    자세한 것은 README.md 참조.
+  </description>
+  <maintainer email="rosuser@todo.todo">rosuser</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+  <buildtool_depend>rosidl_default_generators</buildtool_depend>
+
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

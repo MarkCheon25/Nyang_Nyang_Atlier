@@ -308,8 +308,33 @@ glxinfo -B                         # 렌더러 확인 (llvmpipe면 소프트웨�
 
 ---
 
+## 9. 그리기 작업 — `drawing_cat`
+
+이 README 는 **환경 구축**까지를 다룬다. 실제 그리기(F3.1 · F4.1 · F4.2)와
+MuJoCo 연동은 별도 문서에 있다:
+
+> **[`ws_moveit2/src/drawing_cat/README.md`](ws_moveit2/src/drawing_cat/README.md)**
+
+거기에 있는 것 — 두 컨테이너 DDS 구조와 기동 순서, `map.csv`(vision 인터페이스),
+파라미터 목록, 알려진 문제(joint_1 한계 · 펜 TCP 미적용 · 실행 감시 완화), 트러블슈팅.
+
+```bash
+# 요약 — 순서가 중요하다
+ros2 launch sim_bringup mujoco_sim.launch.py      # simulation 컨테이너 (몸통)
+ros2 launch drawing_cat mujoco_moveit.launch.py   # moveit2 컨테이너 (머리 + RViz)
+ros2 launch drawing_cat draw_cat.launch.py        # moveit2 컨테이너 (그리기)
+```
+
+> ⚠️ MuJoCo 와 붙일 때 `hcr_moveit_config` 의 `demo.launch.py` 를 쓰면 안 된다 —
+> 저건 mock_hardware 단독 데모용이라 몸통까지 자기가 띄워 시뮬과 충돌한다.
+> 자세한 것은 위 문서 §2.
+
+---
+
 ## 참고
 
+- 그리기 작업: [`ws_moveit2/src/drawing_cat/README.md`](ws_moveit2/src/drawing_cat/README.md)
+- **연동 현황 (다른 파트와 공유용)**: [`docs/Pipeline Integration Status.md`](docs/Pipeline%20Integration%20Status.md)
 - 컨테이너 매핑 상세: [`docs/DIRECTORY_STRUCTURE.md`](docs/DIRECTORY_STRUCTURE.md)
 - 자주 쓰는 명령: [`docs/CHEATSHEET.md`](docs/CHEATSHEET.md)
 - 튜토리얼 실행: [`docs/moveit2_튜토리얼_실행_가이드.md`](docs/moveit2_%ED%8A%9C%ED%86%A0%EB%A6%AC%EC%96%BC_%EC%8B%A4%ED%96%89_%EA%B0%80%EC%9D%B4%EB%93%9C.md)

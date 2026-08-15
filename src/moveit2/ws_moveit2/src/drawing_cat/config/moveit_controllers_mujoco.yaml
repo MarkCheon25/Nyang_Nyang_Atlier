@@ -1,0 +1,48 @@
+# MuJoCo 백엔드 전용 MoveIt 컨트롤러 설정.
+#
+# 원본 hcr_moveit_config/config/moveit_controllers.yaml 의 복사본이며, 원본은
+# 손대지 않는다 — mock_hardware 데모(demo.launch.py)가 계속 그대로 동작해야 한다.
+# 원본과 다른 곳은 아래 두 군데뿐이다.
+#
+#  1. 컨트롤러 이름:  hcr_arm_controller → joint_trajectory_controller
+#     moveit2 쪽 ros2_controllers.yaml 은 hcr_arm_controller 로 스폰하지만,
+#     MuJoCo 쪽(sim_bringup/config/controllers.yaml)은 joint_trajectory_controller
+#     로 스폰한다. 액션 네임스페이스(follow_joint_trajectory)와 조인트 6개는
+#     양쪽이 같으므로 이름만 맞추면 된다.
+#
+#  2. 실행 감시 해제 — 아래 주석 참조.
+trajectory_execution:
+  # ⚠️ 원본은 0.01 (rad). MuJoCo 는 궤적 추종이 아직 성립하지 않아(관성 큰 관절이
+  # 목표를 못 따라감 — src/simulation/README "구현 상태") 스트로크가 끝난 시점의
+  # 실제 자세가 계획 종점에서 벌어져 있다. 그 상태로 다음 궤적을 보내면 MoveIt 이
+  # "Invalid Trajectory: start point deviates from current robot state" 로 실행
+  # 자체를 거부한다. 0.0 은 이 검사를 끄는 값이다.
+  #
+  # 이건 연동 확인 단계의 임시 설정이다. 추종이 개선되면 원본 값(0.01)으로
+  # 되돌려서 실제로 만족하는지 확인할 것.
+  allowed_start_tolerance: 0.0
+
+  # ⚠️ 같은 이유로 끈다. 추종이 느린 만큼 계획 소요시간의 1.2 배 안에 못 끝내서
+  # "Controller failed during execution" 이 뜨는데, 그러면 실패 원인이 "연동"인지
+  # "추종"인지 구분되지 않는다. 연동이 먼저 확인되어야 하므로 감시를 내려둔다.
+  execution_duration_monitoring: false
+  allowed_execution_duration_scaling: 1.2
+  allowed_goal_duration_margin: 0.5
+
+moveit_controller_manager: moveit_simple_controller_manager/MoveItSimpleControllerManager
+
+moveit_simple_controller_manager:
+  controller_names:
+    - joint_trajectory_controller
+
+  joint_trajectory_controller:
+    action_ns: follow_joint_trajectory
+    type: FollowJointTrajectory
+    default: true
+    joints:
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+      - joint_6

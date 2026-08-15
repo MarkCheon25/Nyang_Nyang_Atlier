@@ -1,0 +1,66 @@
+# vision 의 /vision/strokes 토픽을 받아 그리는 예시 설정.
+#
+#   ros2 launch drawing_cat draw_cat.launch.py \
+#     params_file:=$(ros2 pkg prefix drawing_cat --share)/config/topic_example.yaml
+#
+# 여기 없는 값은 draw_cat.cpp 의 기본값이 쓰인다 (draw_cat_params.yaml 과 같게 맞춰 둠).
+draw_cat_node:
+  ros__parameters:
+
+    strokes:
+      source: "topic"
+      topic: "/vision/strokes"
+
+      # ⚠️ 구독 durability 선택. 발행자는 TRANSIENT_LOCAL 이지만 구독자는 둘 다 가능하다
+      #    (durability 는 "구독자가 덜 요구하는" 방향이 호환).
+      #
+      #   false (기본) — VOLATILE. 살아 있는 발행분만 받는다. 이전 이미지 부위가
+      #                  섞일 여지가 없다. **이 노드를 먼저 띄워두고** vision 을 돌린다.
+      #   true         — TRANSIENT_LOCAL. 밀린 이력도 받는다. vision 이 한 번 쏘고
+      #                  끝나는 운용이면 이게 필요하다. 오래된 프레임이 올 수 있지만
+      #                  프레임이 여러 개면 가장 최신 것만 쓰고 경고를 남긴다.
+      use_latched: false
+
+      # 마지막 메시지 후 이만큼 조용하면 한 이미지분이 다 왔다고 본다.
+      # 부위들은 "짧은 시간 안에 연달아" 오므로 이 값으로 경계가 잡힌다.
+      # ⚠️ 개수(expected_parts 같은 것)에 의존하지 않는다 — 몇 개가 올지 몰라도 된다.
+      frame_timeout_ms: 1500
+
+      # 첫 프레임을 기다리는 한도(초). 이 안에 아무것도 안 오면 종료한다.
+      # ⚠️ 손으로 셸을 옮겨 다니며 vision 을 띄우려면 30 초는 빠듯하다 —
+      #    넉넉히 둔다. 기다리는 동안 로봇은 아무것도 하지 않는다.
+      wait_timeout_s: 120.0
+
+    paper:
+      # 픽셀 → mm 변환용 용지 규격. vision 의 params.hpp 기본값과 같게 둔다
+      #   (210 × 297, 여백 15 → 작화영역 180 × 267).
+      # ⚠️ vision 이 다른 값을 쓰면 여기만 맞추면 된다.
+      width_mm: 210.0
+      height_mm: 297.0
+      margin_mm: 15.0
+
+      # vision 좌표는 범위를 미리 알 수 없으므로 자동 중심 맞추기를 켠다.
+      auto_center: true
+
+      # mm → m 축척. A4 작화영역(180×267mm)을 그대로 그릴 수는 없으므로 줄인다.
+      # 0.0004 면 1/2500 — 아래 실측 예에서 34 × 37 mm 가 나왔다.
+      scale: 0.0004
+      pen_lift: 0.008
+
+    planning:
+      min_fraction: 0.9
+
+    marker:
+      color_rgba: [0.1, 0.8, 0.2, 1.0]
+      line_width: 0.002
+
+    output:
+      # ⚠️ **이걸 비워두면 simulation 검증 경로가 끊긴다.** 토픽으로 받은 픽셀을
+      #    mm 로 바꾼 결과를 여기에 남겨야 trace_cli 가 "계획 대비 실제"를 그린다
+      #    (README 7절). 파일 하나로 결합을 유지하는 것이 팀 설계다.
+      #
+      # ⚠️ moveit2 컨테이너에는 아직 ~/data 마운트가 없다 (README 5절). 그래서
+      #    /tmp 에 쓰고 simulation 으로 옮긴다:
+      #        docker cp moveit2_dev:/tmp/map_from_vision.csv - | \
+      #          docker cp - simulation_dev:/home/rosuser/data/
+      map_csv_path: "/tmp/map_from_vision.csv"

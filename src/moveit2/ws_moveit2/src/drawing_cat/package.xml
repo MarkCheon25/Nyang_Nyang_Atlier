@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>drawing_cat</name>
+  <version>0.0.0</version>
+  <description>TODO: Package description</description>
+  <maintainer email="rosuser@todo.todo">rosuser</maintainer>
+  <license>TODO: License declaration</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>moveit_ros_planning_interface</depend>
+  <depend>geometry_msgs</depend>
+  <depend>moveit_msgs</depend>
+  <depend>visualization_msgs</depend>
+  <depend>vision_interfaces</depend>
+
+  <!-- test_tools — 연결 확인 전용. test_tools/ 를 지울 때 이 줄도 함께 지운다 -->
+  <exec_depend>rclpy</exec_depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+  <!-- F3.1 단위시험 (test/test_optimizer.cpp) -->
+  <test_depend>ament_cmake_gtest</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
