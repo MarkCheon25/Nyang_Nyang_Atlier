@@ -57,9 +57,9 @@ colcon 워크스페이스 모양으로 보이게 하는 것이 요점이다.
 
 - **`src/drivers/` 아래는 어떻게 재배치해도 컨테이너에서 그대로 보인다.** `hcr5_bridge` 를 두 번 옮기고도
   `compose.yml` 을 안 고친 이유다(2026-08-15, 르누아르·앵그르 실측)
-- `package.xml` 이 없는 디렉터리(`hcr5_mqtt`·`hcr5_measurements`·`ros2_control_hw_interface`)는
-  colcon 이 **자동으로 건너뛴다** — 빌드에 안 섞인다
-- `hcr5_mqtt/tools/` 가 컨테이너에서 보이므로 **`docker cp` 우회가 필요 없다**
+- `package.xml` 이 없는 디렉터리(`hcr5_comm/` 통째 — `tools/`·`measurements/`·`guideline/` 포함)는
+  colcon 이 **자동으로 건너뛴다** — 빌드에 안 섞인다. `src/drivers/` 아래 **ROS 패키지는 `hcr5_bridge` 하나**다
+- `hcr5_comm/tools/` 가 컨테이너에서 보이므로 **`docker cp` 우회가 필요 없다**
 
 ⚠️ **`compose.yml` 을 고치면 컨테이너를 재생성해야 붙는다.** 재시작만으로는 마운트가 안 바뀐다:
 ```bash

@@ -2,7 +2,7 @@
 # C 본체 — 서보 ON 창 1회. base 축만 총 10°, 감속 0.5.
 # C2/V-7 단발 점대점 → C3+C4/V-14·V-15 느린 궤적 → 서보 OFF
 set -u
-TOOLS=/home/markch04/Markch_ws_260809/Nyang_Nyang_Atlier/Nyang_Nyang_Atlier/src/drivers/hcr5_mqtt/tools
+TOOLS=/home/markch04/Markch_ws_260809/Nyang_Nyang_Atlier/Nyang_Nyang_Atlier/src/drivers/hcr5_comm/tools
 J0=1.570850433790509        # 현재 joint_1 (real base 0.0031°)
 J2=-0.00014808230378112066
 J3=1.5708865051209169

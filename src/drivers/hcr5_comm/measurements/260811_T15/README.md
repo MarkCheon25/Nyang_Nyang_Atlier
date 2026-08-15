@@ -1,8 +1,8 @@
 # 실측 원자료 — ros2_control 하드웨어 인터페이스 (2026-08-11, 04pc)
 
 T15 의 B(실기 읽기)·C(실기 쓰기) 구간에서 **실기 HCR-5 를 상대로 실제로 뜬 원자료**다.
-[`../ros2_control_hw_interface/중간결과물.md`](../../ros2_control_hw_interface/중간결과물.md) §3-B·§3-C·§3-D 의
-모든 수치와 [`검증.md`](../../ros2_control_hw_interface/검증.md) 의 실측 칸이 여기서 나왔다.
+[`../../guideline/중간결과물.md`](../../guideline/중간결과물.md) §3-B·§3-C·§3-D 의
+모든 수치와 [`검증.md`](../../guideline/검증.md) 의 실측 칸이 여기서 나왔다.
 
 > **왜 리포에 넣었나 (Rokey6 지시, 08-12)** — 원본은 세션 스크래치와 컨테이너 `/tmp` 에만 있었다.
 > 문서는 *"세션이 끝나면 사라진다"* 고 적었지만 실제로는 남아 있었고, **검증 세션이 그것으로 재산출을 했다.**
@@ -52,7 +52,7 @@ zcat bus/trace_C.jsonl.gz | head -1          # 한 줄 = 메시지 1건
 - **ROS JSON** — `{"summary":…, "joint_states":[[t, position[6], velocity[6]],…],
   "controller_state":[[t, reference[6], feedback[6], error[6]],…]}`. 단위 **라디안**, 관절 순서 `joint_1`~`joint_6`.
 - 규약 변환은 `q_URDF(rad) = deg2rad(SIGN·q_실기(deg) + DELTA)`, `SIGN=(+,+,−,+,+,+)`,
-  `DELTA=(90,90,0,90,0,0)` — 원본은 [`joint_convention.hpp`](../../hcr5_bridge/include/hcr5_bridge/joint_convention.hpp).
+  `DELTA=(90,90,0,90,0,0)` — 원본은 [`joint_convention.hpp`](../../../hcr5_bridge/include/hcr5_bridge/joint_convention.hpp).
 
 ## 재산출 — `verify/`
 

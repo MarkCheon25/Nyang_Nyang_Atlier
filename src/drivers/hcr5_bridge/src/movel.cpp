@@ -4,7 +4,7 @@
 //
 // ⚠️ **경로는 직선이 아니다.** 시작·끝만 직교로 지정하고 그 사이는 JTC 가 관절 보간한다.
 // 진짜 직선(컨트롤러 보간)은 `program/plan` 의 `move.selected:"linear"` 가 소유하고,
-// 그건 ros2_control 을 안 타는 다른 층이다 (hcr5_mqtt/README.md §6, 실측 이탈 0.045mm/179.3mm).
+// 그건 ros2_control 을 안 타는 다른 층이다 (hcr5_comm/README.md §6, 실측 이탈 0.045mm/179.3mm).
 // 이름이 movel 인 것은 **직교 좌표로 목표를 준다**는 뜻이지 직선 보간을 뜻하지 않는다.
 //
 // IK 는 로봇 컨트롤러가 푼다 — `robot/convertJointAngle` RPC. 우리 쪽 IK 를 새로 세우지
@@ -34,7 +34,7 @@ void usage()
     "단위  위치 mm · 자세 도(度). 기준은 TCP (poseType:\"tcp\")\n"
     "\n"
     "⚠️ 경로는 직선이 아니다 — 시작·끝만 직교로 주고 사이는 관절 보간이다.\n"
-    "   진짜 직선은 program/plan 의 linear 가 소유한다 (hcr5_mqtt/README.md §6).\n"
+    "   진짜 직선은 program/plan 의 linear 가 소유한다 (hcr5_comm/README.md §6).\n"
     "\n"
     "옵션\n"
     "  --sec N        소요시간. 안 주면 %.1f°/s 로 자동 계산\n"

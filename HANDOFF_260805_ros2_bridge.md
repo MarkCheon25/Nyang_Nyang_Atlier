@@ -47,7 +47,7 @@ nmcli connection up hcr5
 ping -c2 192.168.0.20
 ```
 - **함정**: 컨트롤러를 재부팅하면 링크가 끊겨 이 프로필이 내려간다(autoconnect=no) → 다시 `up`
-- 읽기 전용 확인: `python3 src/drivers/hcr5_mqtt/tools/mqtt_cmd.py pos`
+- 읽기 전용 확인: `python3 src/drivers/hcr5_comm/tools/mqtt_cmd.py pos`
 
 ### ③ 브릿지 첫 검증 (읽기 전용 — 안전)
 ```bash
@@ -151,8 +151,8 @@ DELTA = ( 90,  90,  0,  90,  0,  0)
 | 무엇 | 어디 |
 |---|---|
 | 브릿지 설계·규약·안전 | `src/drivers/hcr5_bridge/README.md` |
-| **명령 프로토콜 (원본)** | `src/drivers/hcr5_mqtt/README.md` — 08-05 실측 반영 완료 |
-| 실기 제어 CLI | `src/drivers/hcr5_mqtt/tools/mqtt_cmd.py` (movej·pos·fk·ik 등) |
-| 명령 캡처 도구 | `src/drivers/hcr5_mqtt/tools/capture.py` |
+| **명령 프로토콜 (원본)** | `src/drivers/hcr5_comm/README.md` — 08-05 실측 반영 완료 |
+| 실기 제어 CLI | `src/drivers/hcr5_comm/tools/mqtt_cmd.py` (movej·pos·fk·ik 등) |
+| 명령 캡처 도구 | `src/drivers/hcr5_comm/tools/capture.py` |
 | 기구학 교정 근거 | `hanwha_robot_arm/HCR_5/hcr_robot_description/urdf/hcr_robot.xacro` 상단 주석 |
 | 커밋 | `6846588` URDF 교정 · `b650b27` hcr5_bridge · `e2b9b4b` movej·FK/IK |

@@ -1,4 +1,4 @@
-# HCR-5 호스트 통신·제어 (`src/drivers/hcr5_mqtt`)
+# HCR-5 호스트 통신·제어 (`src/drivers/hcr5_comm`)
 
 > **한 줄 요약** — PC를 컨트롤러에 **랜선 직결**하면, 한화 HCR-5(2018 1세대, **Rodi 1.003.005**)를
 > **벤더 업그레이드 없이** 제어할 수 있다. 컨트롤러가 내부적으로 쓰는 **MQTT 버스가 그대로 외부에 열려 있고**,
@@ -408,7 +408,7 @@ docker exec markch_moveit2_dev bash -lc 'source install/setup.bash && python3 /t
 마운트 범위 확장은 **T15 곁가지**로 열려 있다 — 닫히면 이 복사 단계가 없어진다.
 
 `mqtt_trace.py`·`ros_trace.py` 는 **T15 C 구간(실기 쓰기) 계측기**다. 왜 이 값들을 재는지는
-[`ros2_control_hw_interface/중간결과물.md`](../ros2_control_hw_interface/중간결과물.md) §3-C.
+[`guideline/중간결과물.md`](guideline/중간결과물.md) §3-C.
 
 ### `mqtt_cmd.py` 서브커맨드
 
@@ -480,10 +480,10 @@ python3 tools/mqtt_cmd.py movestop                 # movej 중단
 
 ## 12. ros2_control 하드웨어 인터페이스 (T15) — 현황
 
-같은 폴더의 [`ros2_control_hw_interface/`](../ros2_control_hw_interface/) 가 이 작업의 **문서 3종**을 든다.
+같은 폴더의 [`guideline/`](guideline/) 가 이 작업의 **문서 3종**을 든다.
 §4 의 명령 프로토콜을 ros2_control **하드웨어 컴포넌트**로 감싸 MoveIt2 가 실기를 직접 잡게 하는 경로다.
 §11 의 액션서버 경로(**접점 ①**)와 **다른 접점**이고, 둘은 배타가 아니다 — 어느 쪽으로 수렴하는지는
-`ros2_control_hw_interface/최종결과물.md` '차이' 절이 판정한다.
+`guideline/최종결과물.md` '차이' 절이 판정한다.
 
 **구현 실물은 같은 폴더의 [`hcr5_bridge/`](../hcr5_bridge/) 다.** §4 의 명령 프로토콜을 ros2_control
 하드웨어 컴포넌트로 감싼 플러그인 `hcr5_bridge/HcrSystemInterface` 와 MQTT 클라이언트·관절규약이
@@ -500,13 +500,20 @@ python3 tools/mqtt_cmd.py movestop                 # movej 중단
 > **같은 근거로 두 번 옮긴 것이 아니라 상위 지시가 바뀐 것이다.**
 > 개명(`hcr_bridge`→`hcr5_bridge`)은 HCR-5 모델을 이름에 명시하고 동료 ysh 의 `hcr5_description`
 > 계열과 맞추기 위한 것이다(Mark 판정). **CMake 타깃명·클래스명 `HcrSystemInterface` 는 유지**했다.
+>
+> **2026-08-16 — 세 번째 단계.** ② 의 4형제 평면 배치가 **`hcr5_bridge` 와 나머지 셋** 으로 다시 갈렸다 (Mark 지시).
+> 가른 축은 **빌드되느냐**다 — `package.xml` 을 가진 ROS 패키지는 `hcr5_bridge` 하나뿐이고,
+> 나머지 셋은 전부 그것을 **둘러싼 문서·도구·증거**였다. 그래서 셋을 `hcr5_comm/`(이 문서, `hcr5_mqtt` 에서 개명) 아래로 모았다:
+> `tools/`(도구) · `measurements/`(증거) · `guideline/`(판정 — 종전 `ros2_control_hw_interface/`).
+> `hcr5_mqtt` → `hcr5_comm` 개명은 **`measurements/` 가 MQTT 전용이 아니기 때문**이다 —
+> 버스를 만지는 스크립트 20개 중 **16개가 ROS 를 쓴다**(실측). `hcr5_mqtt` 아래에 두면 이름이 내용보다 좁아진다.
 
 ### 문서 3종 진척
 
 | 문서 | 역할 | 남은 것 |
 |---|---|---|
 | `중간결과물.md` | 계약·실측 | **'완료 · 실기 미검증' 칸** — B·C 실기 대면으로만 닫힌다 |
-| `검증.md` | 기준↔실측 판정 | **집계의 원본은 [`검증.md`](../ros2_control_hw_interface/검증.md) 자신이다** — 통과/실패/미검증 수치를 여기 옮겨 적지 않는다. 미검증 행은 전부 **서보 ON 창(검C2)** 대기 |
+| `검증.md` | 기준↔실측 판정 | **집계의 원본은 [`검증.md`](guideline/검증.md) 자신이다** — 통과/실패/미검증 수치를 여기 옮겨 적지 않는다. 미검증 행은 전부 **서보 ON 창(검C2)** 대기 |
 | `최종결과물.md` | 결론·진입점 | 마무리 세션 1개 |
 
 > 종전에 여기 든 수치("15행 중 3 통과 / 12 미검증")가 `검증.md` 집계와 어긋나 있었다.

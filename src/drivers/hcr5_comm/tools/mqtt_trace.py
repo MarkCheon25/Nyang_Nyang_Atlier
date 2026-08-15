@@ -16,7 +16,7 @@ ROS 로그가 아니라 버스에서 떠야 한다 — 이 도구가 존재하�
 사용법: mqtt_trace.py [host] [sec] [out.jsonl]   기본 192.168.0.20 · 30초 · /tmp/mqtt_trace.jsonl
 출력  : 한 줄 = {"t": 시작 후 경과초, "topic": 토픽, "d": 파싱된 페이로드}
 실행  : **호스트에서** 돈다 (랜선 프로필 `hcr5` 필요). 순수 stdlib — 브로커 라이브러리 불필요.
-근거  : `ros2_control_hw_interface/중간결과물.md` §3-C (260811-오일리스부싱)
+근거  : `../guideline/중간결과물.md` §3-C (260811-오일리스부싱)
 """
 import socket, sys, struct, time, json
 

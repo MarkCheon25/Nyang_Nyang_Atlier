@@ -2,7 +2,7 @@
 
 > 한화 HCR-5(2018 1세대, Rodi 1.003.005)를 **벤더 플러그인 없이** ROS2 에 붙인다.
 > 컨트롤러의 네이티브 MQTT 버스를 직접 말하는 방식이며, 프로토콜은 펜던트 관찰로
-> 역설계했다 → [`src/drivers/hcr5_mqtt/README.md`](../hcr5_mqtt/README.md)
+> 역설계했다 → [`src/drivers/hcr5_comm/README.md`](../hcr5_comm/README.md)
 
 *2026-08-05 착수. 상태 브릿지(독립 노드) + **ros2_control 하드웨어 플러그인**(08-09 신설, 실기 미검증) 구현.*
 
@@ -25,8 +25,8 @@
 플러그인은 **점대점 + 상태 피드백** 계층이고, 연속 스트로크는 여전히 `program/plan` 이다.
 
 > **이것이 08-05 결정의 '반전'인지 '병행'인지는 아직 판정하지 않았다.** 판정에는 실기 실측(B·C)이 필요하고,
-> 기록 자리는 `ros2_control_hw_interface/최종결과물.md` 의 '차이' 절이다. 계약·실측 현황은
-> [`중간결과물.md`](../ros2_control_hw_interface/중간결과물.md).
+> 기록 자리는 `hcr5_comm/guideline/최종결과물.md` 의 '차이' 절이다. 계약·실측 현황은
+> [`중간결과물.md`](../hcr5_comm/guideline/중간결과물.md).
 
 MoveIt2 는 **계획·검증**을 맡는다. 실행은 — 점대점이면 JTC→플러그인, 연속 스트로크면 컨트롤러에 위임한다.
 
@@ -171,9 +171,9 @@ ls /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake /usr/include/mosquit
 xacro 4단 관통은 `cc5a319`(2026-08-10).
 
 **진척은 여기서 들지 않는다** — 이 계층의 현황(실기 읽기 B · 실기 쓰기 C · 검증 집계)의 원본은
-[`hcr5_mqtt/README.md` §12](../hcr5_mqtt/README.md) 이고, 계약·실측은
-[`중간결과물.md`](../ros2_control_hw_interface/중간결과물.md) ·
-[`검증.md`](../ros2_control_hw_interface/검증.md) 다.
+[`hcr5_comm/README.md` §12](../hcr5_comm/README.md) 이고, 계약·실측은
+[`중간결과물.md`](../hcr5_comm/guideline/중간결과물.md) ·
+[`검증.md`](../hcr5_comm/guideline/검증.md) 다.
 
 > 종전에 여기 있던 체크박스 4행은 B·C 가 실기로 닫힌 뒤에도 미완으로 남아 있었다.
 > **같은 사실을 두 곳에 두면 이렇게 조용히 어긋난다** — 그래서 포인터만 남긴다(260815-피오렌티노).

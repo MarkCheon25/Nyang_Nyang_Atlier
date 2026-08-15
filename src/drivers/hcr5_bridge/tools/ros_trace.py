@@ -21,7 +21,7 @@
 사용법: ros_trace.py [sec] [out.json]            기본 30초 · /tmp/ros_trace.json
 출력  : stdout 에 요약 JSON, 파일에는 요약 + 전 표본(joint_states · controller_state)
 구독  : /joint_states · /hcr_arm_controller/controller_state — **아무것도 발행하지 않는다**
-근거  : `ros2_control_hw_interface/중간결과물.md` §3-C (260811-오일리스부싱)
+근거  : `hcr5_comm/guideline/중간결과물.md` §3-C (260811-오일리스부싱)
 """
 import json
 import sys

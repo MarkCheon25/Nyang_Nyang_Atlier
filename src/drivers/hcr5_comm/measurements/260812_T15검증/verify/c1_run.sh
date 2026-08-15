@@ -16,8 +16,8 @@ set -u
 # ⚠️ 아래 J1~J6 은 **검C1 당시(08-12 10:5x) 자세**다. 재실행하려면 그때 자세를 다시 넣어야 한다.
 SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO=${REPO:-$(cd "$SELF/../../../../../.." && pwd)}
-TOOLS=$REPO/src/drivers/hcr5_mqtt/tools
-BASE=$REPO/src/drivers/hcr5_measurements/260812_T15검증
+TOOLS=$REPO/src/drivers/hcr5_comm/tools
+BASE=$REPO/src/drivers/hcr5_comm/measurements/260812_T15검증
 OUTD=$BASE/c1
 CONTAINER=${CONTAINER:-$(docker ps --format '{{.Names}}' | grep -xE '(markch_)?moveit2_dev' | head -1)}
 [ -z "$CONTAINER" ] && { echo "❌ moveit2 컨테이너가 안 떠 있다 — run_container.sh up 먼저"; exit 1; }

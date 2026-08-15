@@ -31,8 +31,8 @@ STAGE=${1:?"사용법: c2_run.sh w1|w2|home"}
 #              떠 있는 쪽을 잡는다 — 둘 다 있으면 CONTAINER= 로 지정한다.
 SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO=${REPO:-$(cd "$SELF/../../../../../.." && pwd)}
-TOOLS=$REPO/src/drivers/hcr5_mqtt/tools
-BASE=$REPO/src/drivers/hcr5_measurements/260812_T15검증
+TOOLS=$REPO/src/drivers/hcr5_comm/tools
+BASE=$REPO/src/drivers/hcr5_comm/measurements/260812_T15검증
 OUTD=$BASE/c2
 CONTAINER=${CONTAINER:-$(docker ps --format '{{.Names}}' | grep -xE '(markch_)?moveit2_dev' | head -1)}
 [ -z "$CONTAINER" ] && { echo "❌ moveit2 컨테이너가 안 떠 있다 — run_container.sh up 먼저"; exit 1; }

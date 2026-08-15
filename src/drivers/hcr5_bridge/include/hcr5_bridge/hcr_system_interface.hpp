@@ -4,7 +4,7 @@
 // MoveIt2 의 실행 경로(FollowJointTrajectory → JTC → 하드웨어)가 실기까지 이어진다.
 //
 // 계약은 상위 문서가 소유한다 —
-//   src/drivers/ros2_control_hw_interface/중간결과물.md
+//   src/drivers/hcr5_comm/guideline/중간결과물.md
 //   §1 인터페이스 3종 · §2 주기 · §3 라이프사이클 · §5 안전게이트 7건
 // 이 파일과 그 문서가 어긋나면 **문서가 이긴다.**
 //

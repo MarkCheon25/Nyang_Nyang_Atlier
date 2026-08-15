@@ -498,7 +498,7 @@ hardware_interface::return_type HcrSystemInterface::write(
   warned_limits_ = false;
 
   // 게이트 7 — 데드밴드. 단, **목표가 멎으면 데드밴드와 무관하게 마지막 값을 1회** 낸다.
-  // 분해능은 병목이 아니므로(hcr5_mqtt README §5.3) 전정밀도 그대로 싣는다.
+  // 분해능은 병목이 아니므로(hcr5_comm README §5.3) 전정밀도 그대로 싣는다.
   {
     std::lock_guard<std::mutex> lk(cmd_mutex_);
 
