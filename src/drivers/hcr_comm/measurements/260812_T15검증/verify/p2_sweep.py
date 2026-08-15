@@ -9,7 +9,8 @@
 """
 import math, subprocess, sys, json, os, time
 
-VERIFY = "/home/markch04/Markch_ws_260809/Nyang_Nyang_Atlier/Nyang_Nyang_Atlier/src/drivers/hcr_comm/measurements/260812_T15검증/verify"
+# 자기 위치가 곧 VERIFY 다 — clone 경로가 PC마다 달라도 맞는다 (2026-08-15 이식).
+VERIFY = os.environ.get("VERIFY") or os.path.dirname(os.path.abspath(__file__))
 SH = os.path.join(VERIFY, "pose_goal.sh")
 
 # 홈 자세 flange 자세(펜이 바닥을 향하는 자세) — TF 전정밀도 실측값

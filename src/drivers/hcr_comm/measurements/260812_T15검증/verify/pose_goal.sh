@@ -55,6 +55,11 @@ GOAL="{request: {group_name: hcr_arm, num_planning_attempts: $ATTEMPTS, allowed_
  goal_constraints: [{position_constraints: [$POS], orientation_constraints: [$ORI]}]},
  planning_options: {planning_scene_diff: {is_diff: true, robot_state: {is_diff: true}}, plan_only: $PO, replan: false}}"
 
-docker exec markch_moveit2_dev bash -lc \
+# 컨테이너명은 PC마다 다르다 — 04pc=markch_moveit2_dev · 03pc=moveit2_dev. 떠 있는 쪽을
+# 잡고, CONTAINER= 로 덮어쓸 수 있다 (2026-08-15 이식).
+CONTAINER=${CONTAINER:-$(docker ps --format '{{.Names}}' | grep -xE '(markch_)?moveit2_dev' | head -1)}
+[ -z "$CONTAINER" ] && { echo "❌ moveit2 컨테이너가 안 떠 있다 — run_container.sh up 먼저"; exit 1; }
+
+docker exec "$CONTAINER" bash -lc \
   "cd ~/ws_moveit2 && source install/setup.bash && export ROS_DOMAIN_ID=$DOMAIN && \
    ros2 action send_goal /move_action moveit_msgs/action/MoveGroup '$GOAL'" 2>&1

@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """ros2_control 쪽 추적 — 추종오차·값 갱신빈도·velocity 품질을 한 번에 산출한다. 읽기 전용.
 
-⚠️ **컨테이너 안에서 돈다** (rclpy·control_msgs 필요). 그런데 `compose.yml` 은 `ws_moveit2` 와
-   `hanwha_robot_arm` 만 마운트하고 **`src/drivers/` 는 마운트하지 않는다** — 이 파일은 컨테이너에
-   안 보인다. 넣어서 쓴다:
+⚠️ **컨테이너 안에서 돈다** (rclpy·control_msgs 필요). `compose.yml` 이 `src/drivers/` 를
+   마운트하므로 **이 파일은 컨테이너에 그대로 보인다** — 복사 단계는 없다 (2026-08-15 확인):
 
-       docker cp src/drivers/hcr_comm/tools/ros_trace.py markch_moveit2_dev:/tmp/ros_trace.py
-       docker exec markch_moveit2_dev bash -lc 'source install/setup.bash && python3 /tmp/ros_trace.py 45'
+       docker exec <컨테이너> bash -lc 'cd ~/ws_moveit2 && source install/setup.bash && \
+           python3 src/drivers/hcr_comm/tools/ros_trace.py 45'
 
-   (마운트 범위는 T15 곁가지로 열려 있다. 그게 닫히면 이 복사 단계가 없어진다.)
+   컨테이너명은 PC마다 다르다 — 04pc=markch_moveit2_dev · 03pc=moveit2_dev.
+   ⚠️ pull 후 컨테이너를 **재생성**해야 마운트가 붙는다 (`run_container.sh down && … shell`).
 
 왜 이 세 값인가:
   - **추종오차** — `ros2_controllers.yaml` 에 `constraints` 블록이 없어 JTC 허용오차가 전부 0.0(=검사 안 함)이다.

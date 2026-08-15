@@ -11,10 +11,16 @@
 #    그래서 아래 mark 로 **구간 경계 시각**을 남긴다. 자르는 것은 분석기 몫이다.
 set -u
 
-REPO=/home/markch04/Markch_ws_260809/Nyang_Nyang_Atlier/Nyang_Nyang_Atlier
+# 경로·컨테이너명 이식 (2026-08-15) — c2_run.sh 와 같은 규칙. 환경변수로 덮어쓰거나,
+# 안 주면 스크립트 위치·떠 있는 컨테이너에서 알아낸다.
+# ⚠️ 아래 J1~J6 은 **검C1 당시(08-12 10:5x) 자세**다. 재실행하려면 그때 자세를 다시 넣어야 한다.
+SELF="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+REPO=${REPO:-$(cd "$SELF/../../../../../.." && pwd)}
 TOOLS=$REPO/src/drivers/hcr_comm/tools
 BASE=$REPO/src/drivers/hcr_comm/measurements/260812_T15검증
 OUTD=$BASE/c1
+CONTAINER=${CONTAINER:-$(docker ps --format '{{.Names}}' | grep -xE '(markch_)?moveit2_dev' | head -1)}
+[ -z "$CONTAINER" ] && { echo "❌ moveit2 컨테이너가 안 떠 있다 — run_container.sh up 먼저"; exit 1; }
 DUR=40
 
 # 착수 시 실기 자세 (10:5x 실측) — joint_1 만 +5°, 나머지는 제자리
@@ -35,8 +41,8 @@ echo "── 계측기 3종 기동 (${DUR}s) ──"
 python3 "$TOOLS/mqtt_trace.py" 192.168.0.20 $DUR "$OUTD/bus/c1_bus.jsonl" \
     > "$OUTD/logs/c1_bus.log" 2>&1 &
 BUS=$!
-docker exec markch_moveit2_dev bash -lc \
-    "cd ~/ws_moveit2 && source install/setup.bash && export ROS_DOMAIN_ID=0 && python3 /tmp/ros_trace.py $DUR /tmp/c1_ros.json" \
+docker exec "$CONTAINER" bash -lc \
+    "cd ~/ws_moveit2 && source install/setup.bash && export ROS_DOMAIN_ID=0 && python3 src/drivers/hcr_comm/tools/ros_trace.py $DUR /tmp/c1_ros.json" \
     > "$OUTD/logs/c1_ros.log" 2>&1 &
 ROS=$!
 python3 "$BASE/verify/c1_tempwatch.py" 192.168.0.20 $DUR 58 "$OUTD/logs/c1_temp.jsonl" \
@@ -55,7 +61,7 @@ sleep 5
 
 echo "── JTC 궤적 : joint_1 +5° (4s) ──"
 mark jtc_send
-docker exec markch_moveit2_dev bash -lc \
+docker exec "$CONTAINER" bash -lc \
   "cd ~/ws_moveit2 && source install/setup.bash && export ROS_DOMAIN_ID=0 && \
    ros2 action send_goal /hcr_arm_controller/follow_joint_trajectory control_msgs/action/FollowJointTrajectory \
    '{trajectory: {joint_names: [joint_1,joint_2,joint_3,joint_4,joint_5,joint_6], points: [{positions: [$TGT,$J2,$J3,$J4,$J5,$J6], time_from_start: {sec: 4, nanosec: 0}}]}}'" \
