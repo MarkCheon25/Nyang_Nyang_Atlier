@@ -157,27 +157,26 @@ docker exec -it <이름> bash        # ← 진입
 ls /usr/share/cmake/nlohmann_json/nlohmann_jsonConfig.cmake /usr/include/mosquitto.h
 ```
 
-### 기동
+### 기동·운전 → [`운전절차.md`](운전절차.md)
 
-```bash
-# 실기 전환은 인자 하나다. 기본값은 mock 이라 인자 없이 띄우면 로봇이 필요 없다.
-ros2 launch hcr_moveit_config demo.launch.py \
-    hardware_plugin:=hcr_bridge/HcrSystemInterface rw_rate:=30 is_async:=true
+**실행 명령의 원본은 [`운전절차.md`](운전절차.md) 다** — 스택 기동·서보·이동·정지가 한 흐름으로 들어 있고,
+로봇 앞에서 한 줄씩 붙여넣도록 짜여 있다(260815-피오렌티노에 분리). 여기 요지만 남긴다:
 
-# 실기 쓰기 — ⚠️ 로봇이 움직인다. 서보 ON·e-stop 대기·입회를 갖추고서만
-ros2 launch hcr_moveit_config demo.launch.py \
-    hardware_plugin:=hcr_bridge/HcrSystemInterface rw_rate:=30 is_async:=true \
-    allow_motion:=true
-```
+- **실기 전환은 인자다** — `hardware_plugin:=hcr_bridge/HcrSystemInterface rw_rate:=30 is_async:=true`.
+  인자를 아예 빼면 mock 이라 실기가 필요 없다
+- **로봇을 실제로 움직이려면 `allow_motion:=true` 를 더한다.** 기본값 `false` 라 잊으면 안 움직인다
 
 `allow_motion` 은 §4 의 잠금과 **같은 이름·같은 기본값(`false`)** 이지만 전달 경로가 다르다 —
 독립 노드는 ROS 파라미터로 받고, 플러그인은 **URDF `<hardware>` 의 `<param>`** 으로 받는다.
-xacro 4단 관통은 `cc5a319`(2026-08-10). 인자를 잊으면 `false` 라 로봇은 움직이지 않는다.
+xacro 4단 관통은 `cc5a319`(2026-08-10).
 
-- [x] `HcrSystemInterface` 구현 — 라이프사이클 9행·안전게이트 7건. 빌드·플러그인 로드까지 실측
-- [ ] **실기 읽기 검증(B)** — 상태 정합·`read()` 실효 주기·통신 두절 거동·차분 velocity 품질
-- [ ] **실기 쓰기 검증(C)** — 게이트가 실제로 막는가 → 단발 점대점 → 재발행 선점 → JTC 궤적 관통
-- [ ] 실기 없이 실기 모드를 띄우면 **controller_manager 가 abort** 한다 — 완화책 확정 필요
+**진척은 여기서 들지 않는다** — 이 계층의 현황(실기 읽기 B · 실기 쓰기 C · 검증 집계)의 원본은
+[`hcr_comm/README.md` §12](../../../../drivers/hcr_comm/README.md) 이고, 계약·실측은
+[`중간결과물.md`](../../../../drivers/hcr_comm/ros2_control_hw_interface/중간결과물.md) ·
+[`검증.md`](../../../../drivers/hcr_comm/ros2_control_hw_interface/검증.md) 다.
+
+> 종전에 여기 있던 체크박스 4행은 B·C 가 실기로 닫힌 뒤에도 미완으로 남아 있었다.
+> **같은 사실을 두 곳에 두면 이렇게 조용히 어긋난다** — 그래서 포인터만 남긴다(260815-피오렌티노).
 
 **연속 스트로크 경로 — 이 계층 밖이다**
 
