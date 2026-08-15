@@ -2,10 +2,10 @@
 #
 #    ros2 launch hcr_moveit_config demo.launch.py                    # mock (기본)
 #    ros2 launch hcr_moveit_config demo.launch.py \
-#        hardware_plugin:=hcr_bridge/HcrSystemInterface rw_rate:=30 is_async:=true
+#        hardware_plugin:=hcr5_bridge/HcrSystemInterface rw_rate:=30 is_async:=true
 #                                                                    # 실기 읽기 (안 움직인다)
 #    ros2 launch hcr_moveit_config demo.launch.py \
-#        hardware_plugin:=hcr_bridge/HcrSystemInterface rw_rate:=30 is_async:=true \
+#        hardware_plugin:=hcr5_bridge/HcrSystemInterface rw_rate:=30 is_async:=true \
 #        allow_motion:=true                            # 실기 쓰기 ⚠️ 로봇이 움직인다
 #
 #  인자는 xacro mappings 로 흘러 hcr_robot.urdf.xacro → hcr_robot.xacro → ros2_control
@@ -143,7 +143,7 @@ def generate_launch_description():
             "hardware_plugin",
             default_value="",
             description="ros2_control 하드웨어 플러그인. 비우면 xacro 기본값"
-            " mock_components/GenericSystem. 실기는 hcr_bridge/HcrSystemInterface",
+            " mock_components/GenericSystem. 실기는 hcr5_bridge/HcrSystemInterface",
         ),
         DeclareLaunchArgument(
             "rw_rate",

@@ -18,8 +18,8 @@
 | 절대 관절이동 PC 실증 | ✅ 도달오차 0.0000° |
 | 연속궤적(블렌딩) | ✅ 실증 — 소묘 스트로크 실행 가능 확인 |
 | URDF ↔ 실기 정렬 | ✅ 교정 완료 (RMS 0.006mm) |
-| `hcr_bridge` 상태 층 | ✅ 빌드·**실기 연결 검증 완료** (`/joint_states` 발행, 규약 변환 실증) |
-| `hcr_bridge` 궤적 층 | ⬜ 미착수 |
+| `hcr5_bridge` 상태 층 | ✅ 빌드·**실기 연결 검증 완료** (`/joint_states` 발행, 규약 변환 실증) |
+| `hcr5_bridge` 궤적 층 | ⬜ 미착수 |
 
 ## 1. 다른 PC 에서 재개할 때 — 순서대로
 
@@ -47,18 +47,18 @@ nmcli connection up hcr5
 ping -c2 192.168.0.20
 ```
 - **함정**: 컨트롤러를 재부팅하면 링크가 끊겨 이 프로필이 내려간다(autoconnect=no) → 다시 `up`
-- 읽기 전용 확인: `python3 src/drivers/hcr_comm/tools/mqtt_cmd.py pos`
+- 읽기 전용 확인: `python3 src/drivers/hcr5_mqtt/tools/mqtt_cmd.py pos`
 
 ### ③ 브릿지 첫 검증 (읽기 전용 — 안전)
 ```bash
-ros2 launch hcr_bridge state_bridge.launch.py     # allow_motion 기본 false
+ros2 launch hcr5_bridge state_bridge.launch.py     # allow_motion 기본 false
 ros2 topic echo /joint_states --once
 ```
 RViz 에 RobotModel 을 띄우면 **실기 자세가 그대로 보여야 한다**. 안 맞으면 규약 변환 의심.
 
 ## 2. 다음 구현 — 궤적 실행 층 (T15)
 
-`hcr_bridge` 에 이어 붙인다. 설계는 `src/moveit2/ws_moveit2/src/hcr_bridge/README.md` §5.
+`hcr5_bridge` 에 이어 붙인다. 설계는 `src/drivers/hcr5_bridge/README.md` §5.
 
 1. **`FollowJointTrajectory` 액션 서버** — MoveIt2 의 `moveit_controllers.yaml` 이 이미
    `/hcr_arm_controller/follow_joint_trajectory` 를 기대한다. `demo.launch.py` 에서
@@ -95,7 +95,7 @@ q_URDF[i](도) = SIGN[i] * q_real[i](도) + DELTA[i]
 SIGN  = (+1, +1, -1, +1, +1, +1)     ← J3 만 부호 반전
 DELTA = ( 90,  90,  0,  90,  0,  0)
 ```
-`include/hcr_bridge/joint_convention.hpp` 에 구현돼 있다. 실기 홈 `[0,-90,-90,-90,90,0]`
+`include/hcr5_bridge/joint_convention.hpp` 에 구현돼 있다. 실기 홈 `[0,-90,-90,-90,90,0]`
 = URDF `[90,0,90,0,90,0]`, 그 자세의 flange 는 (490.0, -170.5, 441.5) rx=-180.
 **에러가 안 나고 엉뚱한 자세로 가므로 가장 위험한 실패 방식이다.**
 
@@ -150,9 +150,9 @@ DELTA = ( 90,  90,  0,  90,  0,  0)
 
 | 무엇 | 어디 |
 |---|---|
-| 브릿지 설계·규약·안전 | `src/moveit2/ws_moveit2/src/hcr_bridge/README.md` |
-| **명령 프로토콜 (원본)** | `src/drivers/hcr_comm/README.md` — 08-05 실측 반영 완료 |
-| 실기 제어 CLI | `src/drivers/hcr_comm/tools/mqtt_cmd.py` (movej·pos·fk·ik 등) |
-| 명령 캡처 도구 | `src/drivers/hcr_comm/tools/capture.py` |
+| 브릿지 설계·규약·안전 | `src/drivers/hcr5_bridge/README.md` |
+| **명령 프로토콜 (원본)** | `src/drivers/hcr5_mqtt/README.md` — 08-05 실측 반영 완료 |
+| 실기 제어 CLI | `src/drivers/hcr5_mqtt/tools/mqtt_cmd.py` (movej·pos·fk·ik 등) |
+| 명령 캡처 도구 | `src/drivers/hcr5_mqtt/tools/capture.py` |
 | 기구학 교정 근거 | `hanwha_robot_arm/HCR_5/hcr_robot_description/urdf/hcr_robot.xacro` 상단 주석 |
-| 커밋 | `6846588` URDF 교정 · `b650b27` hcr_bridge · `e2b9b4b` movej·FK/IK |
+| 커밋 | `6846588` URDF 교정 · `b650b27` hcr5_bridge · `e2b9b4b` movej·FK/IK |

@@ -11,10 +11,13 @@
 |---|---|
 | `src/moveit2/ws_moveit2/` | `/home/rosuser/ws_moveit2/` (rw) |
 | **`hanwha_robot_arm/`** | **`/home/rosuser/ws_moveit2/src/hanwha_robot_arm/`** (rw) |
+| **`src/drivers/`** | **`/home/rosuser/ws_moveit2/src/drivers/`** (rw) |
 | `src/moveit2/docs/` | 마운트 안 함 — 호스트 전용 |
 
-> **호스트와 컨테이너의 배치가 다르다.** `hanwha_robot_arm/`은 호스트에서 리포 최상위지만 컨테이너 안에서는 워크스페이스 `src/` 아래로 보인다. 호스트의 `ws_moveit2/src/`에는 그 디렉터리가 없는 것이 정상이다.
-> `colcon build`는 세 패키지를 함께 빌드한다 — `hello_moveit` · `hcr_robot_description` · `hcr_moveit_config`.
+> **호스트와 컨테이너의 배치가 다르다.** `hanwha_robot_arm/`(리포 최상위)과 `src/drivers/`(모듈 트리)는 호스트에서 워크스페이스 밖에 있지만 컨테이너 안에서는 워크스페이스 `src/` 아래로 보인다. 호스트의 `ws_moveit2/src/`에 그 둘이 **비어 있는 마운트 지점으로만** 있는 것이 정상이다.
+> `colcon build`는 다섯 패키지를 함께 빌드한다 — `hello_moveit` · `hcr_robot_description` · `hcr_moveit_config` · **`hcr5_bridge`**(실기 브릿지·ros2_control 플러그인) · **`nyang_pen`**(펜홀더 URDF). 뒤의 둘은 `src/drivers/` 하위다.
+>
+> ⚠️ **`src/drivers` 마운트는 컨테이너 재생성으로만 붙는다** — 재시작으로는 안 바뀐다(`compose.yml:72` 주석). 이 마운트가 없는 컨테이너에서는 `hcr5_bridge` 가 통째로 안 보인다.
 
 - 컨테이너 사용자 `rosuser` — 호스트와 같은 UID/GID로 생성 (`run_container.sh`가 전달)
 - 이미지 `moveit2_dev:jazzy` / 컨테이너 `moveit2_dev`

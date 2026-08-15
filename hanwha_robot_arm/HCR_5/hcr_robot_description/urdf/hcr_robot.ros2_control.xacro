@@ -6,7 +6,7 @@
     sim 과 실기가 **같은 URDF 를 쓰고 플러그인만 갈아끼운다.** 셋 다 기본값이 있어
     인자 없이 부르던 기존 사용처(display.launch.py · MoveIt2 demo)는 그대로 동작한다.
 
-      plugin    실기는 hcr_bridge/HcrSystemInterface.
+      plugin    실기는 hcr5_bridge/HcrSystemInterface.
                 인자명을 동료 ysh 의 hcr5_description 과 맞춰 이식을 한 줄로 뒀다
       rw_rate   이 하드웨어 컴포넌트만의 read()/write() 주기(Hz).
                 controller_manager 의 update_rate 와 분리된다 (ros2_control 4.45.2).
@@ -25,7 +25,7 @@
 
     실기 읽기는 `rw_rate:=30 is_async:=true` 로 연다 — 상태 버스 실측이 29.1Hz 다.
     실기 쓰기는 거기에 `allow_motion:=true` 를 더한다.
-    근거: src/drivers/hcr_comm/ros2_control_hw_interface/중간결과물.md §2·§5
+    근거: src/drivers/ros2_control_hw_interface/중간결과물.md §2·§5
     ════════════════════════════════════════════════════════════════════════ -->
   <xacro:macro name="hcr_robot_ros2_control"
                params="name:=hcr_robot_system

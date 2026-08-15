@@ -68,7 +68,7 @@ services:
       # (펜홀더 URDF) 하나뿐이고, 본체 xacro 가 $(find nyang_pen) 으로 끌어간다.
       # ⚠️ pull 후 컨테이너를 **재생성**해야 붙는다 — 재시작만으로는 마운트가 안 바뀐다:
       #      ./run_container.sh down && ./run_container.sh shell
-      # 부수 이득 — hcr_comm/tools/ 가 컨테이너에서 보여 docker cp 우회가 사라진다.
+      # 부수 이득 — hcr5_mqtt/tools/ 가 컨테이너에서 보여 docker cp 우회가 사라진다.
       - ../../src/drivers:/home/rosuser/ws_moveit2/src/drivers:rw
 
     working_dir: /home/rosuser/ws_moveit2
