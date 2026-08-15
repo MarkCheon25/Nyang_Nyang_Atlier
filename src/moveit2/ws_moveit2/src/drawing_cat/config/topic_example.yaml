@@ -31,21 +31,37 @@ draw_cat_node:
       #    넉넉히 둔다. 기다리는 동안 로봇은 아무것도 하지 않는다.
       wait_timeout_s: 120.0
 
+    strokes:
+      # ⚠️ **비전은 축척을 하지 않는다** — contour_pixel_node 는 순수 픽셀만 발행하고
+      #    mm 변환은 소비자 몫이다 (2026-08-15 실제 코드 확인).
+      #
+      #   "bbox"      (기본) — 비전팀 draw_strokes_node 와 **같은 규칙**.
+      #                        모든 부위 합친 bbox 의 긴 변이 draw_size_m 이 된다.
+      #                        용지 개념이 없다.
+      #   "letterbox"        — A4 작화영역에 맞춤. map.csv 경로(vision_core::ScaleToPaper)
+      #                        와 같은 규칙이라 파일/토픽 결과를 맞출 때 쓴다.
+      scale_mode: "bbox"
+
     paper:
-      # 픽셀 → mm 변환용 용지 규격. vision 의 params.hpp 기본값과 같게 둔다
-      #   (210 × 297, 여백 15 → 작화영역 180 × 267).
-      # ⚠️ vision 이 다른 값을 쓰면 여기만 맞추면 된다.
+      # bbox 모드에서 그림의 **긴 변** 길이(m). 비전팀 draw_strokes_node 의
+      # draw_size 기본값과 같게 두었다.
+      draw_size_m: 0.15
+
+      # ⚠️ bbox 모드에서는 **반드시 true 여야 한다.** 비전팀 구현이 항상 bbox 중심을
+      #    쓰기 때문이다. false 면 그림이 밀린다 (노드가 경고를 낸다).
+      auto_center: true
+
+      # ⚠️ bbox 모드에서는 이 값이 **상쇄되어 결과에 영향이 없다.** 축척을 draw_size_m
+      #    으로 직접 잡기 때문이다. letterbox 모드에서만 의미가 있다.
+      scale: 0.0004
+      pen_lift: 0.008
+
+      # ── 아래 셋은 letterbox 모드 전용 ──────────────────────────────────
+      # 픽셀 → mm 변환용 용지 규격 (210 × 297, 여백 15 → 작화영역 180 × 267).
+      # ⚠️ bbox 모드에서는 쓰이지 않는다 — 비전이 종이를 모르기 때문이다.
       width_mm: 210.0
       height_mm: 297.0
       margin_mm: 15.0
-
-      # vision 좌표는 범위를 미리 알 수 없으므로 자동 중심 맞추기를 켠다.
-      auto_center: true
-
-      # mm → m 축척. A4 작화영역(180×267mm)을 그대로 그릴 수는 없으므로 줄인다.
-      # 0.0004 면 1/2500 — 아래 실측 예에서 34 × 37 mm 가 나왔다.
-      scale: 0.0004
-      pen_lift: 0.008
 
     planning:
       min_fraction: 0.9

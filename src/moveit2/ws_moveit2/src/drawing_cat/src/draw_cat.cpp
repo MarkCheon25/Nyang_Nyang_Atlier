@@ -12,6 +12,7 @@
 #include "drawing_cat/optimizer.hpp"
 #include <algorithm>
 #include <chrono>
+#include <climits>
 #include <cmath>
 #include <fstream>
 #include <iomanip>
@@ -367,6 +368,12 @@ int main(int argc, char** argv)
     const auto paper_h_mm   = declare<double>(node, "paper.height_mm", 297.0);
     const auto paper_margin = declare<double>(node, "paper.margin_mm", 15.0);
 
+    // 픽셀 → mm 규칙. 비전은 축척을 하지 않으므로 **소비자가 정한다.**
+    //   "bbox"      — 비전팀 draw_strokes_node 와 같은 규칙. 그림 긴 변 = draw_size
+    //   "letterbox" — A4 작화영역에 맞춤. map.csv 경로와 같은 규칙
+    const auto scale_mode   = declare<std::string>(node, "strokes.scale_mode", "bbox");
+    const auto draw_size_m  = declare<double>(node, "paper.draw_size_m", 0.15);
+
     const auto map_csv_out  = declare<std::string>(node, "output.map_csv_path", "");
 
     if (color.size() != 4)
@@ -375,6 +382,24 @@ int main(int argc, char** argv)
                      color.size());
         rclcpp::shutdown();
         return 1;
+    }
+
+    if (scale_mode != "bbox" && scale_mode != "letterbox")
+    {
+        RCLCPP_ERROR(logger, "strokes.scale_mode 는 'bbox' 또는 'letterbox' 여야 한다 "
+                             "(현재 '%s') - 종료", scale_mode.c_str());
+        rclcpp::shutdown();
+        return 1;
+    }
+
+    // ⚠️ bbox 모드는 비전팀 구현과 맞추려는 것인데, 그쪽은 **항상 bbox 중심**을 쓴다.
+    //    auto_center 가 꺼져 있으면 우리는 파라미터로 준 중심을 쓰므로 그림이 밀린다.
+    if (scale_mode == "bbox" && !auto_center)
+    {
+        RCLCPP_WARN(logger,
+                    "strokes.scale_mode 가 'bbox' 인데 paper.auto_center 가 false 다. "
+                    "비전팀 구현은 항상 bbox 중심을 쓰므로 결과가 어긋난다 "
+                    "— auto_center: true 를 권장한다");
     }
 
     if (travel_mode != "cartesian" && travel_mode != "joint")
@@ -466,13 +491,59 @@ int main(int argc, char** argv)
             return 1;
         }
 
-        const auto fit = computePaperFit(frame.front().image_width, frame.front().image_height,
-                                         paper_w_mm, paper_h_mm, paper_margin);
-        RCLCPP_INFO(logger,
-                    "부위 %zu 개 수신 | 이미지 %d×%d px | letterbox %.5f mm/px, "
-                    "오프셋 (%.1f, %.1f) mm  [용지 %.0f×%.0f, 여백 %.0f]",
-                    frame.size(), frame.front().image_width, frame.front().image_height,
-                    fit.scale, fit.offset_x, fit.offset_y, paper_w_mm, paper_h_mm, paper_margin);
+        // ── 픽셀 → mm 축척 ────────────────────────────────────────────────
+        //
+        // ⚠️ **비전은 축척을 하지 않는다.** `contour_pixel_node` 는 마스크에서 컨투어를
+        //    뽑아 **순수 픽셀 좌표**만 발행한다 (2026-08-15, 실제 코드 확인).
+        //    그래서 mm 로 옮기는 규칙은 **소비자가 정하는 것**이고, 두 가지가 있다.
+        PaperFit fit;
+        if (scale_mode == "bbox")
+        {
+            // 비전팀 `draw_strokes_node.cpp` 와 같은 규칙 —
+            //   s = draw_size / max(bbox_w_px, bbox_h_px),  bbox 는 **모든 부위 합친 것**
+            // 즉 "그림의 긴 변이 draw_size 가 되도록" 맞춘다. 용지 개념이 없다.
+            int u_lo = INT_MAX, u_hi = INT_MIN, v_lo = INT_MAX, v_hi = INT_MIN;
+            for (const auto& msg : frame)
+            {
+                for (const auto& p : msg.points)
+                {
+                    u_lo = std::min(u_lo, p.u); u_hi = std::max(u_hi, p.u);
+                    v_lo = std::min(v_lo, p.v); v_hi = std::max(v_hi, p.v);
+                }
+            }
+            const double w_px = static_cast<double>(u_hi - u_lo);
+            const double h_px = static_cast<double>(v_hi - v_lo);
+            const double longest_px = std::max(w_px, h_px);
+            if (longest_px <= 0.0)
+            {
+                RCLCPP_ERROR(logger, "받은 좌표의 bbox 가 0 이다 (점이 전부 같은 자리) - 종료");
+                rclcpp::shutdown();
+                return 1;
+            }
+            // ⚠️ 여기서 paper.scale 을 나눠 두는 이유: 아래 flangePose 가 mm 에 다시
+            //    paper.scale 을 곱한다. 그래서 **최종 로봇 좌표에서** 긴 변이 정확히
+            //    draw_size 가 된다 — paper.scale 값이 무엇이든 상쇄된다.
+            fit.scale = draw_size_m / (longest_px * scale);
+            fit.offset_x = 0.0;
+            fit.offset_y = 0.0;
+            RCLCPP_INFO(logger,
+                        "부위 %zu 개 수신 | 이미지 %d×%d px | **bbox 모드** "
+                        "%.0f×%.0f px → 긴 변 %.1f mm (draw_size %.3f m)",
+                        frame.size(), frame.front().image_width, frame.front().image_height,
+                        w_px, h_px, draw_size_m * 1000.0, draw_size_m);
+        }
+        else
+        {
+            // 예전 방식 — A4 작화영역에 letterbox. `map.csv` 경로(vision_core::ScaleToPaper)
+            // 와 같은 규칙이라 파일/토픽 결과를 맞추고 싶을 때 쓴다.
+            fit = computePaperFit(frame.front().image_width, frame.front().image_height,
+                                  paper_w_mm, paper_h_mm, paper_margin);
+            RCLCPP_INFO(logger,
+                        "부위 %zu 개 수신 | 이미지 %d×%d px | **letterbox 모드** %.5f mm/px, "
+                        "오프셋 (%.1f, %.1f) mm  [용지 %.0f×%.0f, 여백 %.0f]",
+                        frame.size(), frame.front().image_width, frame.front().image_height,
+                        fit.scale, fit.offset_x, fit.offset_y, paper_w_mm, paper_h_mm, paper_margin);
+        }
 
         for (const auto& msg : frame)
         {
@@ -681,10 +752,27 @@ int main(int argc, char** argv)
 
     // 펜 끝 목표점 → 플랜지 목표 자세. 플래닝은 그룹 끝 링크(플랜지) 기준이므로
     // 펜 길이만큼 되빼야 한다.
+    // ── 종이 좌표계 → 로봇 좌표계 ──────────────────────────────────────────
+    //
+    // 종이/이미지는 **좌상단이 원점이고 y(v)가 아래로 증가**한다. 로봇은 베이스에서
+    // +X 를 보는 관찰자 기준으로 **위쪽(멀어지는 쪽)이 +X, 왼쪽이 +Y** 다.
+    // 그래서 축을 맞바꾸고 한쪽에 음부호가 붙는다:
+    //
+    //     종이 y (아래로 증가)  →  로봇 −X
+    //     종이 x (오른쪽으로)   →  로봇 +Y
+    //
+    // ⚠️ **비전팀 구현과 같은 규칙이다** (`draw_strokes_node.cpp`, 2026-08-15 확인):
+    //       q.position.x = origin.x - (v - v_c) * s;
+    //       q.position.y = origin.y + (u - u_c) * s;
+    //     한쪽만 뒤집거나 스왑을 빼면 **90° 회전 또는 거울상**이 되는데, 그 오류는
+    //     `trace_cli`(종이 좌표계 비교)로는 보이지 않는다. 실제로 종이에 그려 봐야 한다.
+    //
+    // ⚠️ 이 변환은 회전+반사(등거리사상)라 **점 사이 거리를 보존한다.** 그래서 F3.1
+    //    순서 최적화 결과도, 앞서 잰 시간 수치도 이 변경으로 달라지지 않는다.
     auto flangePose = [&](double mx_mm, double my_mm, double lift) {
         geometry_msgs::msg::Pose p;
-        p.position.x = px0 + (mx_mm - center_x_mm) * scale - tip_offset.x;
-        p.position.y = py0 + (my_mm - center_y_mm) * scale - tip_offset.y;
+        p.position.x = px0 - (my_mm - center_y_mm) * scale - tip_offset.x;
+        p.position.y = py0 + (mx_mm - center_x_mm) * scale - tip_offset.y;
         p.position.z = pz0 + lift - tip_offset.z;
         p.orientation = orientation;
         return p;
@@ -853,10 +941,12 @@ int main(int argc, char** argv)
         marker.color.a = static_cast<float>(color[3]);
         marker.pose.orientation.w = 1.0;
 
+        // ⚠️ flangePose 와 **같은 축 매핑**이어야 한다. 여기만 어긋나면 RViz 자취가
+        //    실제 그림과 다른 방향으로 그려져서 오히려 판단을 흐린다.
         auto tipPoint = [&](double mx_mm, double my_mm) {
             geometry_msgs::msg::Point p;
-            p.x = px0 + (mx_mm - center_x_mm) * scale;
-            p.y = py0 + (my_mm - center_y_mm) * scale;
+            p.x = px0 - (my_mm - center_y_mm) * scale;
+            p.y = py0 + (mx_mm - center_x_mm) * scale;
             p.z = pz0;
             return p;
         };
