@@ -7,6 +7,7 @@
   - `monitor/robot` 구독 → 6축 temp 를 본다. 임계 이상이거나 `-1` 이면 **`mqtt_cmd.py servo off`** 를 쏘고 죽는다
   - 실패 방향이 안전하다 — 오발동하면 창이 일찍 닫힐 뿐이고, 미발동해도 사람 감시보다 나쁘지 않다
   - 판정용 원자료가 아니다. 축온의 **기록**은 `mqtt_trace.py` 의 `monitor/robot` 줄이 원본이다
+  - **긴 창도 된다** — keepalive PINGREQ 를 30초마다 보낸다(2026-08-15 추가). 그 전에는 90초에 끊겼다
 
 사용: c1_tempwatch.py [host] [sec] [임계°C] [out.jsonl]   기본 192.168.0.20 · 60초 · 58 · /tmp/c1_temp.jsonl
 종료: 0 정상 · 3 **임계 초과로 서보를 끊었다** · 1 브로커 접속 실패
@@ -83,8 +84,16 @@ s.settimeout(1.0)
 t0 = time.perf_counter()
 end = t0 + DURATION
 peak, last_print, n = {}, 0.0, 0
+last_ping = time.perf_counter()
 f = open(OUT, "w")
 while time.perf_counter() < end:
+    # ⚠️ CONNECT 가 keepalive **60초**를 선언하는데 이 루프는 recv 만 한다 — client→broker
+    #    트래픽이 0 이라 브로커가 1.5×60 = **90초**에 끊는다. 2026-08-15 03pc 에서 600초 창을
+    #    걸었다가 **89.15초**에 끊겼다(표본 870건·임계 위반 0건·최고 47°C). 종전 창은 20~22초라
+    #    이 벽에 닿은 적이 없었다. PINGRESP(0xD0)는 아래 '3 아님' 분기가 이미 버린다.
+    if time.perf_counter() - last_ping >= 30:
+        s.sendall(b"\xc0\x00")        # PINGREQ
+        last_ping = time.perf_counter()
     try:
         b1 = s.recv(1)
     except socket.timeout:
