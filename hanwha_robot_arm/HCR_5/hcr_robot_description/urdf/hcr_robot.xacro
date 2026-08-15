@@ -19,6 +19,7 @@
 <xacro:arg name="is_async"        default="false"/>
 <!-- 기본값 false 는 플러그인 기본값과 같다 — 인자를 잊어도 로봇은 안 움직인다 -->
 <xacro:arg name="allow_motion"    default="false"/>
+<xacro:arg name="servo_off_on_deactivate" default="true"/>
 
 <xacro:include filename="$(find hcr_robot_description)/urdf/materials.xacro" />
 <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.trans" />
@@ -27,7 +28,8 @@
 <xacro:hcr_robot_ros2_control plugin="$(arg hardware_plugin)"
                               rw_rate="$(arg rw_rate)"
                               is_async="$(arg is_async)"
-                              allow_motion="$(arg allow_motion)"/>
+                              allow_motion="$(arg allow_motion)"
+                              servo_off_on_deactivate="$(arg servo_off_on_deactivate)"/>
 <link name="base_link">
   <inertial>
     <origin xyz="0.044693591972953806 -9.689819846991377e-05 0.013982771179495564" rpy="0 0 0"/>

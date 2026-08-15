@@ -8,12 +8,22 @@
 # 남는 것은 controller_manager · robot_state_publisher · 컨트롤러 2개 · RViz 뿐이고,
 # 그래서 MoveIt 패키지를 하나도 참조하지 않는다 (URDF 원본인 hcr_robot_description 만 쓴다).
 #
-# 서보 사이클 — allow_motion:=true 이고 auto_servo 가 켜져 있으면
+# 서보 사이클
 #   기동: 컨트롤러가 active 가 된 **뒤** 서보 ON  (순서가 뒤집히면 함정 ⑤ 가 산다)
-#   종료: Ctrl+C 한 번에 move/stop(플러그인 on_deactivate) → 서보 OFF
-# 서보 OFF 를 자동으로 거는 것은 원래 설계(사람 판단)를 바꾼 것이다 —
+#         — allow_motion:=true 이고 auto_servo 가 켜져 있을 때만. launch 훅이 한다
+#   종료: move/stop → 서보 OFF. **둘 다 플러그인 on_deactivate 안에서** 일어난다
+#
+# ⚠️ 종료 쪽을 launch 훅에서 플러그인으로 옮겼다 (2026-08-16).
+#    종전에는 OnShutdown 훅이 servo off 를 실행했는데 **SIGINT 에서 안 도는 것이 실측됐다** —
+#    pkill -INT 로 스택을 내린 뒤 status/operation 이 여전히 SERVO_ON 이었다(2026-08-15).
+#    즉 Ctrl+C 경로 자체가 서보를 못 껐다. controller_manager 는 종료 시 on_deactivate 를
+#    보장하므로 그쪽이 유일하게 믿을 수 있는 자리다.
+#    아래 OnShutdown 훅은 **지웠다** — 안 도는 훅을 남겨 두면 도는 것처럼 읽힌다.
+#
+# 서보를 자동으로 끄는 것은 원래 설계(브레이크 판단은 사람 몫)를 바꾼 것이다 —
 # 서보를 켠 채 방치하면 축온이 오르기 때문이다(운전절차 §5 함정 ⑦, 58~61°C 6축 트립).
-# 자세가 위험해 브레이크를 걸고 싶지 않으면 auto_servo:=false 로 끈다.
+# 자세가 위험해 브레이크를 걸고 싶지 않으면 auto_servo:=false 로 끈다 —
+# 그러면 기동 시 서보 ON 도, 종료 시 서보 OFF 도 둘 다 안 한다.
 
 import os
 
@@ -25,7 +35,7 @@ from launch.actions import (
     RegisterEventHandler,
 )
 from launch.conditions import IfCondition
-from launch.event_handlers import OnProcessExit, OnShutdown
+from launch.event_handlers import OnProcessExit
 from launch.substitutions import (
     Command,
     LaunchConfiguration,
@@ -72,6 +82,9 @@ def generate_launch_description():
                     " rw_rate:=", _if_real(real, "30", "100"),
                     " is_async:=", _if_real(real, "true", "false"),
                     " allow_motion:=", allow_motion,
+                    # 종료 시 서보 OFF 는 플러그인이 한다 (on_deactivate).
+                    # auto_servo 하나로 기동 ON 과 종료 OFF 를 같이 여닫는다.
+                    " servo_off_on_deactivate:=", auto_servo,
                 ]
             ),
             value_type=str,
@@ -145,11 +158,6 @@ def generate_launch_description():
         output="screen",
         condition=servo_condition,
     )
-    servo_off = ExecuteProcess(
-        cmd=["ros2", "run", "hcr5_bridge", "servo", "off", "--host", host],
-        output="screen",
-        condition=servo_condition,
-    )
 
     return LaunchDescription(
         [
@@ -186,7 +194,6 @@ def generate_launch_description():
             RegisterEventHandler(
                 OnProcessExit(target_action=arm_spawner, on_exit=[servo_on])
             ),
-            # Ctrl+C 한 번에 여기까지 온다.
-            RegisterEventHandler(OnShutdown(on_shutdown=[servo_off])),
+            # 종료 훅은 없다 — 머리말 참조. 서보 OFF 는 플러그인 on_deactivate 가 한다.
         ]
     )

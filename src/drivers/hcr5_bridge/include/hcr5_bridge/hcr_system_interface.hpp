@@ -82,6 +82,9 @@ private:
   void stopWorker();
   /// move/stop 을 잠금과 무관하게 즉시 발행한다 (정지는 게이트에 걸리면 안 된다).
   void publishStop();
+  /// set/operation SERVO_OFF 를 ack 까지 확인하고 낸다. on_deactivate 에서만 부른다.
+  /// launch 의 OnShutdown 훅은 SIGINT 에서 안 돌지만 이쪽은 controller_manager 가 보장한다.
+  void publishServoOff();
 
   bool waitForFirstSample(std::chrono::milliseconds timeout);
   /// status/operation 이 필드버스 CONNECTED 를 세울 때까지 상한을 걸고 기다린다.
@@ -94,6 +97,10 @@ private:
   std::string host_{"192.168.0.20"};
   int port_{1883};
   bool allow_motion_{false};
+  /// 비활성화될 때 서보를 끌지. **기본이 true** — 서보를 켠 채 두면 축온이 올라
+  /// 58~61°C 에서 6축이 트립한다(2026-08-05). allow_motion 과 무관하게 적용된다:
+  /// 읽기 전용으로 띄웠어도 서보는 launch 나 사람이 켜 뒀을 수 있기 때문이다.
+  bool servo_off_on_deactivate_{true};
   double deadband_deg_{0.01};
   std::chrono::milliseconds connect_timeout_{3000};   // 첫 표본 대기 상한
   std::chrono::milliseconds state_timeout_{1000};     // 무수신 → DEACTIVATE

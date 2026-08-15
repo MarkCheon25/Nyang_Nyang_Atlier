@@ -31,7 +31,13 @@ constexpr const char * kTopicCollisionClear = "event/collision/clear";
 constexpr const char * kTopicMoveHere = "move/joint/here";
 constexpr const char * kTopicMoveStop = "move/stop";
 constexpr const char * kTopicGetPos = "get/command/pos";
+constexpr const char * kTopicSetOperation = "set/operation";
+constexpr const char * kServoOff = "SERVO_OFF";
 constexpr const char * kFieldBusConnected = "FIELD_BUS_SW_STATE_CONNECTED";
+
+/// 종료 경로의 SERVO_OFF ack 대기 상한. 기본 3000ms 보다 짧게 잡는다 —
+/// 여기서 오래 붙들면 controller_manager 종료가 그만큼 밀린다.
+constexpr std::chrono::milliseconds kServoOffTimeout{1500};
 
 /// 목표가 '멎었다'로 볼 변화량(도). 부동소수 지터만 흡수하는 크기다.
 constexpr double kSettleEpsDeg = 1e-9;
@@ -113,6 +119,9 @@ CallbackReturn HcrSystemInterface::on_init(
     if (const auto * v = get("host")) { host_ = *v; }
     if (const auto * v = get("port")) { port_ = hardware_interface::stoi32(*v); }
     if (const auto * v = get("allow_motion")) { allow_motion_ = hardware_interface::parse_bool(*v); }
+    if (const auto * v = get("servo_off_on_deactivate")) {
+      servo_off_on_deactivate_ = hardware_interface::parse_bool(*v);
+    }
     if (const auto * v = get("deadband_deg")) { deadband_deg_ = hardware_interface::stod(*v); }
     if (const auto * v = get("connect_timeout_ms")) {
       connect_timeout_ = std::chrono::milliseconds(hardware_interface::stoi32(*v));
@@ -137,10 +146,18 @@ CallbackReturn HcrSystemInterface::on_init(
 
   RCLCPP_INFO(
     get_logger(),
-    "HcrSystemInterface on_init — %s:%d · allow_motion=%s · deadband=%.4f° · "
-    "rw_rate=%uHz · is_async=%s",
-    host_.c_str(), port_, allow_motion_ ? "true" : "false", deadband_deg_,
+    "HcrSystemInterface on_init — %s:%d · allow_motion=%s · servo_off_on_deactivate=%s · "
+    "deadband=%.4f° · rw_rate=%uHz · is_async=%s",
+    host_.c_str(), port_, allow_motion_ ? "true" : "false",
+    servo_off_on_deactivate_ ? "true" : "false", deadband_deg_,
     info_.rw_rate, info_.is_async ? "true" : "false");
+
+  if (!servo_off_on_deactivate_) {
+    RCLCPP_WARN(
+      get_logger(),
+      "⚠️ servo_off_on_deactivate=false — 종료해도 서보가 켜진 채 남는다. "
+      "사람이 `ros2 run hcr5_bridge servo off` 로 꺼야 한다 (58~61°C 6축 트립, 2026-08-05)");
+  }
 
   if (!allow_motion_) {
     RCLCPP_INFO(get_logger(), "allow_motion=false — write() 는 아무것도 발행하지 않는다 (읽기 전용)");
@@ -359,13 +376,25 @@ CallbackReturn HcrSystemInterface::on_activate(const rclcpp_lifecycle::State &)
 }
 
 // ══ on_deactivate ════════════════════════════════════════════════════════
-// move/stop 을 내고 발행을 잠근다. **서보는 끄지 않는다** — 브레이크 판단은 사람 몫이다.
+// move/stop 을 내고 발행을 잠근 뒤 **서보를 끈다**(servo_off_on_deactivate, 기본 true).
+//
+// 종전에는 여기서 서보를 안 껐다 — "브레이크 판단은 사람 몫" 이라는 설계였고,
+// 끄는 일은 launch 의 OnShutdown 훅이 맡았다. **그 훅이 SIGINT 에서 안 도는 것이 실측됐다**
+// (2026-08-15: pkill -INT 로 스택을 내린 뒤 status/operation 이 여전히 SERVO_ON).
+// 즉 Ctrl+C 경로 자체가 서보를 못 껐다. controller_manager 는 종료 시 on_deactivate 를
+// 보장하고, 이 함수가 move/stop 을 내보내는 것은 이미 실증돼 있다 — 그래서 여기로 옮겼다.
+//
+// 순서가 중요하다: 발행 잠금 → move/stop → 워커 회수(join) → 서보 OFF.
+// 워커를 먼저 거두지 않으면 서보를 끄는 중에 move/joint/here 가 한 번 더 나갈 수 있다.
 CallbackReturn HcrSystemInterface::on_deactivate(const rclcpp_lifecycle::State &)
 {
   publish_locked_ = true;
   publishStop();
   stopWorker();
-  RCLCPP_INFO(get_logger(), "비활성화 — move/stop 발행·발행 잠금. 서보는 그대로 둔다");
+  if (servo_off_on_deactivate_) { publishServoOff(); }
+  RCLCPP_INFO(
+    get_logger(), "비활성화 — move/stop 발행·발행 잠금. 서보는 %s",
+    servo_off_on_deactivate_ ? "껐다" : "그대로 둔다(servo_off_on_deactivate=false)");
   return CallbackReturn::SUCCESS;
 }
 
@@ -596,6 +625,30 @@ void HcrSystemInterface::workerLoop()
 void HcrSystemInterface::publishStop()
 {
   if (mqtt_ && mqtt_->connected()) { mqtt_->publish(kTopicMoveStop, Json::object()); }
+}
+
+// move/stop 과 달리 **ack 를 확인한다** — 껐다고 로그만 남고 실제로 안 꺼지는 것이
+// 정확히 이 결함에서 일어난 일이다. 응답이 없으면 사람이 할 일을 명시해 남긴다.
+void HcrSystemInterface::publishServoOff()
+{
+  if (!mqtt_ || !mqtt_->connected()) {
+    RCLCPP_ERROR(
+      get_logger(),
+      "🔴 MQTT 가 끊겨 서보를 못 껐다 — **사람이** `ros2 run hcr5_bridge servo off` 를 쳐야 한다");
+    return;
+  }
+
+  const auto r = mqtt_->request(
+    kTopicSetOperation, Json{{"operationStatus", kServoOff}}, kServoOffTimeout);
+  if (r) {
+    RCLCPP_INFO(get_logger(), "서보 OFF — ack 수신");
+  } else {
+    RCLCPP_ERROR(
+      get_logger(),
+      "🔴 서보 OFF ack 가 %lldms 안에 안 왔다 — 꺼졌는지 알 수 없다. "
+      "**사람이** `ros2 run hcr5_bridge servo off` 로 확인·재시도할 것",
+      static_cast<long long>(kServoOffTimeout.count()));
+  }
 }
 
 // ══ MQTT 구독 콜백 (수신 스레드) ═════════════════════════════════════════
