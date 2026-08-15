@@ -137,7 +137,12 @@ F3.1 단위시험(`test/test_optimizer.cpp`). `colcon test` 로만 돌고 **제�
 | `test_f31.cpp` · `f31_extracted.inc` | 세션 스크래치패드 | ✅ **`test/test_optimizer.cpp` 로 옮겼다.** 스크래치패드 쪽은 버려도 된다 |
 | `predict.cpp` · `hops.cpp` | 세션 스크래치패드 | 실험 중 홉 거리를 뽑아 본 일회용 도구. 사라져도 무방 (수치는 `docs/Trajectory Optimization.md` §4.1 표에 남아 있다) |
 | `exp_?.yaml` · `sw_*.yaml` · `def_check.yaml` · `*.log` | moveit2 컨테이너 `/tmp` | 컨테이너 재생성 시 사라진다 |
-| `drawing_cat/log/` (88K) · `drawing_cat/src/log/` (44K) | 패키지 안 | **colcon 을 패키지 디렉터리에서 돌려 생긴 잔재.** `.gitignore` 의 `log/` 에 걸려 커밋되지는 않는다. 지워도 무방 |
+| `drawing_cat/log/` · `drawing_cat/src/log/` | 패키지 안 | ✅ **2026-08-14 삭제함.** 아래 ⚠️ 참조 |
+
+> ⚠️ **`colcon build` 는 워크스페이스 루트(`~/ws_moveit2`)에서만 돌릴 것.**
+> 패키지 디렉터리에서 돌리면 그 자리에 `log/` 가 생긴다. `.gitignore` 의 `log/` 에
+> 걸려 커밋되지는 않지만, colcon 이 남기는 `events.log` 에 **환경변수가 통째로 덤프**
+> 되어 토큰·경로 같은 것이 평문으로 들어간다. 실제로 그렇게 생긴 것을 지웠다.
 
 ---
 
