@@ -73,7 +73,7 @@ def default_config() -> dict[str, Any]:
         # ── 경로 ──
         "paths": {
             # 산출물·원자료 루트. 환경변수 CAL_DATA_DIR 로 덮을 수 있다.
-            # 🔴 리포 .gitignore 에 아직 등록돼 있지 않다 — 커밋 전에 확인할 것
+            # 리포 .gitignore 에 등록돼 있다 (2026-08-16) — 여기 아래는 커밋되지 않는다
             "data_dir": os.environ.get(
                 "CAL_DATA_DIR", str(Path(__file__).resolve().parent / "data")),
         },

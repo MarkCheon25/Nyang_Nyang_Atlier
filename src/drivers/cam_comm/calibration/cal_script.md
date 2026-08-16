@@ -118,6 +118,11 @@
 | [`cal_board.py`](cal_board.py) | 인쇄물 생성 | A | ✅ **장비 불필요** — **구현 완료** |
 | [`cal_calibrate.py`](cal_calibrate.py) | 기준 확정 + `H` 갱신 — **본체** | B·C | 일부 |
 | [`cal_runtime.py`](cal_runtime.py) | 종이 인식 + 검증 | D·E | 일부 |
+| [`cal_simulate.py`](cal_simulate.py) | **합성 검증 도구** — 실셋업을 기하로 재현해 검출·`H` 정확도 측정 | A·E 보조 | ✅ **장비 불필요** — **구현 완료** |
+
+`cal_simulate.py` 는 `cal.py` 서브커맨드가 아니다 — 절차가 아니라 **개발용 계측기**라 따로 둔다.
+`python3 cal_simulate.py` 로 바로 돌린다. 나오는 수치는 **인쇄물·검출 알고리즘의 상한**이지
+실기 정확도가 아니다(렌즈 왜곡·마커 들뜸·조명·로봇 반복도가 빠져 있다). 실기 값은 블록 E 가 잰다.
 
 ### 3.2 명령
 
