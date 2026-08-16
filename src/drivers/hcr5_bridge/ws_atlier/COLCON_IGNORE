@@ -1,0 +1,10 @@
+이 파일을 지우면 빌드가 깨진다. (2026-08-16)
+
+compose.yml 이 src/drivers/ 통째를 ~/ws_atlier/src/drivers 로 물리는데, 그 안에
+hcr5_bridge/ws_atlier/ (= 이 디렉터리) 가 들어 있다. 그래서 워크스페이스가
+자기 자신을 한 겹 안쪽에서 다시 본다:
+
+    ~/ws_atlier/src/drivers/hcr5_bridge/ws_atlier/install/hcr5_bridge/share/hcr5_bridge/package.xml
+
+colcon 은 src/ 아래를 재귀 탐색하므로 저 package.xml 을 **두 번째 hcr5_bridge**로
+잡아 중복 패키지 오류를 낸다. 이 파일이 그 트리를 통째로 건너뛰게 한다.

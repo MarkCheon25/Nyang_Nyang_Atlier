@@ -15,6 +15,19 @@ src/moveit2/ws_moveit2/src/moveit2_tutorials/
 # compose.yml 기본값은 AMD/Intel(A). NVIDIA PC 등 다른 GPU 설정은
 # PC별로 여기에 compose.override.yml 을 만들어 쓴다 (커밋 대상 아님)
 src/moveit2/compose.override.yml
+src/drivers/hcr5_bridge/compose.override.yml
+
+# ── 로봇 버스 로그 원자료 (2026-08-16) ──
+# mqtt_logger.py · capture.py 가 뜨는 무가공 로그다. 실측 **시간당 약 250MB** 라
+# 리포에 담지 않는다 — `measurements/` 에 올리는 것은 **걸러서 gz 로 줄인 것**뿐이다.
+# ⚠️ 원자료는 그것을 뜬 PC 에만 남는다. 다른 PC 에서는 clone 해도 안 따라온다 —
+#    어느 PC 에 무엇이 남아 있는지는 그 PC 작업일지 최상단 경고에 적는다.
+hcr5_logs/
+hcr5_2*.csv
+events_2*.csv
+summary_2*.md
+raw.jsonl
+novel.jsonl
 
 # ── Python ──
 __pycache__/

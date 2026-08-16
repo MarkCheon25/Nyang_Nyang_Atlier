@@ -4,10 +4,11 @@
 ⚠️ **컨테이너 안에서 돈다** (rclpy·control_msgs 필요). `compose.yml` 이 `src/drivers/` 를
    마운트하므로 **이 파일은 컨테이너에 그대로 보인다** — 복사 단계는 없다 (2026-08-15 확인):
 
-       docker exec <컨테이너> bash -lc 'cd ~/ws_moveit2 && source install/setup.bash && \
+       docker exec <컨테이너> bash -lc 'cd ~/<워크스페이스> && source install/setup.bash && \
            python3 src/drivers/hcr5_bridge/tools/ros_trace.py 45'
 
-   컨테이너명은 PC마다 다르다 — 04pc=markch_moveit2_dev · 03pc=moveit2_dev.
+   컨테이너·워크스페이스 이름은 어느 컨테이너를 쓰느냐에 따라 다르다 (README §2.1) —
+   hcr5_bridge 것이면 nyang_nyang_atlier · ~/ws_atlier, moveit2 것이면 moveit2_dev · ~/ws_moveit2.
    ⚠️ pull 후 컨테이너를 **재생성**해야 마운트가 붙는다 (`run_container.sh down && … shell`).
 
 왜 이 세 값인가:

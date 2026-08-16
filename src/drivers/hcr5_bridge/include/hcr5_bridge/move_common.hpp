@@ -1,6 +1,6 @@
 // movej · movel 이 공유하는 안전 게이트와 액션 전송.
 //
-// 왜 이 파일이 있나 — 운전절차.md §2 "속도" 표가 이 경로에 속도 안전망이
+// 왜 이 파일이 있나 — README.md §3.8 안전망 표가 이 경로에 속도 안전망이
 // **하나도 없다**고 적는다(MoveIt 스케일·joint_limits.yaml·JTC constraints·
 // mqtt_cmd.py 3중가드 전부 액션 직송에는 안 걸린다). 유일하게 걸리는 것이
 // 관절한계뿐이라 "계산이 곧 안전장치"였다 — 그 계산을 사람 손에서 여기로 옮긴다.
@@ -33,10 +33,10 @@ namespace hcr5_bridge
 using FollowJointTrajectory = control_msgs::action::FollowJointTrajectory;
 using JointArray = std::array<double, kNumJoints>;
 
-/// 기본 속도 상한(실기 도/s). 검C2 창 실측이 1.25°/s, 운전절차 ④~⑥ 이 2°/s 다.
+/// 기본 속도 상한(실기 도/s). 검C2 창 실측이 1.25°/s, README §3.5 기본이 2°/s 다.
 /// 10°/s 는 실기 자율주행 실측(9.7°/s)과 같은 자리 — 그 위는 명령이 실기를 앞지른다.
 inline constexpr double kDefaultMaxSpeedDegPerSec = 10.0;
-/// --sec 를 안 주면 이 속도로 소요시간을 **자동 계산**한다. 운전절차 ④~⑥ 과 같은 값.
+/// --sec 를 안 주면 이 속도로 소요시간을 **자동 계산**한다. README §3.5 와 같은 값.
 inline constexpr double kDefaultSpeedDegPerSec = 2.0;
 /// 너무 짧은 궤적은 JTC 가 못 따라온다.
 inline constexpr double kMinDurationSec = 0.5;
@@ -86,7 +86,7 @@ inline bool parseOptions(
 }
 
 /// URDF 한계. xacro 를 읽지 않고 상수로 든다 — 값의 원본은 hcr_robot.xacro 이고
-/// 여기는 **더 안쪽**이어야 한다(운전절차 §5 함정 ⑩: URDF 한계는 실기보다 항상 안쪽).
+/// 여기는 **더 안쪽**이어야 한다(README §3.8: URDF 한계는 실기보다 항상 안쪽).
 /// 실기 ±360°(J3 ±165°) 검사가 withinLimits() 로 따로 걸리므로 이중 검사가 된다.
 
 /// 목표를 사람이 읽을 수 있게 두 단위로 찍는다. 함정 ⑧ 은 이 표가 없어서 났다.
@@ -186,7 +186,7 @@ inline bool readCurrentJointState(
 }
 
 /// FollowJointTrajectory 로 한 점을 보낸다. 도착 판정은 하지 않는다 —
-/// error_code 는 판정력이 없다(운전절차 §5 함정 ④, JTC constraints 부재).
+/// error_code 는 판정력이 없다(README §3.5, JTC constraints 부재).
 inline bool sendTrajectory(
   const rclcpp::Node::SharedPtr & node, const JointArray & goal_rad, double duration_sec,
   std::string & err)
