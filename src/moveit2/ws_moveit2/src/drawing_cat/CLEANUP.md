@@ -22,11 +22,24 @@
 | 파일 | 무엇 | 지울 시점 |
 |---|---|---|
 | `fake_vision_publisher.py` | 비전 없이 `/vision/strokes` 를 직접 흉내 | **2026-08-16 실물 연동 성공으로 역할이 끝났다.** 지워도 된다 |
-| `mask_replay.py` | `sam3_output/` 마스크를 `/vision/parts` 로 재생 (SAM3 대역) | **실제 SAM3 검증이 끝날 때까지 남긴다** |
+| `mask_replay.py` | `sam3_output/` 마스크를 `/vision/parts` 로 재생 (SAM3 대역) | 🔴 **성격이 바뀌었다 — 아래** |
 
-`mask_replay.py` 를 남기는 이유 — SAM3 는 torch + 3.2 GB 모델이 필요해서, 하류만 시험할
-때 매번 그걸 갖추는 것은 비효율이다. 입력이 고정이라 **회귀 시험에도 유리**하다.
-실제 SAM3 로 파이프라인이 안정되면 그때 함께 지운다.
+#### 🔴 `mask_replay.py` 는 이제 "임시 대역" 이 아니다 (2026-08-16)
+
+원래는 *"실제 SAM3 검증이 끝나면 함께 지운다"* 였다. **그 전제가 깨졌다** — SAM3 를
+이 PC 에서 돌릴 수 없다는 것이 설치 후 확인됐다.
+
+```
+① GPU 커널 없음   torch 지원 sm_75+ vs GTX 1050 = sm_61 (Pascal)
+② VRAM 부족       모델 3.3 GB vs VRAM 2.0 GB          ← ①을 우회해도 여기서 막힘
+③ RAM 부족        7.5 GB 중 가용 4.2 GB → CPU 추론이 스왑으로 (2회 멈춤)
+```
+
+①②는 이 PC 에서 고칠 수 없다. 상세는 `docs/Vision Integration Result.md` §7.
+
+**→ 지우는 조건이 "SAM3 검증 완료" 가 아니라 "이 저장소에서 비전 상류를 더 이상 세울
+필요가 없을 때" 로 바뀐다.** 입력이 고정이라 **회귀 시험에도 유리**하므로, 최종 산출물
+직전까지 남기는 쪽을 권한다.
 
 > ⚠️ 이 파일은 **비전 컨테이너에서 실행**한다 (`MaskImage` 가 거기 빌드돼 있어서).
 > 우리 저장소에 두고 필요할 때 복사해 쓴다 — 자세한 것은 파일 상단 주석.
@@ -79,6 +92,28 @@ F3.1 단위시험(`test/test_optimizer.cpp`). `colcon test` 로만 돌고 **제�
 
 측정 과정에서 들어왔는데 제품에 남길 가치가 애매한 것들. 아래 🔴🟡 는 **그때 참고할
 의견**이고, 지금 실행하는 항목이 아니다.
+
+### ✅ `config/joint_limits_mujoco.yaml` — 2026-08-16 삭제함
+
+관절 한계 우회였다. 실측 URDF(`markch/hcr5_ros2`)가 `joint_1` 을 `lower="-4.712388"` 로
+고쳐 근거가 사라졌고, 오히려 우회값이 실측 상한보다 좁아 깎아먹고 있었다.
+`mujoco_moveit.launch.py` 의 `.joint_limits(...)` 도 함께 제거 — 이제
+`hcr_moveit_config` 의 것을 쓴다.
+
+### 🟡 `tip_offset` 수동 계산 — `nyang_pen` 으로 대체 가능해졌다
+
+`draw_cat.cpp` 의 `flangePose`·`tipPoint` 는 **플랜지 기준**으로 좌표를 잡고 펜 길이를
+파라미터(`tip_offset`)로 빼고 있다. `pen_tip` 프레임이 없어서 택한 우회였다.
+
+**2026-08-16 에 `nyang_pen` 패키지가 들어와 `pen_tip` 프레임이 생겼다.** 이제 pose goal
+을 `pen_tip` 기준으로 주면 이 수동 보정이 통째로 필요 없다.
+
+지금 바꾸지 않은 이유 — 관절 한계 검증 중이라 변수를 늘리지 않으려는 것뿐이다. 검증이
+끝나면 전환을 검토한다. 관련: `README.md` §6, `docs/Pipeline Integration Status.md` §5
+"moveit2 — 우리 몫".
+
+> ⚠️ `nyang_pen` 은 fixed joint 라 **rigid 가정**이다. 홀더가 스프링식이면 `pen_tip` 은
+> 무부하 명목 위치이고 접촉 중 실제 펜 끝은 그보다 안쪽이다 (nyang_pen.xacro 머리말).
 
 ### 🔴 `travel_mode: "joint"` 분기 — 빼는 쪽을 권한다
 

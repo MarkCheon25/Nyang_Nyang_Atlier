@@ -40,51 +40,28 @@
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
 
-  <!-- ── 펜 ────────────────────────────────────────────────────────────────
-       Phase 1 은 펜을 **테이프로 플랜지에 고정**한다 (BRD §2.3). 즉 z 방향
-       컴플라이언스가 없다 — 이것이 R2(필압 제어 실패)의 가능성을 "중"에서
-       "높음"으로 올린 이유이고, 이 시뮬레이션이 보려는 것이 바로 그 결과다.
+  <!-- ── 펜 — 여기서 정의하지 않는다 (2026-08-16 변경) ────────────────────────
+       **`nyang_pen` 패키지로 옮겨졌다.** 본체 `hcr_robot.xacro` 가 직접
+       `<xacro:nyang_pen parent="link6_1"/>` 로 붙이므로 여기서 또 붙이면
+       `link 'pen_tip' is not unique` 로 URDF 파싱이 죽는다 (실제로 겪었다).
 
-       ⚠️ 아래 치수·장착 위치는 **실측 전 임시값**이다. 실물 확인 후 갱신할 것.
+       이 파일 머리말이 남겨둔 숙제 — *"이 정의를 어디에 둘지(여기냐 hanwha
+       자산이냐) 다시 정해야 한다"* — 가 **hanwha 자산 쪽으로 결정된 것**이다.
+
+       옮기고 나서 좋아진 점:
+         · `tool0` 관례 프레임이 생겼다 (+Z = 공구 진출 방향)
+         · 홀더가 별도 링크로 분리돼 충돌 검사에 들어간다
+         · 장착 회전(mount_p = −π/2)이 교차검산 4건으로 확정됐다
+         · 치수의 단일 출처가 nyang_pen.xacro 의 macro params 하나로 모였다
+
+       ⚠️ 치수는 **여전히 명목값**이다. 실측하면 `nyang_pen/urdf/nyang_pen.xacro`
+          의 params 기본값만 갈아끼운다 — 이 파일은 건드릴 것이 없다.
+
+       ⚠️ 필압 컴플라이언스 논점은 그대로다. Phase 1 은 테이프 고정이라 z 방향
+          컴플라이언스가 없고(BRD §2.3), 그것이 R2 위험도를 올린 이유다.
+          nyang_pen 은 fixed joint 라 **rigid 를 가정**하므로 `pen_tip` 은
+          "무부하 명목 위치" 다 — 접촉 중 실제 펜 끝은 그보다 안쪽일 수 있다.
   -->
-  <xacro:property name="pen_length" value="0.150"/>   <!-- 연필 전체 길이 -->
-  <xacro:property name="pen_radius" value="0.004"/>   <!-- 연필 반지름 -->
-  <xacro:property name="pen_mass"   value="0.010"/>
-
-  <link name="pen_link">
-    <visual>
-      <origin xyz="0 0 ${pen_length/2}" rpy="0 0 0"/>
-      <geometry><cylinder radius="${pen_radius}" length="${pen_length}"/></geometry>
-      <material name="pencil"><color rgba="0.85 0.65 0.13 1"/></material>
-    </visual>
-    <collision>
-      <origin xyz="0 0 ${pen_length/2}" rpy="0 0 0"/>
-      <geometry><cylinder radius="${pen_radius}" length="${pen_length}"/></geometry>
-    </collision>
-    <inertial>
-      <!-- MuJoCo 는 inertial 이 없으면 변환에서 걸린다 (find_missing_inertias.py) -->
-      <origin xyz="0 0 ${pen_length/2}" rpy="0 0 0"/>
-      <mass value="${pen_mass}"/>
-      <inertia ixx="${pen_mass*(3*pen_radius*pen_radius + pen_length*pen_length)/12}" ixy="0" ixz="0"
-               iyy="${pen_mass*(3*pen_radius*pen_radius + pen_length*pen_length)/12}" iyz="0"
-               izz="${pen_mass*pen_radius*pen_radius/2}"/>
-    </inertial>
-  </link>
-
-  <!-- 플랜지 직결 — 그리퍼 없음 (BRD §2.2) -->
-  <joint name="pen_joint" type="fixed">
-    <parent link="link6_1"/>
-    <child link="pen_link"/>
-    <origin xyz="0 0 0" rpy="0 0 0"/>
-  </joint>
-
-  <!-- 펜 **끝**. 종이와 닿는 지점이며 접촉·필압을 여기서 본다. -->
-  <link name="pen_tip"/>
-  <joint name="pen_tip_joint" type="fixed">
-    <parent link="pen_link"/>
-    <child link="pen_tip"/>
-    <origin xyz="0 0 ${pen_length}" rpy="0 0 0"/>
-  </joint>
 
   <!-- ── ros2_control — 여기가 하드웨어 추상화 경계다 (N6 · F7.3) ───────────
        원본 `hcr_robot.ros2_control.xacro` 는 `mock_components/GenericSystem` 을

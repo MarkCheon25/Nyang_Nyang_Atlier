@@ -68,11 +68,10 @@ def generate_launch_description():
         get_package_share_directory('drawing_cat'), 'config')
     moveit_controllers_mujoco = os.path.join(
         drawing_cat_config, 'moveit_controllers_mujoco.yaml')
-    # joint_1 · joint_6 의 위치 한계를 덮어쓴다. 이게 없으면 MuJoCo 의 부동소수점
-    # 노이즈(-1.06e-14)가 하한 0 을 밑돌아 플래닝이 시작조차 못 한다.
-    # 자세한 배경과 "시도했으나 안 되는 것들"은 그 파일 주석 참조.
-    joint_limits_mujoco = os.path.join(
-        drawing_cat_config, 'joint_limits_mujoco.yaml')
+    # 2026-08-16: joint_limits_mujoco.yaml 우회를 제거했다.
+    # 실측 URDF(markch/hcr5_ros2)가 joint_1 을 lower=-4.712388 로 고쳤으므로
+    # 하한 0 문제가 사라졌다. 오히려 우회값(±6.283185)이 실측 상한(7.853981)보다
+    # 좁아 성능을 깎아먹던 상태였다. hcr_moveit_config 의 joint_limits.yaml 을 쓴다.
 
     moveit_config = (
         MoveItConfigsBuilder('hcr_robot', package_name='hcr_moveit_config')
@@ -80,7 +79,6 @@ def generate_launch_description():
         .robot_description_semantic(file_path='config/hcr_robot.srdf')
         .robot_description_kinematics(file_path='config/kinematics.yaml')
         .trajectory_execution(file_path=moveit_controllers_mujoco)
-        .joint_limits(file_path=joint_limits_mujoco)
         .planning_pipelines(pipelines=['ompl'])
         # ⚠️ publish_robot_description 은 **false** 여야 한다. 시뮬레이션 쪽
         # robot_state_publisher 가 이미 /robot_description 을 (펜 포함 버전으로)

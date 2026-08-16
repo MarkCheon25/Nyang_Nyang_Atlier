@@ -38,3 +38,8 @@ __pycache__/
 .idea/
 *.swp
 .DS_Store
+
+# nyang_pen 빌드용 사본 — 원본은 src/drivers/nyang_pen (2026-08-16)
+# 워크스페이스 마운트 안에 있어야 컨테이너가 찾는다. 마운트 추가 전까지의 임시 조치.
+src/moveit2/ws_moveit2/src/nyang_pen/
+src/simulation/ws_simulation/src/nyang_pen/

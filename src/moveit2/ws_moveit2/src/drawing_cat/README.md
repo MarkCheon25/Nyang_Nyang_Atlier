@@ -425,10 +425,38 @@ ros2 launch drawing_cat draw_cat.launch.py \
 ros2 run drawing_cat fake_vision_publisher          # ⚠️ test_tools — 확인 전용
 ```
 
-**픽셀 → mm 변환은 임의로 정하지 않는다.** vision 의
-`vision_core/src/image_to_map.cpp` `ScaleToPaper` 와 같은 letterbox 식을 쓴다 —
-축척 기준이 컨투어 bbox 가 아니라 **이미지 전체 크기**이고, 그 값(`image_width` ·
-`image_height`)이 메시지에 실려 온다.
+**픽셀 → mm 축척은 `strokes.scale_mode` 로 고른다. 기본은 `"bbox"` 다.**
+
+> ⚠️ **비전은 축척을 하지 않는다.** `contour_pixel_node` 는 **순수 픽셀**만 발행하고,
+> mm 변환 규칙은 **소비자가 정한다**. 그래서 "비전이 정한 축척" 이라는 것은 없고,
+> 두 소비자(우리 · 비전팀 `draw_strokes_node`)가 각자 규칙을 골랐던 것이다.
+> 근거는 [`Vision Interface Contract.md`](../../../docs/Vision%20Interface%20Contract.md) §3.
+
+| `strokes.scale_mode` | 축척 기준 | 쓸 때 |
+|---|---|---|
+| **`"bbox"`** (기본) | **모든 부위를 합친 bbox 의 긴 변** → `paper.draw_size_m` | 비전팀 `draw_strokes_node.cpp` 와 같은 규칙. **토픽 경로의 기본** |
+| `"letterbox"` | **이미지 전체 크기** → A4 작화영역 | `map.csv`(`ScaleToPaper`)와 같은 규칙. 파일 경로와 맞출 때 |
+
+### `bbox` 모드 (기본)
+
+```
+longest_px = max(bbox_w_px, bbox_h_px)        # 모든 부위를 합친 bbox
+fit.scale  = draw_size_m / (longest_px * paper.scale)
+fit.offset = 0, 0                              # 중심은 auto_center 가 잡는다
+```
+
+**그림의 긴 변이 정확히 `paper.draw_size_m` 가 된다** (기본 0.15 m). 이미지 크기·해상도가
+달라져도 결과 크기는 같다.
+
+> ⚠️ **`paper.scale` 이 상쇄된다.** 위 식에서 곱했다가 나중에 다시 나누므로 bbox 모드에서는
+> `paper.scale` 값이 결과에 영향을 주지 않는다. 크기를 바꾸려면 **`paper.draw_size_m`** 을
+> 만진다. 실물 확인: 444 × 527 px → 긴 변 **80.0 mm** 정확(`draw_size_m: 0.08`).
+
+> ⚠️ **`paper.auto_center: true` 여야 한다.** 비전팀 구현은 **항상 bbox 중심**을 쓰는데,
+> `auto_center` 가 꺼져 있으면 우리는 파라미터로 준 중심을 써서 그림이 밀린다.
+> 노드가 이 조합을 감지하면 경고를 남긴다 (`draw_cat.cpp:397`).
+
+### `letterbox` 모드
 
 ```
 scale    = min(180 / image_width, 267 / image_height)     [mm/px]
@@ -437,8 +465,27 @@ offset_y = 15 + (267 - image_height * scale) * 0.5
 x_mm = offset_x + u * scale        y_mm = offset_y + v * scale
 ```
 
-180 × 267 은 A4(210×297)에서 여백 15mm 를 뺀 작화영역이다 (vision `params.hpp` 기본값).
-세 값 모두 `paper.width_mm` · `height_mm` · `margin_mm` 파라미터로 바꿀 수 있다.
+축척 기준이 컨투어 bbox 가 아니라 **이미지 전체 크기**이고, 그 값(`image_width` ·
+`image_height`)이 메시지에 실려 온다. 180 × 267 은 A4(210×297)에서 여백 15mm 를 뺀
+작화영역이다 (vision `params.hpp` 기본값). 세 값 모두 `paper.width_mm` · `height_mm` ·
+`margin_mm` 파라미터로 바꿀 수 있다.
+
+**이쪽을 쓰면 `map.csv` 에 들어갔을 값과 같은 mm 좌표가 나온다** — 파일 경로와 토픽 경로의
+결과를 맞춰야 할 때 쓴다.
+
+### 종이 mm → 로봇 좌표
+
+축척과 **별개**로 축 매핑이 한 번 더 있다. 비전팀 `draw_strokes_node.cpp` 규칙에 맞췄다
+(2026-08-16 검증):
+
+```
+종이 y (아래로 증가)  →  로봇 −X
+종이 x (오른쪽으로)   →  로봇 +Y
+```
+
+> ⚠️ **이 매핑 오류는 `trace_cli` 로는 원리적으로 못 잡는다.** 그건 종이 좌표계에서
+> 비교하므로 로봇 축이 어떻게 배치되든 항상 멀쩡해 보인다. **RViz 자취(로봇 좌표계)로만
+> 드러난다.**
 
 > ⚠️ **어느 이미지의 부위인지 메시지만으로는 알 수 없다.** `Header` 도 프레임 번호도
 > 없다. 그래서 받는 쪽이 경계를 판정한다 — ① `instance_label` 이 중복되면 새 이미지
