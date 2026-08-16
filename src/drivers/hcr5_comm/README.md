@@ -116,7 +116,7 @@
 | **역기구학(IK)** | `robot/convertJointAngle` | pubWithAck | `{info:{position,orientation,joint:시드}, poseType:"tcp"}` → `{joint:[6]}` | 08-05 |
 | 툴(TCP) 설정 적용 | `robot/setup/tcp` | pubWithAck | `{devc_thng_id, devc_name, info:{TCP_POSITION_XYZ, TCP_ROTATION_XYZ, TCP_GRAVITY_XYZ, TCP_USE_GRAVITY_YN, TOOL_PAYLOAD, TOOL_BOUNDARY:{INFO:{CONE,CYLINDER}}}}` | 08-05 |
 | **프로그램 적재** ★ | `program/plan` | pubWithAck | 프로그램 트리 전체 — **§6** | 08-05 |
-| **프로그램 실행** | `program/play` | pubWithAck | `{selectedIndex:[a,b]}` — 부분 실행 가능 | 08-05 |
+| **프로그램 실행** | `program/play` | pubWithAck | **`{}` 로 충분하다**(08-16 실증, 4회). `{selectedIndex:[a,b]}` 는 부분 실행용 **선택지**이고 필수가 아니다 — 종전 기재는 미검증이었다 | 08-05 · **08-16** |
 | 프로그램 반복 | `program/set/repeat` | pubWithAck | `{programRepeatFlag:true｜false}` | 08-05 |
 | 프로그램 정지 | `program/stop` | — | `{}` — 실행 중 유효성·지연은 **미실측**(§11) | 08-05 |
 | 프로그램 비우기 | `program/clear` | pubWithAck | `{}` | 08-05 |
@@ -184,19 +184,60 @@
 
 ### 6.1 스키마
 
+> **2026-08-16 정확형으로 승격.** 종전 이 절은 `attr` 안쪽만 그린 **요약**이었고 바깥 봉투가
+> 비어 있어 실제로 발행할 수가 없었다(구 업무목록 L13). 펜던트에서 linear 프로그램을 만들어
+> **적용**하는 동안 `capture.py` 로 떠서 전체 형태를 얻었고, `hcr5_bridge/src/movel.cpp`
+> `buildPlan()` 이 이 형태로 발행해 **실기 4회 이동으로 실증**했다.
+
+**바깥 봉투 — 이 8개 키가 최상위다** (`data` 안에 `thng_id` 와 나란히 들어간다)
+
+```jsonc
+{
+  "name":       "hcr5_bridge_movel",   // 프로그램 이름. mongoLog 에 이 이름이 찍힌다
+  "variables":  {},                    // 전역변수. 안 쓰면 빈 객체
+  "coordinates": {                     // 좌표계 정의. 둘 다 필요하다
+    "base": { "name": "Base", "position": {x,y,z}, "orientation": {x,y,z} },
+    "tcp":  { "name": "TCP",  "position": {x,y,z}, "orientation": {x,y,z} }
+  },
+  "velocity":   100,                   // **전역 속도 배율(%)** — 노드 velocity 에 곱한다
+  "repeat":     false,
+  "program":    { ROOT },              // 본체 — 아래
+  "thread":     { ROOT, "uuid": 0, "child": [] },   // 안 쓰면 빈 ROOT. uuid 가 **정수 0**
+  "subprogram": []
+}
+```
+
+⚠️ **`velocity`(전역 %) 와 노드의 `move.linear.velocity`(mm/s) 는 다른 것이다.**
+전역이 100 이어야 노드 값이 그대로 나간다. 펜던트에서 속도를 낮춰 두면 여기가 100 이 아니다.
+
+**노드 트리**
+
 ```
 ROOT
-├─ INITIALIZE
+├─ INITIALIZE        ← 있어야 한다
 └─ MOVE …            ← 웨이포인트 구간 하나 = 노드 하나
 ```
+
+모든 노드가 **같은 6개 키**를 갖는다. `attr` 만 타입별로 다르다:
+
+```jsonc
+{ "uuid": "<uuid v1>", "name": "MOVEL", "type": "MOVE",
+  "child": [], "time": 0, "attr": { … } }
+```
+
+| 타입 | `name` | `attr` |
+|---|---|---|
+| `ROOT` | **`null`** | `{}` (빈 객체) |
+| `INITIALIZE` | `"Initialize"` | `{"skip": false, "always": false}` |
+| `MOVE` | 자유 | 아래 |
 
 ```jsonc
 "attr": {
   "skip":   false,
-  "repeat": …,
+  "repeat": 1,
   "frame":      "flange",            // 기준 프레임
   "coordinate": "base" | "tcp",
-  "options":  { … },
+  "options":  { "vision": {"position": "continuously", "type": "general"} },
   "move":     { … },                 // 6.1.1
   "waypoint": { … }                  // 6.1.2
 }
@@ -216,7 +257,54 @@ ROOT
 
 - 네 종류의 파라미터 객체가 **모두 실린다.** `selected` 가 그중 하나를 고른다.
 - **기본값**: `joint` velocity 50 / acceleration 100, `linear` velocity 500 / acceleration 1000 / radius 0.
-  (linear 단위는 mm/s·mm/s². joint 는 도 계열 — 단위 표기는 미확정)
+- **단위**: `linear` 는 mm/s·mm/s², **`joint` 는 도/s·도/s²** — 2026-08-16 실기 **182점**으로 확정
+  (**6축 전부**, d 30~360°, v 10~90°/s, a 25~400°/s². 원본 = `hcr5_bridge/movej.md` §2.3).
+
+  **지령 속도는 오차 0.13% 로 그대로 지켜진다** (회귀계수 K=0.9987±0.0019). rad/s 면 20 rad/s=1146°/s 라
+  0.05초, 정격 대비 %(180°/s) 면 36°/s 라 1.9초여야 했는데 실측은 3.48초 — 자릿수로 배제된다.
+
+  **⚠️ 가감속은 사다리꼴이 아니다.** 램프에 `v/a` 의 **1.54배**가 걸린다:
+
+  ```
+  t = 0.9987·(d/v) + 1.5392·(v/a) + 0.2034초    RMS 잔차 0.0365초 · 최대 0.1355초 (182점)
+       ±0.0019        ±0.0053        ±0.0055
+  ```
+
+  | 모형 | RMS 잔차 | 최대 잔차 |
+  |---|---|---|
+  | 순수 사다리꼴 `d/v + v/a` | 0.68초 | — |
+  | **`d/v + 1.54·v/a + c`** ← 채택 | **0.037초** | **0.136초** |
+  | 위에 저크항(`a/j`)·속도 1차항을 더한 4모수 | 0.037초 | — (**나아지지 않는다**) |
+
+  실무적 함의 셋:
+  - **지령 가속도의 실효값은 `0.65·a`** 다. `acceleration:100` 은 65°/s² 처럼 거동한다.
+  - **가감속 소요 각도는 `0.77·v²/a`** — 사다리꼴로 계산한 `v²/a` 보다 23% 작다. §8 함정 1 의
+    가감속 여유 계산에 이 값을 쓰면 덜 보수적이다 (막고 싶으면 `v²/a` 를 그대로 쓰는 쪽이 안전).
+  - ✅ **`c` 는 상수다.** play ack 왕복 + 실행 시작·정지 판정 지연이고, 속도·거리·가속도와도
+    **시각과도** 무관하다. 다만 **소수 셋째 자리를 믿지 마라** — 회차 하나하나의 산포가 0.035초라
+    묶음평균이 0.19~0.22 사이에서 흔들린다.
+    🔴 한때 *"세션 중 0.189 → 0.226 으로 드리프트한다"* 고 적어 두었으나 **기각됐다**: 같은 지령
+    80회를 29분(중간 12.7분 정지)에 걸쳐 돌려 시간축만 흔들었더니 기울기가 −0.010±0.005 /
+    +0.003±0.005 초/10분 으로 **부호부터 갈렸다.** 묶음평균 넷에서 추세를 읽은 오독이었다.
+
+  🔴 **π/2=1.5708 은 아니다 — 6.0σ 로 배제된다.** 한때 코사인형 램프를 시사한다고 적어 두었으나,
+  `a` 만 25~400 으로 흔들어 `v/a` 지렛대를 16배 벌리자 갈렸다 (그 30점 단독으로도 B=1.5409±0.0085).
+  저크 제한항(`a/j`)·속도 1차항·`√(v/a)` 를 각각 넣어 4모수로 풀어도 자유도 보정 RMS 가 3모수와
+  같다 — **3모수가 맞다.**
+
+  **✅ 여섯 축이 모두 같은 모형을 따른다.** 6축에 똑같은 지령(d=60°·v∈{30,60}·a=100)을 준 균형설계
+  24점에서 축 평균 잔차의 산포가 0.0116초로, 우연만으로 기대되는 0.0157초보다 **작다**.
+  관성이 10배 넘게 차이 나는 J1(팔 전체 회전)과 J6(툴축 회전)이 같은 식 위에 있다.
+
+  **✅ 중력 방향은 무관하다.** J2(어깨, 중력 토크 최대)를 같은 지령으로 올렸다 내렸다 한 잔차 차이가
+  **0.0000초**였다. 들어올리는 쪽이 느릴 것이라는 직관이 틀렸다 — 컨트롤러가 프로파일을 먼저 지킨다.
+
+  **다축 동시 이동은 최대 각변위 축(선행축)이 시간을 지배한다** — 벡터 노름이 아니다.
+  J5 90°+J6 90° 는 선행축 예측 3.64 / 노름 예측 4.89 에 대해 실측 **3.68초**.
+
+  ⚠️ 이 측정은 **전역 배율이 1** 인 것을 `get/velocity` 로 확인하고 잰 값이다(§6.2). 재현 시 먼저 볼 것.
+  ⚠️ 오전 2표본으로 낸 `k=1.017` 은 **폐기됐다** — 사다리꼴을 강제한 탓에 램프 부족분이 주행항으로
+  밀린 허상이다. 미지수 2개를 표본 2개로 풀면 항상 정확히 맞으니 잔차가 검증을 못 한다.
 - ⚠️ **노드마다 값이 다르다.** §8 함정 1 의 사고 프로그램은 `linear` 를 velocity 500 / **acceleration 100** 으로
   쓰고 있었다. 가감속 여유 계산은 기본값이 아니라 **그 노드의 실제 값**으로 하라.
 - `radius` 는 **`linear` 에만 있다.**
@@ -235,6 +323,37 @@ ROOT
 
 **웨이포인트 하나가 tcp·flange·joint 세 표현을 동시에 담는다.** 표현이 셋이므로 JSON 이 빠르게 커진다 —
 스트로크 수백 개면 수 MB 급이 된다(§11 미해결 1).
+
+- **세 표현은 서로 정합해야 한다.** `joint` 는 `robot/convertJointAngle`(IK)로 풀어 넣는다 —
+  IK→FK 왕복 오차 **0.000000mm** 실측(2026-08-16)이라 믿고 써도 된다.
+- **`middlePoint` 는 `linear` 에서 안 쓰이지만 채워 둔다.** arc·circle 용 칸인데,
+  캡처가 현재 자세로 채워 보내고 있어 그대로 따랐다. **비웠을 때 파서가 어떻게 되는지는 미확인.**
+
+**6.1.3 발행 순서 — `clear` → `plan` → `play` → `program/end`**
+
+```
+program/clear   {}      pubWithAck   ← 이전 프로그램을 비운다
+program/plan   {위 봉투} pubWithAck   ← 적재. MOVE 노드 1개면 약 4.3KB
+program/play    {}      pubWithAck   ← ⚠️ 여기서 로봇이 움직인다. 서보 ON 필요
+program/end                          ← 도착. ack 가 아니라 이걸로 판정한다
+```
+
+> 🔴 **`program/play` 는 서보가 꺼져 있어도 `code:0` 으로 정상 ack 한다** (2026-08-16 실측).
+> `clear`·`plan`·`play` 세 ack 가 전부 성공인데 로봇은 1mm 도 안 움직였고, 자세를 되읽으니
+> 소수점 끝자리까지 발행 전과 같았다. **ack 로는 이 상황을 알 수 없다** — 유일한 신호는 도착 타임아웃이다.
+> 발행 전에 `status/operation` 의 `operationStatus` 를 확인하라(약 20Hz 로 올라온다).
+> `hcr5_bridge` 는 이것을 게이트 ⑤ 로 넣었다 — `include/hcr5_bridge/servo_gate.hpp`.
+
+⚠️ **`program/play` 에 인자를 안 줘도 된다.** §4.1 이 적어 둔 `{selectedIndex:[a,b]}` 는
+08-05 캡처 기반의 **미검증** 기재였는데, `{}` 로 **4회 연속 정상 실행**했다(2026-08-16).
+`selectedIndex` 는 부분 실행용 선택지이지 필수 인자가 아니다.
+
+> 🔴 **적재 여부를 펜던트 파일 목록으로 판정하면 안 된다.** `program/plan` 으로 올린 프로그램은
+> 펜던트 `HTW Storage` 의 `.file` 목록에 **안 뜬다** — 두 층이 다르다.
+> 컨트롤러 `mongoLog` 대조 결과 우리 발행도 펜던트 적용과 **똑같이** `programEvent : program_plan`
+> 을 남기고 `status/program` 이 `PROGRAM_STATE_INIT` 으로 전이한다. 차이는 펜던트 쪽에만 붙는
+> `clickApplyProgram`("send program file to server") 한 단계뿐이고, `.file` 을 만드는 것이 그 단계다.
+> **적재 확인은 ack + `status/program` 으로 한다.**
 
 ### 6.2 블렌딩 실증 — 스트로크가 실행 가능하다
 
@@ -525,8 +644,9 @@ python3 tools/mqtt_cmd.py movestop                 # movej 중단
 
 **구현 실물은 같은 폴더의 [`hcr5_bridge/`](../hcr5_bridge/) 다.** §4 의 명령 프로토콜을 ros2_control
 하드웨어 컴포넌트로 감싼 플러그인 `hcr5_bridge/HcrSystemInterface` 와 MQTT 클라이언트·관절규약이
-한 패키지에 들어 있다. 설계는 [`hcr5_bridge/README.md`](../hcr5_bridge/README.md),
-기동·운전은 [`hcr5_bridge/운전절차.md`](../hcr5_bridge/운전절차.md).
+한 패키지에 들어 있다. 개요·설치·실행이 전부
+[`hcr5_bridge/README.md`](../hcr5_bridge/README.md) 한 곳에 있다 — 기동·운전은 §3.
+(종전 `운전절차.md` · `RUNTIME.md` 는 2026-08-16 에 그 README 로 흡수됐다.)
 
 > **2026-08-15 에 두 단계로 옮겼다.**
 > ① **르누아르** — `src/moveit2/ws_moveit2/src/hcr_bridge/` → `src/drivers/hcr_comm/hcr5_bridge/`.

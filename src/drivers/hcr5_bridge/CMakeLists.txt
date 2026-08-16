@@ -17,7 +17,9 @@ find_package(nlohmann_json REQUIRED)
 find_package(hardware_interface REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
-# movej · movel 실행기용
+# JTC(FollowJointTrajectory) 경로용. 2026-08-16 movej 가 MQTT 로 옮겨 가면서 **지금은 어떤
+# 타깃도 이것을 안 쓴다** — include/move_common.hpp 만 참조하고 그 헤더도 고아가 됐다(movej.md §4).
+# 지우면 move_common.hpp 가 컴파일 불가가 되므로, 그 헤더의 폐기 여부가 정해질 때까지 남긴다.
 find_package(rclcpp_action REQUIRED)
 find_package(control_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
@@ -50,18 +52,18 @@ ament_target_dependencies(hcr_system_interface
 pluginlib_export_plugin_description_file(hardware_interface hcr5_bridge_plugins.xml)
 
 # ── 운전 실행기 ───────────────────────────────────────────────────────────
-# ros2 run hcr5_bridge {movej|movel|servo}. 액션을 직접 쏘는 것과 도달하는 곳은 같고,
-# 다른 것은 발행 전에 단위·한계·속도를 검사한다는 점뿐이다 (include/move_common.hpp).
-# movej 는 MQTT 를 안 쓴다 — 현재 자세를 /joint_states 에서 읽어 ros2_control 경로 안에서
-# 완결한다. 그래서 hcr_mqtt 를 링크하지 않고, include 경로를 직접 준다.
+# ros2 run hcr5_bridge {movej|movel|servo}. **셋 다 rclcpp 를 안 쓴다** — program/plan 경로가
+# ros2_control 스택과 배타이기 때문이다. 스택이 떠 있으면 애초에 같이 못 돌고, 안 떠 있어도
+# 혼자 돌아야 한다 (movel.md §1.3 · movej.md §1.3). 현재 자세도 /joint_states 가 아니라
+# MQTT get/command/pos 로 읽는다. 그래서 셋 다 hcr_mqtt 만 링크하면 된다.
+#
+# movej 는 2026-08-16(260816-호크니)에 JTC 경로에서 옮겨 왔다 — 종전에는 유일하게 rclcpp 를
+# 쓰는 실행기였다. 경위는 movej.md §3.3.
 add_executable(movej src/movej.cpp)
-target_include_directories(movej PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-ament_target_dependencies(movej rclcpp rclcpp_action control_msgs trajectory_msgs sensor_msgs)
+target_link_libraries(movej hcr_mqtt)
 
-# movel 은 IK 를 로봇 컨트롤러에 물어야 해서 MQTT 도 링크한다.
 add_executable(movel src/movel.cpp)
 target_link_libraries(movel hcr_mqtt)
-ament_target_dependencies(movel rclcpp rclcpp_action control_msgs trajectory_msgs sensor_msgs)
 
 # servo 는 rclcpp 를 안 쓴다 — 스택이 죽은 뒤에도 단독으로 돌아야 한다(정지 사다리 3순위).
 add_executable(servo src/servo.cpp)
