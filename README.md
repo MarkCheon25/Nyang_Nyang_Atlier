@@ -37,7 +37,7 @@
 | **F2** | 이미지 처리 | 전처리(이진화·노이즈 제거) · 윤곽 추출 · 스트로크 변환 · A4 좌표 스케일링 |
 | **F3** | 스트로크 계획 | 실행 순서 최적화 · pen-up/pen-down 이동 계획 · 최적화 전후 시간 로그 |
 | **F4** | 로봇 제어·실행 | 종이→로봇 좌표 변환 · MoveIt2 궤적 계획 · 실행 및 진행 보고 |
-| **F5** | 캘리브레이션 | hand-eye 캘리브레이션 · A4 종이 위치·자세 인식 · 결과 저장·재사용 |
+| **F5** | 캘리브레이션 | **평면 호모그래피 캘리브레이션**(고정 카메라) · A4 종이 위치·자세 인식 · 결과 저장·재사용 |
 | **F6** | 운영 | 업로드 UI · 진행률·상태 모니터링 · 작업 이력 · **긴급정지** · 일시정지/재개 |
 | **F7** | 검증 환경 | MuJoCo 파이프라인 실행 · IsaacSim(선택) · sim/real 스위칭 |
 
@@ -127,7 +127,7 @@ MoveIt2 개발 환경은 컨테이너로 제공됩니다. 이미지는 각 PC에
 |---|---|
 | 로봇암 | **Hanwha Techwin HCR-5** — 6-DoF 협동로봇, reach 915mm / payload 5kg / 반복정밀도 ±0.1mm |
 | 엔드이펙터 | 펜을 **테이프로 고정** — 플랜지 직결, 그리퍼 미사용 |
-| 카메라 | Intel RealSense — **모델 미정** · **eye-in-hand**, 엔드이펙터(6축 관절) 장착 |
+| 카메라 | Intel RealSense — **모델 미정** · **eye-to-hand**, 외부 기둥 고정 (A4 작업면을 약 45도로 내려다봄). ⚠️ 2026-08-16 정정 — 종전 *"eye-in-hand, 엔드이펙터 장착"* 은 로봇암 장착이 여의치 않아 무산됐다. 상세는 [`cam_comm/cal_readme.md`](src/drivers/cam_comm/calibration/cal_readme.md) §0 |
 | 작업대 | 철제 책상 상판 수평 고정 · A4 종이 지그 (자체 제작) |
 | 필기구 | 연필 (A4 선화) |
 
@@ -139,7 +139,7 @@ MoveIt2 개발 환경은 컨테이너로 제공됩니다. 이미지는 각 PC에
 |---|---|
 | **Robotics — SW** | **MoveIt 2** (Jazzy) · `ros2_control` · `joint_trajectory_controller` · MuJoCo → IsaacSim 5.1(선택) |
 | **Robotics — HW** | **Hanwha HCR-5** — 사양은 [§4](#4-사용-장비-목록) |
-| **Computer Vision** | OpenCV 4.6 (+contrib `ximgproc`) — 이진화·윤곽·스트로크 변환 / ORB+Homography·SSIM — 작화 검증 / ChArUco — hand-eye 캘리브레이션 |
+| **Computer Vision** | OpenCV 4.6 (+contrib `ximgproc`) — 이진화·윤곽·스트로크 변환 / ORB+Homography·SSIM — 작화 검증 / ArUco(`DICT_4X4_50`) + 평면 호모그래피 — 캘리브레이션 |
 | **AI / Voice** | CLIP (HuggingFace `transformers`, zero-shot) — 결과물 품질 판정 · **Voice 미정** |
 | **Sensor** | Intel RealSense — **모델·드라이버 버전 미정** |
 | **Communication** | **ROS 2 Jazzy** (`rmw-cyclonedds` 권장) · `rosbridge_suite` (websocket :9090) · React + `roslibjs` · FastAPI (REST) + `rclpy` 노드 |
@@ -151,7 +151,10 @@ MoveIt2 개발 환경은 컨테이너로 제공됩니다. 이미지는 각 PC에
 **함정 메모** — 설계 검증에서 확인된 제약입니다.
 - `realsense-ros`는 **DKMS 금지**, ROS apt로 설치
 - `rosbridge_suite`는 토픽·서비스만 지원 — **액션 미지원**이라 MoveIt2 제어는 서버측에서 수행
-- `moveit_calibration`은 Jazzy 바이너리 미제공 → `easy_handeye2` 등으로 대체
+- ~~`moveit_calibration`은 Jazzy 바이너리 미제공 → `easy_handeye2` 등으로 대체~~
+  → **2026-08-16 무효.** 카메라를 기둥에 고정(eye-to-hand)하면서 **hand-eye 캘리브레이션 자체를 안 한다.**
+  작업이 A4 평면 위에서만 일어나므로 이미지↔작업평면 **호모그래피 하나**로 끝난다 — intrinsic·`T_base→cam`·
+  펜 TCP 가 전부 거기 흡수된다. 근거는 [`cam_comm/cal_readme.md`](src/drivers/cam_comm/calibration/cal_readme.md) §1
 
 버전 선정 근거와 검증 결과: [`docs/System Architecture.md`](docs/System%20Architecture.md) §5
 
