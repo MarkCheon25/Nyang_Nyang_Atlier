@@ -38,6 +38,15 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     ros-jazzy-cv-bridge \
     && rm -rf /var/lib/apt/lists/*
 
+# ---- vision_stylize (T12) 의 의존 ------------------------------------------
+# libcurl        : OpenAI 이미지 API 로 multipart/form-data 를 보낸다
+# nlohmann-json  : 응답 JSON 에서 b64_json 을 꺼낸다
+# base64 디코드는 직접 구현했다(약 30줄) — 그것 하나 때문에 의존을 더 늘리지 않는다.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libcurl4-openssl-dev \
+    nlohmann-json3-dev \
+    && rm -rf /var/lib/apt/lists/*
+
 # ---- 사용자 계정 (호스트 UID/GID 매핑) ------------------------------------
 # ros:jazzy 이미지에는 이미 ubuntu(1000) 사용자가 있을 수 있으므로 조건부 생성.
 RUN set -e; \

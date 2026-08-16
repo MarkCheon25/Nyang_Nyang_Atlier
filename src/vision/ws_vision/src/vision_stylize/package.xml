@@ -1,0 +1,26 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>vision_stylize</name>
+  <version>0.1.0</version>
+  <description>
+    실물 고양이 사진을 OpenAI 이미지 API 로 캐리커쳐 PNG 로 바꾸는 앞단 (T12).
+    출력은 dy 의 SAM3 가 그대로 받는 형식이다 — 동료 코드는 고치지 않는다.
+    ROS 에 의존하지 않는다: 순수 C++ 라이브러리 + 명령줄 프로그램 2층.
+  </description>
+  <maintainer email="cocoffeechan09@gmail.com">Mark Cheon</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>libopencv-dev</depend>
+  <depend>libcurl4-openssl-dev</depend>
+  <depend>nlohmann-json3-dev</depend>
+  <!-- 설치된 prompts/ 를 찾기 위해서만 쓴다. 코어 라이브러리가 아니라
+       명령줄 프로그램에만 링크된다 — 라이브러리는 ROS 무의존을 유지한다. -->
+  <depend>ament_index_cpp</depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

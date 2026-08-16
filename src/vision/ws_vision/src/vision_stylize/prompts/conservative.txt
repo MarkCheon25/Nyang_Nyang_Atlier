@@ -1,0 +1,33 @@
+Redraw the cat in the photo as a flat vector-style cartoon illustration that
+stays as close to the original animal as possible.
+
+Use exactly three flat colors and nothing else:
+1. outline: pure black
+2. body fill: one single flat mid-gray, the same gray everywhere
+3. background: one single flat near-white, completely empty
+
+Match the photo closely: the same pose, the same head tilt, the same body
+proportions, the same ear shape, the same tail length and curve, and the same
+viewing angle. Someone who has seen the photo should recognize this specific cat
+from the drawing alone.
+
+Outline: one continuous closed black line around the whole cat, uniform
+thickness everywhere, about 2% of the image height. You may add a few extra
+closed black outlines inside the body where the photo shows a real edge, such as
+where a front leg overlaps the chest or where the tail crosses the body. Every
+added line must be a closed shape drawn in the same uniform thickness.
+
+Body: filled with the one flat mid-gray. No gradient, no shading, no highlights,
+no hatching, no stippling, no texture, no fur strands, no stripes, no patches,
+no second gray. Coat markings are not drawn.
+
+The whole cat must fit inside the frame with clear empty margin on every side:
+head, both ears, the full body, every visible leg and paw, and the entire tail.
+Nothing may touch or cross the image border.
+
+On the face, draw the cat's two eyes, its nose and its mouth as separate closed
+filled black shapes, placed where they are in the photo. Each shape must be
+clearly larger than the outline thickness, and the four shapes must not touch
+each other or merge into the outline.
+
+Flat, clean, evenly weighted lines. A single cat, centered.
