@@ -16,6 +16,12 @@ src/moveit2/ws_moveit2/src/moveit2_tutorials/
 # PC별로 여기에 compose.override.yml 을 만들어 쓴다 (커밋 대상 아님)
 src/moveit2/compose.override.yml
 
+# ── 캘리브레이션 런타임 산출물 ──
+# cal.py 가 인쇄물 PDF · 결과 YAML(distortion/reference/homography/paper) · 원자료를
+# 여기 떨군다. 전부 재생성되는 것이라 커밋하지 않는다.
+# 경로는 cal_config.py 의 paths.data_dir — 환경변수 CAL_DATA_DIR 로 덮을 수 있다.
+src/drivers/cam_comm/calibration/data/
+
 # ── Python ──
 __pycache__/
 *.py[cod]
