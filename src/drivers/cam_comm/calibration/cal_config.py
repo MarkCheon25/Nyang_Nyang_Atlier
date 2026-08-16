@@ -4,18 +4,21 @@
 결과물(왜곡·기준·호모그래피)은 사람이 읽고 손으로 고칠 수 있는 YAML 로 남긴다.
 
 설계 근거: cal_script.md §3.1
-🚧 부분 구현 (2026-08-16, 세션 `260816-인서트너트`)
-   ✅ 설정 계층 3개 — 블록 A 인쇄물(cal_board.py)이 실제로 돌아가는 데 필요한 만큼
-   🚧 결과물·원자료 6개 — 블록 B~E 가 미구현이라 스키마를 지금 정하면 추측이 섞인다
+✅ 구현 완료
+   설정 계층 3개 (2026-08-16, 세션 `260816-인서트너트`)
+   결과물·원자료 7개 + `pen`·`thresholds` 절 (2026-08-16, 세션 `260816-브론치노`)
 """
 
 from __future__ import annotations
 
 import copy
+import datetime as _dt
+import hashlib
 import os
 from pathlib import Path
 from typing import Any
 
+import numpy as np
 import yaml
 
 
@@ -70,6 +73,31 @@ def default_config() -> dict[str, Any]:
             "output_name": "charuco_sheet",
         },
 
+        # ── 펜 — 블록 B 가 평면 z 에서 펜다운/펜업을 만든다 ──
+        "pen": {
+            # 🔴 스프링 **자유 길이** 기준으로 TCP 가 등록돼 있다. 그래서
+            #    "지령면 아래로 파고든 mm = 스프링 압축량 = 필압" 이 그대로 성립한다.
+            #    (실기 4점법 실측, 2026-08-16 세션 `260816-알트도르퍼`)
+            "delta_mm": 0.5,          # 펜다운 파고듦 δ — 재는 값이 아니라 고르는 값
+            "up_mm": 4.0,             # 펜업 들어올림 h
+            # 🔴 홀더 스프링이 실제로 눌릴 수 있는 전체 행정. 여유의 상한이다.
+            #    δ + 작업평면 오차 가 이 값을 넘으면 스프링이 바닥나 펜이 종이를 긁는다.
+            "spring_travel_mm": 1.069,
+        },
+
+        # ── 판정 임계 — cal_script.md §3.4 N4 ──
+        "thresholds": {
+            # ✅ 물리에서 확정된 유일한 값. 스프링 행정 1.069mm 에서 역산했다.
+            #    선화 품질이 아니라 **펜이 종이에 닿느냐 긁느냐**의 조건이라 협상 대상이 아니다.
+            "plane_residual_mm": 0.4,
+            # 🔴 **미정 (N4)** — 선화 정밀도 요구에서 역산해야 한다. null 이면 판정을
+            #    하지 않고 **값만 보고**한다. 임의의 숫자를 넣어 통과시키는 것보다,
+            #    임계가 없다는 사실이 보이는 편이 안전하다.
+            "homography_residual_mm": None,
+            "drift_warn_mm": None,
+            "drift_stop_mm": None,
+        },
+
         # ── 경로 ──
         "paths": {
             # 산출물·원자료 루트. 환경변수 CAL_DATA_DIR 로 덮을 수 있다.
@@ -113,7 +141,7 @@ def validate_config(cfg: dict[str, Any]) -> None:
     특히 인쇄물 쪽은 **틀린 채로 통과하면 종이가 낭비되고, 더 나쁘게는 틀린 치수의
     마커가 작업대에 붙는다.** 그 오차는 H 에 스케일 오차로 박혀 뒤늦게 드러난다.
     """
-    for section in ("markers", "board", "charuco", "paths"):
+    for section in ("markers", "board", "charuco", "pen", "thresholds", "paths"):
         if not isinstance(cfg.get(section), dict):
             raise ValueError(f"설정에 '{section}' 절이 없다")
 
@@ -209,6 +237,44 @@ def validate_config(cfg: dict[str, Any]) -> None:
             "charuco.dictionary 가 markers.dictionary 와 같다. ChArUco 보드는 ID 0 부터 "
             "채워 쓰므로 기준 마커와 충돌한다 — 딕셔너리를 가를 것")
 
+    # ── 펜 ──
+    p = cfg["pen"]
+    delta = _need_positive(p, "delta_mm", "pen")
+    _need_positive(p, "up_mm", "pen")
+    travel = _need_positive(p, "spring_travel_mm", "pen")
+
+    # 🔴 δ 하나만으로 스프링을 다 써 버리면 평면 오차를 흡수할 여유가 0 이 된다.
+    #    아래 plane_residual_mm 과의 합으로 다시 한 번 본다.
+    if delta >= travel:
+        raise ValueError(
+            f"pen.delta_mm={delta} 가 스프링 행정 {travel}mm 이상이다 — "
+            "스프링이 바닥나 펜이 종이를 긁는다")
+
+    # ── 임계 ──
+    t = cfg["thresholds"]
+    plane_th = t.get("plane_residual_mm")
+    if plane_th is not None:
+        if not isinstance(plane_th, (int, float)) or plane_th <= 0:
+            raise ValueError("thresholds.plane_residual_mm 은 양수이거나 null 이어야 한다")
+        if delta + plane_th >= travel:
+            raise ValueError(
+                f"pen.delta_mm({delta}) + thresholds.plane_residual_mm({plane_th}) "
+                f"= {delta + plane_th}mm 가 스프링 행정 {travel}mm 이상이다. "
+                "평면이 임계까지 어긋난 지점에서 스프링이 바닥난다 — "
+                "δ 를 줄이거나 평면 임계를 조이거나 홀더를 바꿀 것")
+
+    for key in ("homography_residual_mm", "drift_warn_mm", "drift_stop_mm"):
+        v = t.get(key, "__missing__")
+        if v == "__missing__":
+            raise ValueError(f"thresholds.{key} 가 없다 (미정이면 null 로 명시할 것)")
+        if v is not None and (not isinstance(v, (int, float)) or v <= 0):
+            raise ValueError(f"thresholds.{key} 는 양수이거나 null 이어야 한다")
+
+    warn, stop = t.get("drift_warn_mm"), t.get("drift_stop_mm")
+    if warn is not None and stop is not None and warn > stop:
+        raise ValueError(f"drift_warn_mm({warn}) 이 drift_stop_mm({stop}) 보다 크다 — "
+                         "경고가 정지보다 늦게 울린다")
+
     # ── 경로 ──
     if not cfg["paths"].get("data_dir"):
         raise ValueError("paths.data_dir 이 비어 있다")
@@ -274,40 +340,172 @@ def _dictionary_field(name: str, which: int) -> int:
 
 
 # ── 결과물 ──────────────────────────────────────────────
-# 🚧 블록 B~E 미구현. 결과물 스키마가 확정되기 전에 여기를 채우면 추측이 섞인다.
+# 사람이 읽고 손으로 고칠 수 있는 YAML 로 남긴다. 블록 B~E 가 이걸 주고받는다.
+#
+# 🔴 **numpy 를 그대로 담그지 않는다.** yaml.safe_dump 는 ndarray·np.float64 를
+#    !!python/object 태그로 뱉거나 아예 실패한다. 저장 직전에 순수 파이썬으로 내리고
+#    (`_plain`), 읽을 때는 **리스트 그대로** 돌려준다 — 자동으로 ndarray 로 되돌리면
+#    "어떤 키가 배열인가"를 이 파일이 알아야 해서 결과물 스키마와 결합된다.
+#    배열이 필요한 쪽에서 np.asarray 하면 된다.
+
+# 결과물 이름과 그것을 만드는 명령. 없을 때 무엇을 먼저 돌리라고 할지의 근거다.
+_RESULT_OWNER = {
+    "distortion": "cal.py distortion",
+    "reference": "cal.py reference",
+    "homography": "cal.py update",
+    "paper": "cal.py paper",
+}
+
+
+def _plain(obj: Any) -> Any:
+    """numpy·Path 를 YAML 이 아는 순수 타입으로 내린다. 중첩 구조를 그대로 훑는다."""
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    if isinstance(obj, np.generic):          # np.float64 등 스칼라
+        return obj.item()
+    if isinstance(obj, Path):
+        return str(obj)
+    if isinstance(obj, dict):
+        return {(_plain(k) if not isinstance(k, str) else k): _plain(v)
+                for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [_plain(v) for v in obj]
+    return obj
+
+
+def config_fingerprint(cfg: dict[str, Any]) -> str:
+    """결과물에 박을 설정 지문.
+
+    🔴 **결과에 영향을 주는 절만 넣는다.** `paths` 는 결과값을 바꾸지 않으므로 뺀다 —
+       데이터 디렉터리를 옮겼다는 이유로 멀쩡한 캘리브레이션이 무효가 되면,
+       사람은 그 경고를 무시하는 법부터 배운다.
+    """
+    material = {k: cfg[k] for k in ("markers", "board", "charuco", "pen")
+                if k in cfg}
+    blob = yaml.safe_dump(_plain(material), sort_keys=True, allow_unicode=True)
+    return hashlib.sha256(blob.encode("utf-8")).hexdigest()[:16]
+
 
 def result_path(cfg: dict[str, Any], name: str) -> Path:
     """결과물 이름(distortion/reference/homography/paper)을 실제 경로로."""
-    raise NotImplementedError
+    if name not in _RESULT_OWNER:
+        raise ValueError(f"모르는 결과물 이름이다: {name!r} "
+                         f"(아는 것: {sorted(_RESULT_OWNER)})")
+    return Path(cfg["paths"]["data_dir"]) / "results" / f"{name}.yaml"
 
 
 def save_result(cfg: dict[str, Any], name: str, data: dict[str, Any]) -> Path:
-    """결과를 YAML 로 저장. 생성 시각·설정 해시를 함께 박아 출처를 남긴다."""
-    raise NotImplementedError
+    """결과를 YAML 로 저장. 생성 시각·설정 해시를 함께 박아 출처를 남긴다.
+
+    🔴 **임시 파일에 쓰고 마지막에 바꿔 끼운다.** 저장 도중에 죽으면 반쯤 쓰인 YAML 이
+       남는데, 그것이 다음 실행에서 "있긴 있는 결과"로 읽혀 조용히 틀린다.
+    """
+    path = result_path(cfg, name)
+    path.parent.mkdir(parents=True, exist_ok=True)
+
+    payload = {
+        "_meta": {
+            "name": name,
+            "saved_at": _dt.datetime.now().astimezone().isoformat(timespec="seconds"),
+            "config_fingerprint": config_fingerprint(cfg),
+            "config_source": cfg.get("_source", "(기본값)"),
+        },
+        **_plain(data),
+    }
+
+    tmp = path.with_suffix(".yaml.tmp")
+    with tmp.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(payload, f, sort_keys=False, allow_unicode=True,
+                       default_flow_style=False)
+    tmp.replace(path)
+    return path
 
 
 def load_result(cfg: dict[str, Any], name: str) -> dict[str, Any]:
     """저장된 결과를 읽는다. 없으면 무엇을 먼저 돌려야 하는지 알려주는 예외."""
-    raise NotImplementedError
+    path = result_path(cfg, name)
+    if not path.exists():
+        raise FileNotFoundError(
+            f"{name} 결과가 없다: {path}\n"
+            f"  → 먼저 `{_RESULT_OWNER[name]}` 를 돌릴 것")
+
+    with path.open("r", encoding="utf-8") as f:
+        data = yaml.safe_load(f)
+    if not isinstance(data, dict):
+        raise ValueError(f"{path} 의 최상위가 매핑이 아니다 — 파일이 깨졌다")
+    return data
 
 
 def result_is_stale(cfg: dict[str, Any], name: str) -> bool:
-    """결과가 현재 설정과 어긋나는지(설정 해시 불일치·유효기간 초과) 판정."""
-    raise NotImplementedError
+    """결과가 현재 설정과 어긋나는지(설정 해시 불일치) 판정.
+
+    없는 결과는 stale 이 아니라 **없는 것**이다 — 여기서 True 를 주면 호출부가
+    "낡았으니 다시 돌려라"라고 말하는데, 사실은 한 번도 안 돌린 것이라 메시지가 틀린다.
+    """
+    path = result_path(cfg, name)
+    if not path.exists():
+        return False
+
+    try:
+        meta = load_result(cfg, name).get("_meta", {})
+    except (ValueError, yaml.YAMLError):
+        return True                       # 못 읽는 결과는 낡은 것으로 친다
+    return meta.get("config_fingerprint") != config_fingerprint(cfg)
 
 
 # ── 원자료 ──────────────────────────────────────────────
+# 🔴 수집과 계산을 가른다 (cal_script.md §3.5). 임계(N4)가 아직 미정이라, 임계를 바꿀
+#    때마다 로봇·카메라를 다시 돌려야 한다면 임계를 못 고친다. 원자료를 남겨 두면
+#    `--recompute` 로 계산만 다시 돈다.
 
 def raw_dir(cfg: dict[str, Any], block: str) -> Path:
-    """블록별 원자료 디렉터리. 수집과 계산을 가르는 자리 (cal_script.md §3.6)."""
-    raise NotImplementedError
+    """블록별 원자료 디렉터리. 수집과 계산을 가르는 자리 (cal_script.md §3.5)."""
+    b = str(block).upper()
+    if b not in ("A", "B", "C", "D", "E"):
+        raise ValueError(f"블록은 A~E 다: {block!r}")
+    return Path(cfg["paths"]["data_dir"]) / "raw" / b
 
 
 def save_raw(cfg: dict[str, Any], block: str, tag: str, data: Any) -> Path:
-    """수집 원자료를 떨군다. 임계가 바뀌어도 재수집 없이 재계산만 하도록."""
-    raise NotImplementedError
+    """수집 원자료를 떨군다. 임계가 바뀌어도 재수집 없이 재계산만 하도록.
+
+    🔴 **덮어쓰지 않는다.** 파일명에 수집 시각을 박는다 — 같은 tag 로 두 번 수집하는
+       일은 흔하고(짚다 실수해서 다시 짚는다), 그때 앞의 것이 사라지면 무엇이 튀었는지
+       나중에 대조할 수 없다. 원자료는 지우지 않는 것이 이 계층의 존재 이유다.
+    """
+    d = raw_dir(cfg, block)
+    d.mkdir(parents=True, exist_ok=True)
+
+    stamp = _dt.datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
+    safe_tag = "".join(c if c.isalnum() or c in "-_." else "_" for c in str(tag))
+    path = d / f"{stamp}__{safe_tag}.yaml"
+
+    payload = {
+        "_meta": {
+            "block": str(block).upper(),
+            "tag": str(tag),
+            "saved_at": _dt.datetime.now().astimezone().isoformat(timespec="seconds"),
+            "config_fingerprint": config_fingerprint(cfg),
+        },
+        "data": _plain(data),
+    }
+    with path.open("w", encoding="utf-8") as f:
+        yaml.safe_dump(payload, f, sort_keys=False, allow_unicode=True,
+                       default_flow_style=False)
+    return path
 
 
 def load_raw(cfg: dict[str, Any], block: str) -> list[Any]:
-    """저장된 원자료 전량을 읽는다."""
-    raise NotImplementedError
+    """저장된 원자료 전량을 **수집 시각 순**으로 읽는다. 없으면 빈 리스트."""
+    d = raw_dir(cfg, block)
+    if not d.is_dir():
+        return []
+
+    out = []
+    for path in sorted(d.glob("*.yaml")):          # 파일명이 시각으로 시작한다
+        with path.open("r", encoding="utf-8") as f:
+            item = yaml.safe_load(f)
+        if isinstance(item, dict):
+            item.setdefault("_meta", {})["path"] = str(path)
+            out.append(item)
+    return out
