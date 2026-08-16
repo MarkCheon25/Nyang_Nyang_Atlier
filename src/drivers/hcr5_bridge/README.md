@@ -35,17 +35,19 @@ ros2 run hcr5_bridge servo on
 **movej — 관절 목표 (홈 → P1, base +10°)**
 
 ```bash
-ros2 run hcr5_bridge movej 1.745329 0 1.570796 0 1.570796 0 --speed 2 --dry-run
+ros2 run hcr5_bridge movej 1.745329 0 1.570796 0 1.570796 0 --dry-run
 ```
 
 ⚠️ 숫자는 **URDF 라디안**이 기본이다(실기 도 아님). 같은 점을 실기 도로 주려면 `--deg 10 -90 -90 -90 90 0`.
-`--speed` 는 **실기 도/s** — 기본 2, 상한 10.
-🔴 그 단위가 아직 미확정이다 — **첫 이동 전에 [`movej.md`](movej.md) §2.3 을 읽는다.**
+`--speed` 는 **실기 도/s** — 기본 **30**, 상한 **50**. 그 위는 `--max-speed` 를 명시해 올린다.
+⚠️ **2026-08-16 에 눈금이 2 / 10 에서 올라갔다** — 종전 값은 단위가 미확정인 동안의 보수값이었다.
+✅ 단위는 **도/s 로 확정됐다**(실기 **182점 · 6축 전부**). 소요시간은 사다리꼴이 아니라
+**`t = d/v + 1.54·(v/a) + 0.20초`** 다 — 근거는 [`movej.md`](movej.md) §2.3, 상세는 §3.5.
 `--dry-run` 을 빼면 **움직인다.**
 
 **정지**: `ros2 run hcr5_bridge servo off` · 이상 시 정지 사다리 §3.7
 
-> 🔴 이 컨테이너는 아직 안 세웠다 — 진입 줄은 지금 `cd ~/WorkSpace_260814/Nyang_Nyang_Atlier/src/moveit2 && ./run_container.sh shell` 이다(§2.1).
+> 진입은 `cd ~/WorkSpace_260814/Nyang_Nyang_Atlier/src/drivers/hcr5_bridge && ./run_container.sh shell` (§2.1).
 > 착수 전 확인 §3.2 · 기동 §3.4 · 지령 §3.5 · 정지 사다리 §3.7.
 
 ### movel — 같은 문, 직교 직선
@@ -178,9 +180,10 @@ pubWithAck → uuid 와 같은 이름의 토픽으로 응답:
 `Nyang_Nyang_Atlier` 로는 build 가 `invalid reference format` 으로 죽는다. 컨테이너 이름만
 대문자가 허용되지만 헷갈리지 않게 소문자로 통일했다.
 
-> 🔴 **이 컨테이너는 아직 안 세웠다 (2026-08-16 현재).** 파일만 준비된 상태다.
-> 지금 당장 실기를 돌리려면 기존 `moveit2_dev` 를 쓴다 — 그때는 워크스페이스가
-> `~/ws_moveit2` 이고 진입이 `cd ../../moveit2 && ./run_container.sh shell` 이다.
+> ✅ **세웠다 (2026-08-16).** 이미지 `nyang_nyang_atlier:jazzy` 빌드 완료, 컨테이너 `Up`,
+> `network_mode: host` 로 실기 서브넷 직결 확인. 이 컨테이너 안에서 실기 이동 **184회**를 돌렸다.
+> `~/ws_atlier` 에서 `colcon build --base-paths src` 로 빌드한다 —
+> ⚠️ `--base-paths src` 를 빼면 `ws_atlier/COLCON_IGNORE` 가 막고 있는 중복 트리 문제로 되돌아간다.
 
 ## 2.2 세우기
 
@@ -625,8 +628,9 @@ docker exec nyang_nyang_atlier bash -lc "source /opt/ros/jazzy/setup.bash && sou
 docker exec nyang_nyang_atlier bash -lc "source /opt/ros/jazzy/setup.bash && source ~/ws_atlier/install/setup.bash && ros2 run hcr5_bridge servo off"
 ```
 
-⚠️ 위 가운데 줄에서 **`--dry-run` 을 빼면 로봇이 움직인다.** 자동화에서 빼기 전에
-[`movej.md`](movej.md) §2.3 의 🔴 단위 문제를 먼저 닫는다.
+⚠️ 위 가운데 줄에서 **`--dry-run` 을 빼면 로봇이 움직인다.**
+단위 문제는 닫혔다(도/s 확정 — [`movej.md`](movej.md) §2.3). 다만 자동화로 빼기 전에
+**게이트 ⑤(서보 상태)가 통과할 상태인지**와 목표 각변위가 `--max-delta` 안인지를 먼저 본다 — §3.5.
 
 **스택을 쓰는 경우(MoveIt 계획 실행)에만** 아래가 유효하다:
 
