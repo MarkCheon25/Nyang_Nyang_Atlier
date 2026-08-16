@@ -434,11 +434,31 @@ q_URDF[i](도) = SIGN[i] * q_real[i](도) + DELTA[i]
 limit 도 CAD 더미값에서 매뉴얼 공식값으로 교체했다. mesh 는 CAD 기준 그대로라 joint_6 을 옮긴 만큼 시각화가 어긋난다(별도 과제).
 근거 주석은 `hanwha_robot_arm/HCR_5/hcr_robot_description/urdf/hcr_robot.xacro` 의 **관절 정의부 앞** 블록.
 
-### 7.4 TCP 오프셋
+### 7.4 TCP 오프셋 — 펜홀더 (2026-08-16 실측·등록)
 
-현재 등록된 `tool1` = `{X:−52.25, Y:−13.49, Z:116.12}` → **오프셋 실측 128.05mm**(회전 0).
-펜 장착 시 `robot/setup/tcp` 로 갱신하거나, 전 구간을 flange 기준으로 제어하고 **펜 오프셋을 PC 가 소유**하는
-우회가 가능하다.
+```
+TCP_POSITION_XYZ = (-3.675, -1.725, 120.560) mm    회전 0 · flange 좌표계
+|t| = 120.628 mm       축길이 120.560 · 편심 4.060 · 스프링 자유 길이 기준
+```
+
+**원본은 [`measurements/260816_펜TCP/README.md`](measurements/260816_펜TCP/README.md)** 다 — 근거·계측기·회차 기록이 거기 있다.
+소유권은 **컨트롤러(펜던트)** 로 정했다(Mark 결정) — URDF 는 이 값을 받아 적는 파생값이다.
+
+⚠️ **종전 기재 `tool1 = {X:−52.25, Y:−13.49, Z:116.12}` (128.05mm) 는 폐기한다.** 그 툴은 이미 없었다 —
+2026-08-16 기준선 측정에서 오프셋이 **0** 이었다(업무목록 L14 가 추적하던 128.05 / 10 / 0 의 요동은 여기서 닫힌다).
+
+**지금 등록된 값을 읽는 법** — 읽기·질의 토픽이 **없다**. `robot/setup/tcp` 는 쓰기 전용이다.
+대신 **`robot/convertPose` 가 `poseType` 을 `"tcp"`/`"flange"` 둘 다 받는다**(2026-08-16 확인).
+같은 관절각으로 두 번 불러 차이를 플랜지 회전으로 벗기면 자세 무관 상수가 나온다:
+
+```bash
+python3 tools/tool_probe.py        # t = R_flange^T · (p_tcp − p_flange), 로봇을 안 움직인다
+```
+
+⚠️ 펜던트에서 값을 고쳐도 **'적용' 을 눌러야** `robot/setup/tcp` 가 나간다(§8 함정 2).
+재티칭 후에는 반드시 위 명령으로 되읽어 확인할 것 — 이것을 빠뜨려 검산 한 회차를 통째로 날렸다.
+
+⚠️ **`TOOL_PAYLOAD`(무게)는 아직 안 넣었다.** 저울이 없어 미뤘다.
 
 ## 8. 안전 ⚠️
 
@@ -628,7 +648,8 @@ python3 tools/mqtt_cmd.py movestop                 # movej 중단
       Mosquitto 1.4.7·컨트롤러 파서가 받아줄지 미실측이고 **완주(AC1)의 잠재 차단 요인**이다. 캡처가 아니라 **부하 실험**으로만 확정된다.
       한계가 있으면 `program/play {selectedIndex:[a,b]}` 부분 실행으로 **배치 분할**이 가능하다.
 - [ ] **즉시정지 지연 실측** — `program/stop` 은 확보됐으나 실행 중 유효성·지연(BRD N4 "즉시")이 미실측.
-- [ ] **펜 장착 TCP 결정** — `robot/setup/tcp` 로 설정 vs 전 구간 flange 제어 + 오프셋을 PC 가 소유.
+- [x] ~~**펜 장착 TCP 결정**~~ — ✅ **컨트롤러 소유로 확정·등록 완료** (2026-08-16). `(−3.675, −1.725, 120.560)` → §7.4 · [`measurements/260816_펜TCP/`](measurements/260816_펜TCP/README.md).
+      ⚠️ 남은 것: 무게(`TOOL_PAYLOAD`) 미등록 · `movel` 웨이포인트가 tcp/flange 에 같은 포즈를 넣어 **오프셋과 모순**된다(업무목록 L28).
 - [ ] **필압 ↔ 충돌감지 간섭 실험** — 펜이 종이를 누르는 반력이 전류 기반 충돌감지를 트립시키면 PAUSED 래치로 작화가 반복 중단된다.
 - [ ] 미규명 스키마 — Script 노드 컨테이너 형식 · `arc`/`circle` 의 `middlePoint` · waypoint `relative`/`variable` · `:4000`/`:8000` REST 라우트.
 - [ ] **ROS2 궤적 실행 층** — `FollowJointTrajectory` 액션 서버 → `program/plan` 변환 → `program/play`.

@@ -199,6 +199,12 @@ std::string makeUuid()
 /// 웨이포인트는 이 셋을 **동시에** 담는다 (§6.1.2). 셋이 서로 어긋나면 컨트롤러가 어느 것을
 /// 쓰는지 알 수 없으므로 전부 **같은 점**으로 채운다 — joint 는 IK RPC 가 준 해이고
 /// 왕복 FK 오차 0.000mm 로 확인했다.
+///
+/// 🔴 **이 전제는 2026-08-16 에 깨졌다 — 실기 사용 정지 중.**
+/// 위 논리는 컨트롤러 툴 오프셋이 **0** 이라 tcp 와 flange 가 실제로 같은 점일 때만 성립했다.
+/// 펜 TCP `(−3.675, −1.725, 120.560)` 가 등록되면서 둘은 **120.628mm** 떨어졌고,
+/// 이 함수는 이제 물리적으로 불가능한 조합을 싣는다. 컨트롤러가 어느 슬롯을 채택하는지 미확인.
+/// 고치려면 슬롯별로 제 좌표계 값을 넣어야 한다 — 판정·해제 조건은 `movel.md` 머리말.
 Json poseTriple(const Vec3 & pos, const Vec3 & ori, const std::array<double, kNumJoints> & joint)
 {
   const Json pose{{"position", writeVec(pos)}, {"orientation", writeVec(ori)}};
