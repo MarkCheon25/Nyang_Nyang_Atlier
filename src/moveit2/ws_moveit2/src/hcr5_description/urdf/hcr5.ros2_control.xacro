@@ -10,6 +10,19 @@
 
     예: <xacro:hcr5_ros2_control plugin="mujoco_ros2_control/MujocoSystemInterface"/>
   -->
+  <!--
+    ★ 손보정: initial_value 는 Setup Assistant 가 잡아둔 임의 자세였다
+    (URDF [0, 0, 89.77, −91.10, −84.20, 0]°). mock 하드웨어로 띄우면 실기의
+    홈이 아닌 이 자세에서 시작해 SRDF `home` 과 어긋난다.
+
+    실기 `move/joint/home` = [0, −90, −90, −90, 90, 0]° 를 SIGN/DELTA 규약
+      q_URDF = SIGN*q_real + DELTA,  SIGN=(+1,+1,−1,+1,+1,+1), DELTA=(90,90,0,90,0,0)
+    로 환산한 URDF [90, 0, 90, 0, 90, 0]° 로 맞췄다. hcr5.srdf 의 group_state
+    `home` 과 같은 값이므로, 기동 직후 자세 == home 이 된다.
+
+    실물 하드웨어 플러그인에서는 이 값이 무시되고 실기 엔코더값이 들어온다
+    (mock_components/GenericSystem 전용 파라미터).
+  -->
   <xacro:macro name="hcr5_ros2_control"
                params="name:=hcr5_system plugin:=mock_components/GenericSystem">
     <ros2_control name="${name}" type="system">
@@ -19,13 +32,15 @@
       <joint name="joint_1">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">0</param>
+          <!-- 실기 J1 0° → URDF 90° -->
+          <param name="initial_value">1.570796</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>
       <joint name="joint_2">
         <command_interface name="position"/>
         <state_interface name="position">
+          <!-- 실기 J2 −90° → URDF 0° -->
           <param name="initial_value">0</param>
         </state_interface>
         <state_interface name="velocity"/>
@@ -33,27 +48,31 @@
       <joint name="joint_3">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">1.5669</param>
+          <!-- 실기 J3 −90° → URDF 90° (J3 만 부호 반전) -->
+          <param name="initial_value">1.570796</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>
       <joint name="joint_4">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">-1.59</param>
+          <!-- 실기 J4 −90° → URDF 0° -->
+          <param name="initial_value">0</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>
       <joint name="joint_5">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">-1.4695</param>
+          <!-- 실기 J5 90° → URDF 90° -->
+          <param name="initial_value">1.570796</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>
       <joint name="joint_6">
         <command_interface name="position"/>
         <state_interface name="position">
+          <!-- 실기 J6 0° → URDF 0° -->
           <param name="initial_value">0</param>
         </state_interface>
         <state_interface name="velocity"/>
