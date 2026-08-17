@@ -1,0 +1,35 @@
+[16:51:05.689] ── 서보 ON ──
+→ publish [set/operation] {"operationStatus": "SERVO_ON", "thng_id": 1}  (ack=True)
+← 응답 [6831b2f4..] {"type": "pub", "uuid": "f2894730-95dd-11f1-a786-13068c9c498a", "data": {"code": 0, "data": {}, "msg": "success"}}
+[16:51:09.265] ── C2/V-7 : 단발 점대점 base +5° (4s) ──
+component_goal_tolerance: []
+goal_time_tolerance:
+  sec: 0
+  nanosec: 0
+
+Goal accepted with ID: bbd03abd23e7429aa59aa385942c9454
+
+Result:
+    error_code: 0
+error_string: Goal successfully reached!
+
+Goal finished with status: SUCCEEDED
+[16:51:17.436] C2 목표 전송 완료 — 정착 대기 8s
+[16:51:25.442] ── C3+C4 / V-14·V-15 : 느린 궤적 base +5°→+10° (8s) ──
+component_goal_tolerance: []
+goal_time_tolerance:
+  sec: 0
+  nanosec: 0
+
+Goal accepted with ID: fb0dffef12264cbc83dddea0ae757d2c
+
+Result:
+    error_code: 0
+error_string: Goal successfully reached!
+
+Goal finished with status: SUCCEEDED
+[16:51:35.778] C4 목표 전송 완료 — 정착 대기 6s
+[16:51:41.784] ── 서보 OFF ──
+→ publish [set/operation] {"operationStatus": "SERVO_OFF", "thng_id": 1}  (ack=True)
+← 응답 [7daf3e2e..] {"type": "pub", "uuid": "080d1730-95de-11f1-a786-13068c9c498a", "data": {"code": 0, "data": {}, "msg": "success"}}
+[16:51:42.356] ── 창 종료 ──

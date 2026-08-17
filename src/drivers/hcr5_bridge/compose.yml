@@ -1,0 +1,89 @@
+# ============================================================================
+#  Nyang_Nyang_Atlier 개발 환경 (ROS 2 Jazzy) — Docker Compose
+#
+#  ▶ 첫 실행:  ./run_container.sh build    (이미지 빌드, 20~40분)
+#  ▶ 진입:     ./run_container.sh shell
+#
+#  src/moveit2/compose.yml 을 복제해 **이름 셋을 전면 분리**한 것이다 (2026-08-16).
+#  셋을 다 갈라야 격리된다 — compose 는 컨테이너를 이름이 아니라 **라벨**로 찾으므로
+#  container_name 만 바꾸면 남의 컨테이너를 자기 것으로 인식해 지우고 다시 만든다
+#  (04pc 실측 2026-08-10).
+#
+#    | 항목        | src/moveit2/       | 여기                    |
+#    |-------------|--------------------|-------------------------|
+#    | 프로젝트    | moveit2 (디렉터리) | nyang_nyang_atlier      |
+#    | 이미지      | moveit2_dev:jazzy  | nyang_nyang_atlier:jazzy|
+#    | 컨테이너    | moveit2_dev        | nyang_nyang_atlier      |
+#    | 워크스페이스| ws_moveit2         | ws_atlier               |
+#
+#  ⚠️ 이미지·프로젝트 이름은 **소문자만** 쓸 수 있다 (Docker repository name 규칙).
+#     Nyang_Nyang_Atlier 로는 build 가 invalid reference format 으로 죽는다.
+# ============================================================================
+name: nyang_nyang_atlier
+
+services:
+  atlier:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_NAME: rosuser
+        # 호스트 사용자와 UID/GID를 맞춰야 ws_atlier/ 안에 생기는 파일 권한이
+        # 꼬이지 않는다. run_container.sh 가 현재 사용자 값을 넘겨준다.
+        USER_UID: "${HOST_UID:-1000}"
+        USER_GID: "${HOST_GID:-1000}"
+    image: nyang_nyang_atlier:jazzy
+    container_name: nyang_nyang_atlier
+    hostname: atlier
+
+    network_mode: host      # ROS 2 DDS 통신 + 실기 서브넷(192.168.0.20) 직결
+    ipc: host               # RViz2 shared memory
+    stdin_open: true
+    tty: true
+
+    # ------------------------------------------------------------------------
+    # [GPU] 이 파일에 GPU 설정은 없다 — 의도된 것이다.
+    #
+    #  GPU는 PC마다 갈리는 유일한 부분이다. 공용 파일에 특정 벤더 기본값을 두면
+    #  다른 벤더 PC에서 깨지고, 각자 이 파일을 고치게 되어 pull 마다 충돌한다.
+    #  그래서 GPU 설정은 각 PC가 같은 폴더에 compose.override.yml 로 제공한다.
+    #
+    #    · run_container.sh 가 그 파일이 있으면 자동으로 함께 읽는다 (없으면 무동작)
+    #    · .gitignore 대상이라 커밋되지 않는다 — PC 로컬 자산
+    #    · AMD/Intel · NVIDIA · 소프트웨어 렌더링 스니펫은 src/moveit2/README.md §2 (원본)
+    #
+    #  ⚠️ override 없이 띄우면 GPU 없이 동작한다 → RViz2 3D 가 소프트웨어 렌더링으로
+    #     아주 느려진다. 동작은 하므로 환경 확인용으로는 쓸 수 있다.
+    #
+    #  ⚠️ override 의 서비스 키는 **atlier** 다 (moveit2 쪽은 moveit2). 키가 다르면
+    #     override 가 조용히 안 얹힌다 — docker compose config 로 확인한다.
+    # ------------------------------------------------------------------------
+
+    environment:
+      # GUI(X11) — RViz2 창을 호스트 디스플레이에 띄운다
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - XDG_RUNTIME_DIR=/tmp/runtime-rosuser
+      # ROS 2 도메인 — 다른 노드와 통신하려면 상대와 같은 값이어야 한다
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+
+    volumes:
+      # X11 소켓 — 실행 전 호스트에서 1회: xhost +local:root
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/home/rosuser/.Xauthority:ro
+      # 작업 워크스페이스. 컨테이너 안에서 만든 결과물이 호스트
+      # src/drivers/hcr5_bridge/ws_atlier/ 에 그대로 남는다.
+      - ./ws_atlier:/home/rosuser/ws_atlier:rw
+      # 외부에서 가져온 로봇 모델(리포 최상위 hanwha_robot_arm/). URDF 원본인
+      # hcr_robot_description 이 여기 있어서 이 매핑 없이는 아무것도 안 뜬다.
+      - ../../../hanwha_robot_arm:/home/rosuser/ws_atlier/src/hanwha_robot_arm:rw
+      # src/drivers/ 통째 — hcr5_bridge(ROS 패키지) · nyang_pen(펜홀더 URDF) ·
+      # hcr5_comm/tools(mqtt_cmd.py 등)가 한 번에 딸려 온다.
+      # ⚠️ 이 줄 때문에 ws_atlier 가 워크스페이스 안에서 한 겹 더 보인다 —
+      #    ws_atlier/COLCON_IGNORE 가 그 중복을 막는다. 지우지 말 것.
+      # ⚠️ 이 파일을 고치면 컨테이너를 **재생성**해야 붙는다 (재시작으로는 안 바뀐다):
+      #      ./run_container.sh down && ./run_container.sh shell
+      - ../:/home/rosuser/ws_atlier/src/drivers:rw
+
+    working_dir: /home/rosuser/ws_atlier
+    command: bash

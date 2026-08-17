@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>nyang_pen</name>
+  <version>0.1.0</version>
+  <description>
+    고양이 소묘 로봇화가(Nyang_Nyang_Atlier)의 펜홀더 · 펜 끝(TCP) 좌표계.
+    HCR-5 플랜지(link6_1)에 fixed 로 붙는 xacro 매크로 하나만 제공한다.
+    본체 URDF(hcr_robot_description)와 분리해 둔 이유 — 펜홀더는 자체 제작품이고
+    치수가 실측으로 바뀐다. 본체는 실기 기구학에 맞춰 고정된 자산이라 섞지 않는다.
+    근거: briefs/P1_nyang_pen_URDF.md §1-2 (판정, Rokey6 2026-08-12)
+  </description>
+  <maintainer email="cocoffeechan09@gmail.com">Mark Cheon</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <exec_depend>xacro</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

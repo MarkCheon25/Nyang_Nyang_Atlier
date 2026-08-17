@@ -2,24 +2,18 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!--
-    하드웨어 플러그인을 인자로 받는다 (기본값은 종전과 같은 mock).
 
-    이것이 SA 가 말하는 하드웨어 추상화 경계(N6·F7.3)의 실제 구현 지점이다 —
-    시뮬레이션·실물이 **같은 URDF 로 플러그인만 갈아끼운다.** 기본값을 두었으므로
-    이 매크로를 그냥 호출하던 기존 사용처(MoveIt2 demo 등)는 달라지지 않는다.
-
-    예: <xacro:hcr_robot_ros2_control plugin="mujoco_ros2_control/MujocoSystemInterface"/>
-  -->
-  <xacro:macro name="hcr_robot_ros2_control"
-               params="name:=hcr_robot_system plugin:=mock_components/GenericSystem">
-    <ros2_control name="${name}" type="system">
-      <hardware>
-        <plugin>${plugin}</plugin>
       </hardware>
+
+      <!-- initial_value = URDF 홈 [90, 0, 90, 0, 90, 0]°.
+           실기 홈 [0, −90, −90, −90, 90, 0]° 에 규약변환 q_URDF = s·q_실기 + δ 를
+           적용한 값이고 SRDF `hcr_home` 과 일치한다.
+           종전 값 [0, 0, 1.5669, −1.59, −1.4695, 0] 은 폐기된 SRDF 값이었다 —
+           실기 홈에서 715mm 떨어진 자세다. 근거: 업무목록 T16 ③ -->
       <joint name="joint_1">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">0</param>
+          <param name="initial_value">1.570796</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>
@@ -33,21 +27,21 @@
       <joint name="joint_3">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">1.5669</param>
+          <param name="initial_value">1.570796</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>
       <joint name="joint_4">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">-1.59</param>
+          <param name="initial_value">0</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>
       <joint name="joint_5">
         <command_interface name="position"/>
         <state_interface name="position">
-          <param name="initial_value">-1.4695</param>
+          <param name="initial_value">1.570796</param>
         </state_interface>
         <state_interface name="velocity"/>
       </joint>

@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>hcr5_bridge</name>
+  <version>0.1.0</version>
+  <description>
+    한화 HCR-5(Rodi 1.x) 실기를 ROS2 에 잇는 브릿지. 컨트롤러의 네이티브 MQTT 버스를
+    직접 말한다 — 벤더 ROS2 플러그인(Rodi 2.x 요구)이 필요 없다.
+    프로토콜은 2026-07-29·08-05 펜던트 관찰로 역설계했다 (src/drivers/hcr5_comm/README.md).
+  </description>
+  <maintainer email="cocoffeechan09@gmail.com">Mark Cheon</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>sensor_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>std_srvs</depend>
+
+  <!-- ros2_control 하드웨어 플러그인용 -->
+  <depend>hardware_interface</depend>
+  <depend>pluginlib</depend>
+  <depend>rclcpp_lifecycle</depend>
+
+  <!-- movej · movel 실행기용 — FollowJointTrajectory 액션을 직접 쏜다 -->
+  <depend>rclcpp_action</depend>
+  <depend>control_msgs</depend>
+  <depend>trajectory_msgs</depend>
+
+  <!-- robot.launch.py 가 부르는 것들. MoveIt 은 하나도 없다 — 그것이 이 launch 의 요점이다 -->
+  <exec_depend>controller_manager</exec_depend>
+  <exec_depend>joint_trajectory_controller</exec_depend>
+  <exec_depend>joint_state_broadcaster</exec_depend>
+  <exec_depend>robot_state_publisher</exec_depend>
+  <exec_depend>hcr_robot_description</exec_depend>
+  <exec_depend>xacro</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>rviz2</exec_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+    <hardware_interface plugin="${prefix}/hcr5_bridge_plugins.xml"/>
+  </export>
+</package>

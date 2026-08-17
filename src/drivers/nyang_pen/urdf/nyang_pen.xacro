@@ -1,0 +1,176 @@
+<?xml version="1.0" ?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+<!-- ══ nyang_pen — 펜홀더 · 펜 끝(TCP) 좌표계 ═══════════════════════════════════
+  HCR-5 플랜지(link6_1)에 fixed 로 붙는다. 링크 체인:
+
+      <parent> ──fixed(rpy=mount)── tool0 ──fixed── nyang_pen_holder
+              ──fixed── nyang_pen_body ──fixed── pen_tip
+
+    tool0             ROS-Industrial 관례 프레임. **+Z 가 공구 진출 방향**이다.
+                      기하 없음 — 방향만 정의한다.
+    nyang_pen_holder  홀더. 실린더 근사 (표현 판정 = primitive, 지시서 §1-5)
+    nyang_pen_body    펜. 실린더 근사
+    pen_tip           ★ 실제 TCP. 기하 없음. pose goal 이 겨누는 프레임이다
+
+  ─ 왜 이 패키지가 본체와 분리돼 있나 ──────────────────────────────────────────
+  펜홀더는 자체 제작품이고 치수가 실측으로 바뀐다. 본체 URDF 는 2026-08-05 실기
+  FK 스윕으로 교정된 고정 자산이라(hcr_robot.xacro:178-196) 성격이 다르다.
+  판정 = briefs/P1_nyang_pen_URDF.md §1-2 (Rokey6 2026-08-12)
+
+  ─ ✅ 축 길이는 실측됐다 (2026-08-16, 실기 4점법) ─────────────────────────────
+  holder_length + pen_length = **120.560mm** = 컨트롤러 등록 TCP 의 z.
+  종전 명목값 합계는 200mm 였다 — **79.4mm 틀렸었다.**
+  ⚠️ 둘의 **배분(50 : 70.56)은 안 쟀다.** 실측된 것은 합계뿐이고 배분은 시각화용이다.
+     pen_tip 위치는 합계만으로 정해지므로 제어에는 영향이 없다.
+
+  ─ 🔴 소유권이 뒤집혔다 — 아래 §"pen_tip" 의 종전 선언은 폐기됐다 ─────────────
+  판정 §1-3 은 *"TCP 의 단일 출처는 이 URDF"* 라고 적었다. 명목값을 여기 적어 두던
+  시절의 판정이다. 2026-08-16 Mark 결정으로 **컨트롤러(펜던트)가 원본**이 됐고,
+  이 파일은 실측값을 **받아 적는다**. 값이 태어나는 곳이 반대가 됐다.
+      원본 = src/drivers/hcr5_comm/measurements/260816_펜TCP/README.md
+
+  ─ 🔴 편심 4.060mm 를 이 파일은 아직 표현하지 못한다 ──────────────────────────
+  실측 TCP 는 축 위에 있지 않다: flange 좌표계로 **(−3.675, −1.725, 120.560)**.
+  펜이 툴축에서 **4.060mm 옆으로 비켜** 있다(제작 공차, 실재 확정 — J6 를 329° 벌려 검증).
+  그런데 아래 체인은 pen_tip 을 tool0 의 **순수 +Z** 에 둔다 → 편심이 빠진다.
+
+  ⚠️ **옮겨 적을 수 없는 이유** — 컨트롤러 flange 좌표계와 URDF tool0 사이의
+     **툴축 둘레 회전(roll)이 미확정**이다. +Z 방향이 일치하는 것은 확인됐지만
+     (mount_p=−π/2 로 tool0 +Z = parent −X = 컨트롤러 flange +Z), xy 축이 서로
+     몇 도 돌아가 있는지는 안 쟀다. 모르는 채로 (−3.675,−1.725) 를 그대로 쓰면
+     **편심을 엉뚱한 방향에 붙이는 것**이라 없느니만 못하다.
+     → 그 회전을 확정한 뒤 tip_dx·tip_dy 를 채운다. 업무목록 참조.
+
+  ─ ⚠️ 강성 — 스프링식으로 **확정됐다** (2026-08-16 실측) ──────────────────────
+  홀더는 필압용 스프링식이고 **행정 = 1.069mm** 다(자유 ↔ 완전압축 실측).
+  URDF fixed joint 는 rigid 를 가정하므로 pen_tip 은 예고대로 **"무부하 상태의
+  명목 위치"** 이고, 접촉 중 실제 펜 끝은 최대 1.069mm 안쪽이다.
+  컨트롤러 등록값도 **자유 길이 기준**이라 둘의 기준이 일치한다 —
+  즉 *"지령면보다 아래로 파고든 mm = 스프링 압축량 = 필압"*.
+  🔴 행정이 1mm 뿐이라 **종이 높이 캘리브레이션이 ±0.4mm 급**으로 정밀해야 한다
+     (BRD R2 되먹임 — 근거: 260816_펜TCP/README.md §4).
+  근거: briefs/좌표계_제어_작업계획.md §3㉢
+
+  ─ 인자 관통 판정 (§4-C1 이 P1 에 위임) — launch/CLI 로는 관통시키지 않는다 ────
+  매크로 params 가 치수의 단일 출처다. 근거 셋:
+    · 치수는 실측 후 한 번 바뀌고 고정되는 값이지, hardware_plugin·allow_motion
+      같은 실행별 모드 스위치가 아니다
+    · hcr_robot.xacro 머리말이 "두 곳에 두면 기본값이 갈린다"고 이미 경고한다.
+      <xacro:arg> 를 더하면 기본값 원본이 둘이 된다
+    · launch 관통은 hcr_moveit_config/launch/ 를 건드려야 하는데 P1 화이트리스트 밖이다
+═══════════════════════════════════════════════════════════════════════════════ -->
+
+<xacro:macro name="nyang_pen"
+             params="parent
+                     mount_r:=0 mount_p:=-1.5707963 mount_y:=0
+                     holder_length:=0.05    holder_radius:=0.015 holder_mass:=0.05
+                     pen_length:=0.07056   pen_radius:=0.005    pen_mass:=0.015">
+
+  <!-- ── 실린더 관성 (솔리드, 자기 중심 기준) ────────────────────────────────
+       Ixx=Iyy=(1/12)m(3r²+h²) · Izz=(1/2)mr².
+       ⚠️ 질량도 명목값이다. 우리 경로(mock · move/joint/here 관절 직접 전송)는
+          동역학을 쓰지 않아 값이 계산에 들어가지 않는다. 0 질량 링크가 내는
+          파서 경고를 없애려고 채운 것이다 — 정확도 주장의 근거가 아니다 -->
+  <xacro:macro name="nyang_pen_cyl_inertial" params="m r h">
+    <inertial>
+      <origin xyz="0 0 ${h/2}" rpy="0 0 0"/>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(3*r*r + h*h)/12}" iyy="${m*(3*r*r + h*h)/12}" izz="${m*r*r/2}"
+               ixy="0" iyz="0" ixz="0"/>
+    </inertial>
+  </xacro:macro>
+
+  <material name="nyang_pen_holder_color"><color rgba="0.25 0.25 0.28 1.0"/></material>
+  <material name="nyang_pen_body_color">  <color rgba="0.90 0.35 0.55 1.0"/></material>
+
+  <!-- ══ tool0 — 공구 진출 방향을 정의하는 프레임 ═══════════════════════════════
+    ★ mount_p 기본값 −π/2 의 근거 (교차검산 4건, 2026-08-12)
+
+      ① 행렬 — ROS rpy = Rz(yaw)·Ry(pitch)·Rx(roll).
+         Ry(−π/2)·(0,0,1)ᵀ = (−1,0,0)  → tool0 의 +Z 가 parent 의 −X 에 붙는다
+         Ry(+π/2) 는 +X 로 가므로 반대다
+      ② 홈자세 누적회전 — 6 joint 가 전부 rpy=0 이라 축 회전만 쌓인다.
+         SRDF hcr_home = URDF [90,0,90,0,90,0]° →
+             R_link6 = Rz(90)·Rx(90)·Rz(90) = [[0,0,1],[0,−1,0],[1,0,0]]
+         link6_1 의 +X 가 base +Z(위) → **−X 가 아래**. 펜이 나가는 쪽이다
+      ③ joint_6 origin x = −0.132498 (hcr_robot.xacro:250) — 플랜지가 J5 축에서
+         −X 로 132.5mm 뻗어 있다. 팔이 −X 로 자란다
+      ④ SRDF 주석 hcr_robot.srdf:23 — 홈에서 "rx=−180 (플랜지가 정확히 아래)"
+
+    ⚠️ 지시서 §4-C1 코드 스케치는 mount_p 기본값을 +1.5707963 으로 적었다.
+       위 4건과 부호가 반대다 — 같은 문서 §2 의 결론(−X)과도 어긋난다.
+       스케치 오타로 판단해 −π/2 를 택했다. (지시서 §6 에 기록)
+    ⚠️ 어긋나면 **mount_p 만** 고친다. 이 인자를 둔 이유가 그것이다
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <link name="tool0"/>
+  <joint name="flange_to_tool0" type="fixed">
+    <parent link="${parent}"/>
+    <child  link="tool0"/>
+    <origin xyz="0 0 0" rpy="${mount_r} ${mount_p} ${mount_y}"/>
+  </joint>
+
+  <!-- ── 홀더 — tool0 원점에서 +Z 로 holder_length ──────────────────────────── -->
+  <link name="nyang_pen_holder">
+    <xacro:nyang_pen_cyl_inertial m="${holder_mass}" r="${holder_radius}" h="${holder_length}"/>
+    <visual>
+      <origin xyz="0 0 ${holder_length/2}" rpy="0 0 0"/>
+      <geometry><cylinder length="${holder_length}" radius="${holder_radius}"/></geometry>
+      <material name="nyang_pen_holder_color"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${holder_length/2}" rpy="0 0 0"/>
+      <geometry><cylinder length="${holder_length}" radius="${holder_radius}"/></geometry>
+    </collision>
+  </link>
+  <joint name="tool0_to_nyang_pen_holder" type="fixed">
+    <parent link="tool0"/>
+    <child  link="nyang_pen_holder"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ── 펜 — 홀더 끝에서 이어 +Z 로 pen_length ─────────────────────────────── -->
+  <link name="nyang_pen_body">
+    <xacro:nyang_pen_cyl_inertial m="${pen_mass}" r="${pen_radius}" h="${pen_length}"/>
+    <visual>
+      <origin xyz="0 0 ${pen_length/2}" rpy="0 0 0"/>
+      <geometry><cylinder length="${pen_length}" radius="${pen_radius}"/></geometry>
+      <material name="nyang_pen_body_color"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${pen_length/2}" rpy="0 0 0"/>
+      <geometry><cylinder length="${pen_length}" radius="${pen_radius}"/></geometry>
+    </collision>
+  </link>
+  <joint name="nyang_pen_holder_to_body" type="fixed">
+    <parent link="nyang_pen_holder"/>
+    <child  link="nyang_pen_body"/>
+    <origin xyz="0 0 ${holder_length}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ══ pen_tip — TCP. 여기가 pose goal 의 목표 프레임이다 ═══════════════════
+    tool0 로부터의 거리 = holder_length + pen_length = **120.560mm** (순수 +Z 병진).
+    P1 검증 D4 가 이 값을 tf2_echo 로 확인한다.
+
+    🔴 **종전 선언은 폐기됐다** (2026-08-16) — 이 자리에 *"TCP 의 단일 출처는 이 URDF 이고
+       펜던트 값은 파생값"* 이라고 적혀 있었다. **반대가 됐다.** 실측을 실기 4점법으로 뜨면서
+       컨트롤러가 원본이 되고 이 파일이 파생값이 됐다. 머리주석 참조.
+       값을 고칠 일이 생기면 **컨트롤러부터** 고치고 여기로 복사해 온다.
+
+    ⚠️ 여기 적힌 120.560mm 는 **축 성분만**이다. 실측 TCP 의 편심 4.060mm 는
+       좌표계 회전이 미확정이라 아직 못 넣었다 (머리주석).
+
+    참고 — 우리 명령 경로 move/joint/here 는 관절값을 직접 보내므로 컨트롤러
+    TCP 설정이 관절 계약에 영향을 주지 않는다 (08-09 S3 실측). 영향을 받는 것은
+    pose 기반 경로(movel · poseType:"tcp" · 펜던트 조그)다.
+  ═══════════════════════════════════════════════════════════════════════════ -->
+  <link name="pen_tip"/>
+  <joint name="nyang_pen_body_to_pen_tip" type="fixed">
+    <parent link="nyang_pen_body"/>
+    <child  link="pen_tip"/>
+    <origin xyz="0 0 ${pen_length}" rpy="0 0 0"/>
+  </joint>
+
+</xacro:macro>
+
+</robot>

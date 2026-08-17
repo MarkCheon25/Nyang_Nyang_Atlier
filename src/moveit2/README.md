@@ -269,10 +269,14 @@ Nyang_Nyang_Atlier/
 
 ```yaml
 - ../../hanwha_robot_arm:/home/rosuser/ws_moveit2/src/hanwha_robot_arm:rw
+- ../../src/drivers:/home/rosuser/ws_moveit2/src/drivers:rw
 ```
 
+`src/drivers/`도 같은 이유로 들어옵니다 — 로봇 hw interface(`hcr5_bridge`)와 펜홀더 URDF(`nyang_pen`)가 그 아래 있고, 호스트 배치는 모듈 트리 그대로 둡니다.
+
 실무상 알아둘 점:
-- **`colcon build`는 세 패키지를 한꺼번에 빌드합니다** — `hello_moveit` · `hcr_robot_description` · `hcr_moveit_config`
+- **`colcon build`는 다섯 패키지를 한꺼번에 빌드합니다** — `hello_moveit` · `hcr_robot_description` · `hcr_moveit_config` · `hcr5_bridge`(실기 브릿지·ros2_control 플러그인) · `nyang_pen`(펜홀더 URDF)
+- 뒤의 둘은 `src/drivers/` 하위입니다. **`src/drivers` 마운트는 컨테이너 재생성으로만 붙습니다** — pull 후 `./run_container.sh down && ./run_container.sh shell`
 - 컨테이너 안에서 `~/ws_moveit2/src/hanwha_robot_arm/`을 고치면 **호스트 최상위 `hanwha_robot_arm/`이 바뀝니다** (같은 디렉터리)
 - 호스트에서 `ws_moveit2/src/`를 봐도 `hanwha_robot_arm`은 **없습니다** — 컨테이너 안에서만 보이는 게 정상입니다
 

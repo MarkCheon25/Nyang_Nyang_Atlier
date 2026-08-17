@@ -1,0 +1,21 @@
+=== 수집 9097건 / 20개 토픽 / 40.0초 → /home/markch04/Markch_ws_260809/Nyang_Nyang_Atlier/Nyang_Nyang_Atlier/src/drivers/hcr_comm/measurements/260812_T15검증/c1/bus/c1_bus.jsonl
+    1166회  motion/flange/position
+    1166회  motion/tool/position
+    1165회  motion/joint/position
+     778회  status/robot
+     778회  status/operation
+     778회  status/program
+     392회  status/safety
+     392회  motion/joint/range
+     392회  motion/joint/speed
+     392회  monitor/robot
+     392회  monitor/io/configurable
+     392회  monitor/io/digital
+     392회  monitor/io/analog
+     392회  monitor/io/tool
+     120회  heartbeat
+       4회  modbus/device/error
+       2회  set/operation
+       2회  mongoLog
+       1회  b41df375-95f2-11f1-be1f-4ccc6adc1261
+       1회  bed5b107-95f2-11f1-bd8c-4ccc6adc1261

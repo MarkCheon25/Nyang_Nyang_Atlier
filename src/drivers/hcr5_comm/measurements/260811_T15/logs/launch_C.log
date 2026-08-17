@@ -1,0 +1,180 @@
+[INFO] [launch]: All log files can be found below /home/rosuser/.ros/log/2026-08-11-07-42-04-302321-moveit2-95
+[INFO] [launch]: Default logging verbosity is set to INFO
+WARNING:root:[33;21mCannot infer SRDF from `/home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config`. -- using config/hcr_robot.srdf[0m
+[INFO] [rviz2-1]: process started with pid [112]
+[INFO] [static_transform_publisher-2]: process started with pid [113]
+[INFO] [robot_state_publisher-3]: process started with pid [114]
+[INFO] [move_group-4]: process started with pid [115]
+[INFO] [ros2_control_node-5]: process started with pid [116]
+[INFO] [spawner-6]: process started with pid [117]
+[INFO] [spawner-7]: process started with pid [118]
+[static_transform_publisher-2] [WARN] [1786434125.147823499] []: Old-style arguments are deprecated; see --help for new-style arguments
+[spawner-6] [INFO] [1786434125.263286023] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[static_transform_publisher-2] [INFO] [1786434125.478445910] [static_transform_publisher]: Spinning until stopped - publishing transform
+[static_transform_publisher-2] translation: ('0.000000', '0.000000', '0.000000')
+[static_transform_publisher-2] rotation: ('0.000000', '0.000000', '0.000000', '1.000000')
+[static_transform_publisher-2] from 'world' to 'base_link'
+[robot_state_publisher-3] [WARN] [1786434125.481670854] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-3] [INFO] [1786434125.481804936] [robot_state_publisher]: Robot initialized
+[ros2_control_node-5] [INFO] [1786434125.524069106] [controller_manager]: Using Steady (Monotonic) clock for triggering controller manager cycles.
+[ros2_control_node-5] [INFO] [1786434125.527848245] [controller_manager]: Subscribing to '/robot_description' topic for robot description.
+[ros2_control_node-5] [INFO] [1786434125.530744117] [controller_manager]: update rate is 100 Hz
+[ros2_control_node-5] [INFO] [1786434125.530795958] [controller_manager]: Overruns handling is : enabled
+[ros2_control_node-5] [INFO] [1786434125.530819379] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50
+[ros2_control_node-5] [WARN] [1786434125.530920813] [controller_manager]: Could not enable FIFO RT scheduling policy: with error number <1>(Operation not permitted). See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details on how to enable realtime scheduling.
+[ros2_control_node-5] [INFO] [1786434125.692059258] [controller_manager]: Received robot description from topic.
+[ros2_control_node-5] [INFO] [1786434125.692150356] [controller_manager]: Enforcing command limits is disabled. Command limits from URDF will be ignored.
+[ros2_control_node-5] [INFO] [1786434125.696150500] [controller_manager]: Loading hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786434125.697802472] [controller_manager]: Loaded hardware 'hcr_robot_system' from plugin 'hcr_bridge/HcrSystemInterface'
+[ros2_control_node-5] [INFO] [1786434125.697907687] [controller_manager]: Initialize hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786434125.697928237] [controller_manager.hardware_component.system.hcr_robot_system]: Starting async handler with scheduler priority: 50 and policy : synchronized
+[ros2_control_node-5] [WARN] [1786434125.698047872] [controller_manager.hardware_component.system.hcr_robot_system]: Could not enable FIFO RT scheduling policy. Consider setting up your user to do FIFO RT scheduling. See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details.
+[ros2_control_node-5] [INFO] [1786434125.705974648] [controller_manager.hardware_component.system.hcr_robot_system]: HcrSystemInterface on_init — 192.168.0.20:1883 · allow_motion=true · deadband=0.0100° · rw_rate=30Hz · is_async=true
+[ros2_control_node-5] [WARN] [1786434125.706014549] [controller_manager.hardware_component.system.hcr_robot_system]: ⚠️ allow_motion=true — 로봇이 실제로 움직인다. PC 의 MQTT 명령은 펜던트 인에이블(데드맨) 스위치를 거치지 않는다. e-stop 대기·반경 정리 상태에서만 쓸 것
+[ros2_control_node-5] [INFO] [1786434125.706042596] [controller_manager]: Successful initialization of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786434125.706291942] [controller_manager]: Activating component 'hcr_robot_system'.
+[ros2_control_node-5] [INFO] [1786434125.706310084] [resource_manager]: 'configure' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786434125.720925791] [controller_manager.hardware_component.system.hcr_robot_system]: MQTT 접속·첫 표본 수신: 192.168.0.20:1883
+[ros2_control_node-5] [INFO] [1786434125.720967867] [resource_manager]: Successful 'configure' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786434125.720978662] [resource_manager]: 'activate' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [WARN] [1786434125.805357955] [controller_manager.hardware_component.system.hcr_robot_system]: ⚠️ 동작 지령 잠금 해제 — 이제 write() 가 실기를 움직인다
+[ros2_control_node-5] [INFO] [1786434125.805420706] [controller_manager.hardware_component.system.hcr_robot_system]: 활성화 — 명령 버퍼 = 실기 [0.003 -90.008 -90.005 -90.091 90.003 0.001]° (get/command/pos)
+[ros2_control_node-5] [INFO] [1786434125.805444042] [resource_manager]: Successful 'activate' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786434125.805512497] [controller_manager]: Registering statistics for : hcr_robot_system
+[ros2_control_node-5] [INFO] [1786434125.805603128] [controller_manager]: Resource Manager has been successfully initialized. Starting Controller Manager services...
+[move_group-4] [INFO] [1786434125.955405317] [move_group.moveit.moveit.ros.rdf_loader]: Loaded robot model in 0.0063975 seconds
+[move_group-4] [INFO] [1786434125.955671481] [move_group.moveit.moveit.core.robot_model]: Loading robot model 'hcr_robot'...
+[ros2_control_node-5] [INFO] [1786434126.011004213] [controller_manager]: Received robot description from topic.
+[ros2_control_node-5] [WARN] [1786434126.011049870] [controller_manager]: ResourceManager has already loaded a urdf. Ignoring attempt to reload a robot description.
+[ros2_control_node-5] [INFO] [1786434126.017172733] [controller_manager]: Loading controller : 'joint_state_broadcaster' of type 'joint_state_broadcaster/JointStateBroadcaster'
+[ros2_control_node-5] [INFO] [1786434126.017243854] [controller_manager]: Loading controller 'joint_state_broadcaster'
+[ros2_control_node-5] [INFO] [1786434126.021435750] [controller_manager]: Controller 'joint_state_broadcaster' node arguments: --ros-args --params-file /home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config/config/ros2_controllers.yaml 
+[spawner-6] [INFO] [1786434126.053374464] [spawner_joint_state_broadcaster]: Loaded joint_state_broadcaster
+[move_group-4] [WARN] [1786434126.083603145] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[move_group-4] [INFO] [1786434126.083739847] [move_group.moveit.moveit.kinematics.kdl_kinematics_plugin]: Joint weights for group 'hcr_arm': 1 1 1 1 1 1
+[ros2_control_node-5] [INFO] [1786434126.138170431] [controller_manager]: Configuring controller: 'joint_state_broadcaster'
+[ros2_control_node-5] [INFO] [1786434126.138537036] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published
+[rviz2-1] [INFO] [1786434126.144571377] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-1] [INFO] [1786434126.144771396] [rviz2]: OpenGl version: 4.6 (GLSL 4.6)
+[ros2_control_node-5] [INFO] [1786434126.163932902] [controller_manager]: Activating controllers: [ joint_state_broadcaster ]
+[ros2_control_node-5] [INFO] [1786434126.171926284] [controller_manager]: Successfully switched controllers!
+[rviz2-1] [INFO] [1786434126.175319170] [rviz2]: Stereo is NOT SUPPORTED
+[spawner-6] [INFO] [1786434126.183529005] [spawner_joint_state_broadcaster]: Configured and activated joint_state_broadcaster
+[rviz2-1] Warning: class_loader.impl: SEVERE WARNING!!! A namespace collision has occurred with plugin factory for class rviz_default_plugins::displays::InteractiveMarkerDisplay. New factory will OVERWRITE existing one. This situation occurs when libraries containing plugins are directly linked against an executable (the one running right now generating this message). Please separate plugins out into their own library or just don't link against the library and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.
+[rviz2-1]          at line 321 in /opt/ros/jazzy/include/class_loader/class_loader/class_loader_core.hpp
+[rviz2-1] [WARN] [1786434126.359389648] [rcl.logging_rosout]: Publisher already registered for node name: 'rviz2'. If this is due to multiple nodes with the same name then all logs for the logger named 'rviz2' will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[spawner-7] [INFO] [1786434126.387266777] [spawner_hcr_arm_controller]: waiting for service /controller_manager/list_controllers to become available...
+[INFO] [spawner-6]: process has finished cleanly [pid 117]
+[move_group-4] [INFO] [1786434126.543485192] [move_group.moveit.moveit.ros.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'
+[move_group-4] [INFO] [1786434126.543669426] [move_group.moveit.moveit.ros.moveit_cpp]: Listening to 'joint_states' for joint states
+[move_group-4] [INFO] [1786434126.544945973] [move_group.moveit.moveit.ros.current_state_monitor]: Listening to joint states on topic 'joint_states'
+[move_group-4] [INFO] [1786434126.545897409] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to '/attached_collision_object' for attached collision objects
+[move_group-4] [INFO] [1786434126.545954497] [move_group.moveit.moveit.ros.planning_scene_monitor]: Stopping existing planning scene publisher.
+[move_group-4] [INFO] [1786434126.546084189] [move_group.moveit.moveit.ros.planning_scene_monitor]: Stopped publishing maintained planning scene.
+[move_group-4] [INFO] [1786434126.546627488] [move_group.moveit.moveit.ros.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'
+[move_group-4] [INFO] [1786434126.546747059] [move_group.moveit.moveit.ros.planning_scene_monitor]: Starting planning scene monitor
+[move_group-4] [INFO] [1786434126.547314565] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to '/planning_scene'
+[move_group-4] [INFO] [1786434126.547346471] [move_group.moveit.moveit.ros.planning_scene_monitor]: Starting world geometry update monitor for collision objects, attached objects, octomap updates.
+[move_group-4] [INFO] [1786434126.551645839] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to 'collision_object'
+[move_group-4] [INFO] [1786434126.555048201] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to 'planning_scene_world' for planning scene world geometry
+[move_group-4] [WARN] [1786434126.555509881] [move_group.moveit.moveit.ros.occupancy_map_monitor]: Resolution not specified for Octomap. Assuming resolution = 0.1 instead
+[move_group-4] [ERROR] [1786434126.555552541] [move_group.moveit.moveit.ros.occupancy_map_monitor]: No 3D sensor plugin(s) defined for octomap updates
+[move_group-4] [INFO] [1786434126.834631493] [move_group.moveit.moveit.ros.planning_pipeline]: Successfully loaded planner 'OMPL'
+[move_group-4] [INFO] [1786434126.836140918] [move_group]: Try loading adapter 'default_planning_request_adapters/ResolveConstraintFrames'
+[move_group-4] [INFO] [1786434126.837312950] [move_group]: Loaded adapter 'default_planning_request_adapters/ResolveConstraintFrames'
+[move_group-4] [INFO] [1786434126.837330701] [move_group]: Try loading adapter 'default_planning_request_adapters/ValidateWorkspaceBounds'
+[move_group-4] [INFO] [1786434126.837685997] [move_group]: Loaded adapter 'default_planning_request_adapters/ValidateWorkspaceBounds'
+[move_group-4] [INFO] [1786434126.837706027] [move_group]: Try loading adapter 'default_planning_request_adapters/CheckStartStateBounds'
+[move_group-4] [INFO] [1786434126.837744675] [move_group]: Loaded adapter 'default_planning_request_adapters/CheckStartStateBounds'
+[move_group-4] [INFO] [1786434126.837764584] [move_group]: Try loading adapter 'default_planning_request_adapters/CheckStartStateCollision'
+[move_group-4] [INFO] [1786434126.837801386] [move_group]: Loaded adapter 'default_planning_request_adapters/CheckStartStateCollision'
+[move_group-4] [INFO] [1786434126.840043829] [move_group]: Try loading adapter 'default_planning_response_adapters/AddTimeOptimalParameterization'
+[ros2_control_node-5] [INFO] [1786434126.841730954] [controller_manager]: Loading controller : 'hcr_arm_controller' of type 'joint_trajectory_controller/JointTrajectoryController'
+[ros2_control_node-5] [INFO] [1786434126.841785938] [controller_manager]: Loading controller 'hcr_arm_controller'
+[move_group-4] [INFO] [1786434126.843805108] [move_group]: Loaded adapter 'default_planning_response_adapters/AddTimeOptimalParameterization'
+[move_group-4] [INFO] [1786434126.843838629] [move_group]: Try loading adapter 'default_planning_response_adapters/ValidateSolution'
+[ros2_control_node-5] [INFO] [1786434126.845374236] [controller_manager]: Controller 'hcr_arm_controller' node arguments: --ros-args --params-file /home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config/config/ros2_controllers.yaml 
+[move_group-4] [INFO] [1786434126.847935022] [move_group]: Loaded adapter 'default_planning_response_adapters/ValidateSolution'
+[move_group-4] [INFO] [1786434126.847969883] [move_group]: Try loading adapter 'default_planning_response_adapters/DisplayMotionPath'
+[move_group-4] [INFO] [1786434126.849380127] [move_group]: Loaded adapter 'default_planning_response_adapters/DisplayMotionPath'
+[spawner-7] [INFO] [1786434126.898669237] [spawner_hcr_arm_controller]: Loaded hcr_arm_controller
+[ros2_control_node-5] [INFO] [1786434126.906451256] [controller_manager]: Configuring controller: 'hcr_arm_controller'
+[ros2_control_node-5] [INFO] [1786434126.906928372] [hcr_arm_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
+[ros2_control_node-5] [INFO] [1786434126.907116496] [hcr_arm_controller]: Command interfaces are [position] and state interfaces are [position velocity].
+[ros2_control_node-5] [INFO] [1786434126.907185589] [hcr_arm_controller]: Using 'splines' interpolation method.
+[ros2_control_node-5] [INFO] [1786434126.913130747] [hcr_arm_controller]: Action status changes will be monitored at 20.00 Hz.
+[ros2_control_node-5] [INFO] [1786434126.927352188] [hcr_arm_controller]: Setting initial scaling factor to 1.000000
+[ros2_control_node-5] [INFO] [1786434126.927394309] [hcr_arm_controller]: No scaling interface set. This controller will not read speed scaling from the hardware.
+[ros2_control_node-5] [INFO] [1786434126.933647312] [controller_manager]: Activating controllers: [ hcr_arm_controller ]
+[move_group-4] [INFO] [1786434126.940868273] [move_group.moveit.moveit.plugins.simple_controller_manager]: Added FollowJointTrajectory controller for hcr_arm_controller
+[move_group-4] [INFO] [1786434126.941161873] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786434126.941208611] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[ros2_control_node-5] [INFO] [1786434126.941667474] [controller_manager]: Successfully switched controllers!
+[move_group-4] [INFO] [1786434126.941999971] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Trajectory execution is managing controllers
+[move_group-4] [INFO] [1786434126.942035410] [move_group]: MoveGroup debug mode is ON
+[spawner-7] [INFO] [1786434126.953425977] [spawner_hcr_arm_controller]: Configured and activated hcr_arm_controller
+[move_group-4] [INFO] [1786434126.987185530] [move_group.moveit.moveit.ros.move_group.executable]: 
+[move_group-4] 
+[move_group-4] ********************************************************
+[move_group-4] * MoveGroup using: 
+[move_group-4] *     - apply_planning_scene_service
+[move_group-4] *     - clear_octomap_service
+[move_group-4] *     - get_group_urdf
+[move_group-4] *     - load_geometry_from_file
+[move_group-4] *     - CartesianPathService
+[move_group-4] *     - execute_trajectory_action
+[move_group-4] *     - get_planning_scene_service
+[move_group-4] *     - kinematics_service
+[move_group-4] *     - move_action
+[move_group-4] *     - motion_plan_service
+[move_group-4] *     - query_planners_service
+[move_group-4] *     - state_validation_service
+[move_group-4] *     - save_geometry_to_file
+[move_group-4] ********************************************************
+[move_group-4] 
+[move_group-4] [INFO] [1786434126.987341168] [move_group.moveit.moveit.ros.move_group.context]: MoveGroup context using pipeline ompl
+[move_group-4] [INFO] [1786434126.987368093] [move_group.moveit.moveit.ros.move_group.context]: MoveGroup context initialization complete
+[move_group-4] [96mLoading 'move_group/ApplyPlanningSceneService'...[0m
+[move_group-4] [96mLoading 'move_group/ClearOctomapService'...[0m
+[move_group-4] [96mLoading 'move_group/GetUrdfService'...[0m
+[move_group-4] [96mLoading 'move_group/LoadGeometryFromFileService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupCartesianPathService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupExecuteTrajectoryAction'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupGetPlanningSceneService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupKinematicsService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupMoveAction'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupPlanService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupQueryPlannersService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupStateValidationService'...[0m
+[move_group-4] [96mLoading 'move_group/SaveGeometryToFileService'...[0m
+[move_group-4] 
+[move_group-4] [92mYou can start planning now![0m
+[move_group-4] 
+[ros2_control_node-5] [WARN] [1786434127.108307180] [controller_manager.hardware_component.system.hcr_robot_system]: move/joint/here ack 없음 — 발행 실패로 본다
+[INFO] [spawner-7]: process has finished cleanly [pid 118]
+[ros2_control_node-5] [WARN] [1786434127.334132946] [controller_manager.hardware_component.system.hcr_robot_system]: move/joint/here ack 없음 — 발행 실패로 본다
+[rviz2-1] [ERROR] [1786434129.403688909] [rviz2.moveit.ros.motion_planning_frame]: Action server: /recognize_objects not available
+[rviz2-1] [INFO] [1786434129.429214119] [rviz2.moveit.ros.motion_planning_frame]: MoveGroup namespace changed: / -> . Reloading params.
+[rviz2-1] [INFO] [1786434129.510874960] [rviz2.moveit.ros.rdf_loader]: Loaded robot model in 0.00667756 seconds
+[rviz2-1] [INFO] [1786434129.511002075] [rviz2.moveit.core.robot_model]: Loading robot model 'hcr_robot'...
+[rviz2-1] [WARN] [1786434129.681746978] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[rviz2-1] [INFO] [1786434129.682198945] [rviz2.moveit.kinematics.kdl_kinematics_plugin]: Joint weights for group 'hcr_arm': 1 1 1 1 1 1
+[rviz2-1] [INFO] [1786434130.167039888] [rviz2.moveit.ros.planning_scene_monitor]: Starting planning scene monitor
+[rviz2-1] [INFO] [1786434130.167978655] [rviz2.moveit.ros.planning_scene_monitor]: Listening to '/monitored_planning_scene'
+[rviz2-1] [INFO] [1786434130.313663946] [interactive_marker_display_111387635654928]: Connected on namespace: /rviz_moveit_motion_planning_display/robot_interaction_interactive_marker_topic
+[rviz2-1] [WARN] [1786434130.315282670] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[rviz2-1] [INFO] [1786434130.319484183] [rviz2.moveit.ros.motion_planning_frame]: group hcr_arm
+[rviz2-1] [INFO] [1786434130.319541946] [rviz2.moveit.ros.motion_planning_frame]: Constructing new MoveGroup connection for group 'hcr_arm' in namespace ''
+[rviz2-1] [INFO] [1786434130.335803252] [rviz2.moveit.ros.move_group_interface]: Ready to take commands for planning group hcr_arm.
+[rviz2-1] [INFO] [1786434130.450993527] [interactive_marker_display_111387635654928]: Sending request for interactive markers
+[rviz2-1] [INFO] [1786434130.485801986] [interactive_marker_display_111387635654928]: Service response received for initialization
+[ros2_control_node-5] [INFO] [1786434673.096897388] [hcr_arm_controller]: Received new action goal
+[ros2_control_node-5] [INFO] [1786434673.096959848] [hcr_arm_controller]: Accepted new action goal
+[ros2_control_node-5] [INFO] [1786434677.101251288] [hcr_arm_controller]: Goal reached, success!
+[ros2_control_node-5] [INFO] [1786434687.432153340] [hcr_arm_controller]: Received new action goal
+[ros2_control_node-5] [INFO] [1786434687.432212841] [hcr_arm_controller]: Accepted new action goal
+[ros2_control_node-5] [INFO] [1786434695.441384069] [hcr_arm_controller]: Goal reached, success!
+[ros2_control_node-5] [ERROR] [1786434706.741353063] [hcr_arm_controller]: Failed to set value for joint 'joint_5' in command interface 'joint_5/position'. 
+[ros2_control_node-5] [INFO] [1786435263.786602094] [hcr_arm_controller]: Received new action goal
+[ros2_control_node-5] [INFO] [1786435263.786689422] [hcr_arm_controller]: Accepted new action goal
+[ros2_control_node-5] [INFO] [1786435271.781411432] [hcr_arm_controller]: Goal reached, success!

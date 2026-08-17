@@ -1,0 +1,297 @@
+[INFO] [launch]: All log files can be found below /home/rosuser/.ros/log/2026-08-12-04-15-01-149369-moveit2-461
+[INFO] [launch]: Default logging verbosity is set to INFO
+WARNING:root:[33;21mCannot infer SRDF from `/home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config`. -- using config/hcr_robot.srdf[0m
+[INFO] [rviz2-1]: process started with pid [478]
+[INFO] [static_transform_publisher-2]: process started with pid [479]
+[INFO] [robot_state_publisher-3]: process started with pid [480]
+[INFO] [move_group-4]: process started with pid [481]
+[INFO] [ros2_control_node-5]: process started with pid [482]
+[INFO] [spawner-6]: process started with pid [483]
+[INFO] [spawner-7]: process started with pid [484]
+[static_transform_publisher-2] [WARN] [1786508101.927334507] []: Old-style arguments are deprecated; see --help for new-style arguments
+[static_transform_publisher-2] [INFO] [1786508102.237516191] [static_transform_publisher]: Spinning until stopped - publishing transform
+[static_transform_publisher-2] translation: ('0.000000', '0.000000', '0.000000')
+[static_transform_publisher-2] rotation: ('0.000000', '0.000000', '0.000000', '1.000000')
+[static_transform_publisher-2] from 'world' to 'base_link'
+[robot_state_publisher-3] [WARN] [1786508102.242928254] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-3] [INFO] [1786508102.243085672] [robot_state_publisher]: Robot initialized
+[spawner-6] [INFO] [1786508102.514462375] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[ros2_control_node-5] [INFO] [1786508103.028654983] [controller_manager]: Using Steady (Monotonic) clock for triggering controller manager cycles.
+[move_group-4] [INFO] [1786508103.117860167] [move_group.moveit.moveit.ros.rdf_loader]: Loaded robot model in 0.00448802 seconds
+[move_group-4] [INFO] [1786508103.117973848] [move_group.moveit.moveit.core.robot_model]: Loading robot model 'hcr_robot'...
+[ros2_control_node-5] [INFO] [1786508103.137806875] [controller_manager]: Subscribing to '/robot_description' topic for robot description.
+[ros2_control_node-5] [INFO] [1786508103.141534506] [controller_manager]: update rate is 100 Hz
+[ros2_control_node-5] [INFO] [1786508103.141573977] [controller_manager]: Overruns handling is : enabled
+[ros2_control_node-5] [INFO] [1786508103.141586212] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50
+[ros2_control_node-5] [WARN] [1786508103.141664475] [controller_manager]: Could not enable FIFO RT scheduling policy: with error number <1>(Operation not permitted). See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details on how to enable realtime scheduling.
+[ros2_control_node-5] [INFO] [1786508103.149207332] [controller_manager]: Received robot description from topic.
+[ros2_control_node-5] [INFO] [1786508103.149414861] [controller_manager]: Enforcing command limits is disabled. Command limits from URDF will be ignored.
+[ros2_control_node-5] [INFO] [1786508103.154846178] [controller_manager]: Loading hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786508103.230990749] [controller_manager]: Loaded hardware 'hcr_robot_system' from plugin 'hcr_bridge/HcrSystemInterface'
+[ros2_control_node-5] [INFO] [1786508103.231122297] [controller_manager]: Initialize hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786508103.231150631] [controller_manager.hardware_component.system.hcr_robot_system]: Starting async handler with scheduler priority: 50 and policy : synchronized
+[ros2_control_node-5] [WARN] [1786508103.231279181] [controller_manager.hardware_component.system.hcr_robot_system]: Could not enable FIFO RT scheduling policy. Consider setting up your user to do FIFO RT scheduling. See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details.
+[move_group-4] [WARN] [1786508103.234978423] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[move_group-4] [INFO] [1786508103.235113047] [move_group.moveit.moveit.kinematics.kdl_kinematics_plugin]: Joint weights for group 'hcr_arm': 1 1 1 1 1 1
+[ros2_control_node-5] [INFO] [1786508103.247866364] [controller_manager.hardware_component.system.hcr_robot_system]: HcrSystemInterface on_init — 192.168.0.20:1883 · allow_motion=true · deadband=0.0100° · rw_rate=30Hz · is_async=true
+[ros2_control_node-5] [WARN] [1786508103.247923159] [controller_manager.hardware_component.system.hcr_robot_system]: ⚠️ allow_motion=true — 로봇이 실제로 움직인다. PC 의 MQTT 명령은 펜던트 인에이블(데드맨) 스위치를 거치지 않는다. e-stop 대기·반경 정리 상태에서만 쓸 것
+[ros2_control_node-5] [INFO] [1786508103.247952611] [controller_manager]: Successful initialization of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786508103.248204795] [controller_manager]: Activating component 'hcr_robot_system'.
+[ros2_control_node-5] [INFO] [1786508103.248224570] [resource_manager]: 'configure' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786508103.268258850] [controller_manager.hardware_component.system.hcr_robot_system]: MQTT 접속·첫 표본 수신: 192.168.0.20:1883
+[ros2_control_node-5] [INFO] [1786508103.268376739] [resource_manager]: Successful 'configure' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786508103.268394247] [resource_manager]: 'activate' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [ERROR] [1786508103.290243717] [controller_manager.hardware_component.system.hcr_robot_system]: 필드버스 상태: FIELD_BUS_SW_STATE_DISCONNECTED — 드라이브 통신 확인 필요
+[ros2_control_node-5] [ERROR] [1786508103.768568756] [controller_manager.hardware_component.system.hcr_robot_system]: 필드버스가 FIELD_BUS_SW_STATE_CONNECTED 가 아니다 (500ms 대기, 현재 'FIELD_BUS_SW_STATE_DISCONNECTED') — 드라이브 통신을 먼저 살려야 한다
+[ros2_control_node-5] [ERROR] [1786508103.769325937] [controller_manager.hardware_component.system.hcr_robot_system]: 에러 — move/stop 발행·발행 영구 잠금
+[ros2_control_node-5] [ERROR] [1786508103.769381151] [resource_manager]: Failed to 'activate' hardware 'hcr_robot_system'
+[ros2_control_node-5] terminate called after throwing an instance of 'std::runtime_error'
+[ros2_control_node-5]   what():  Failed to set the initial state of the component : hcr_robot_system to active
+[ros2_control_node-5] Stack trace (most recent call last) in thread 567:
+[ros2_control_node-5] #17   Object "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2", at 0xffffffffffffffff, in 
+[ros2_control_node-5] #16   Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x7dc843a76b63, in __clone
+[ros2_control_node-5] #15   Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x7dc8439e9b83, in 
+[ros2_control_node-5] #14   Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x7dc843c79db3, in 
+[ros2_control_node-5] #13   Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x7dc843f744d6, in rclcpp::executors::MultiThreadedExecutor::run(unsigned long)
+[ros2_control_node-5] #12   Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x7dc843f49c69, in rclcpp::Executor::execute_any_executable(rclcpp::AnyExecutable&)
+[ros2_control_node-5] #11   Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x7dc843f4953a, in rclcpp::Executor::execute_subscription(std::shared_ptr<rclcpp::SubscriptionBase>)
+[ros2_control_node-5] #10   Object "/opt/ros/jazzy/lib/libcontroller_manager.so", at 0x7dc844224474, in 
+[ros2_control_node-5] #9    Object "/opt/ros/jazzy/lib/libcontroller_manager.so", at 0x7dc84418ddfa, in controller_manager::ControllerManager::robot_description_callback(std_msgs::msg::String_<std::allocator<void> > const&)
+[ros2_control_node-5] #8    Object "/opt/ros/jazzy/lib/libcontroller_manager.so", at 0x7dc84418b05b, in controller_manager::ControllerManager::init_resource_manager(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+[ros2_control_node-5] #7    Object "/opt/ros/jazzy/lib/libcontroller_manager.so", at 0x7dc84414f020, in 
+[ros2_control_node-5] #6    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x7dc843c48390, in __cxa_throw
+[ros2_control_node-5] #5    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x7dc843c32a54, in std::terminate()
+[ros2_control_node-5] #4    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x7dc843c480d9, in 
+[ros2_control_node-5] #3    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x7dc843c32ff4, in 
+[ros2_control_node-5] #2    Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x7dc8439758fe, in abort
+[ros2_control_node-5] #1    Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x7dc84399227d, in raise
+[ros2_control_node-5] #0    Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x7dc8439ebc0c, in pthread_kill
+[ros2_control_node-5] Aborted (Signal sent by tkill() 482 1000)
+[move_group-4] [INFO] [1786508104.316688947] [move_group.moveit.moveit.ros.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'
+[move_group-4] [INFO] [1786508104.316949753] [move_group.moveit.moveit.ros.moveit_cpp]: Listening to 'joint_states' for joint states
+[move_group-4] [INFO] [1786508104.318443011] [move_group.moveit.moveit.ros.current_state_monitor]: Listening to joint states on topic 'joint_states'
+[move_group-4] [INFO] [1786508104.319270376] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to '/attached_collision_object' for attached collision objects
+[move_group-4] [INFO] [1786508104.319304943] [move_group.moveit.moveit.ros.planning_scene_monitor]: Stopping existing planning scene publisher.
+[move_group-4] [INFO] [1786508104.319456247] [move_group.moveit.moveit.ros.planning_scene_monitor]: Stopped publishing maintained planning scene.
+[move_group-4] [INFO] [1786508104.320040408] [move_group.moveit.moveit.ros.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'
+[move_group-4] [INFO] [1786508104.320165089] [move_group.moveit.moveit.ros.planning_scene_monitor]: Starting planning scene monitor
+[move_group-4] [INFO] [1786508104.320829582] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to '/planning_scene'
+[move_group-4] [INFO] [1786508104.320863030] [move_group.moveit.moveit.ros.planning_scene_monitor]: Starting world geometry update monitor for collision objects, attached objects, octomap updates.
+[move_group-4] [INFO] [1786508104.322314509] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to 'collision_object'
+[move_group-4] [INFO] [1786508104.323180108] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to 'planning_scene_world' for planning scene world geometry
+[move_group-4] [WARN] [1786508104.323409267] [move_group.moveit.moveit.ros.occupancy_map_monitor]: Resolution not specified for Octomap. Assuming resolution = 0.1 instead
+[move_group-4] [ERROR] [1786508104.323434869] [move_group.moveit.moveit.ros.occupancy_map_monitor]: No 3D sensor plugin(s) defined for octomap updates
+[rviz2-1] [INFO] [1786508104.409649819] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-1] [INFO] [1786508104.410197111] [rviz2]: OpenGl version: 4.6 (GLSL 4.6)
+[move_group-4] [INFO] [1786508105.296859815] [move_group.moveit.moveit.ros.planning_pipeline]: Successfully loaded planner 'OMPL'
+[move_group-4] [INFO] [1786508105.298400191] [move_group]: Try loading adapter 'default_planning_request_adapters/ResolveConstraintFrames'
+[move_group-4] [INFO] [1786508105.310559184] [move_group]: Loaded adapter 'default_planning_request_adapters/ResolveConstraintFrames'
+[move_group-4] [INFO] [1786508105.310589470] [move_group]: Try loading adapter 'default_planning_request_adapters/ValidateWorkspaceBounds'
+[move_group-4] [INFO] [1786508105.310906376] [move_group]: Loaded adapter 'default_planning_request_adapters/ValidateWorkspaceBounds'
+[move_group-4] [INFO] [1786508105.310924324] [move_group]: Try loading adapter 'default_planning_request_adapters/CheckStartStateBounds'
+[move_group-4] [INFO] [1786508105.310965227] [move_group]: Loaded adapter 'default_planning_request_adapters/CheckStartStateBounds'
+[move_group-4] [INFO] [1786508105.310984635] [move_group]: Try loading adapter 'default_planning_request_adapters/CheckStartStateCollision'
+[move_group-4] [INFO] [1786508105.311014561] [move_group]: Loaded adapter 'default_planning_request_adapters/CheckStartStateCollision'
+[move_group-4] [INFO] [1786508105.312546628] [move_group]: Try loading adapter 'default_planning_response_adapters/AddTimeOptimalParameterization'
+[move_group-4] [INFO] [1786508105.323602371] [move_group]: Loaded adapter 'default_planning_response_adapters/AddTimeOptimalParameterization'
+[move_group-4] [INFO] [1786508105.323629081] [move_group]: Try loading adapter 'default_planning_response_adapters/ValidateSolution'
+[move_group-4] [INFO] [1786508105.326698169] [move_group]: Loaded adapter 'default_planning_response_adapters/ValidateSolution'
+[move_group-4] [INFO] [1786508105.326744913] [move_group]: Try loading adapter 'default_planning_response_adapters/DisplayMotionPath'
+[move_group-4] [INFO] [1786508105.327623882] [move_group]: Loaded adapter 'default_planning_response_adapters/DisplayMotionPath'
+[rviz2-1] [INFO] [1786508105.469007954] [rviz2]: Stereo is NOT SUPPORTED
+[move_group-4] [INFO] [1786508105.535275429] [move_group.moveit.moveit.plugins.simple_controller_manager]: Added FollowJointTrajectory controller for hcr_arm_controller
+[move_group-4] [INFO] [1786508105.535533106] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786508105.535613006] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786508105.537207549] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Trajectory execution is managing controllers
+[move_group-4] [INFO] [1786508105.537249461] [move_group]: MoveGroup debug mode is ON
+[move_group-4] [INFO] [1786508105.705791420] [move_group.moveit.moveit.ros.move_group.executable]: 
+[move_group-4] 
+[move_group-4] ********************************************************
+[move_group-4] * MoveGroup using: 
+[move_group-4] *     - apply_planning_scene_service
+[move_group-4] *     - clear_octomap_service
+[move_group-4] *     - get_group_urdf
+[move_group-4] *     - load_geometry_from_file
+[move_group-4] *     - CartesianPathService
+[move_group-4] *     - execute_trajectory_action
+[move_group-4] *     - get_planning_scene_service
+[move_group-4] *     - kinematics_service
+[move_group-4] *     - move_action
+[move_group-4] *     - motion_plan_service
+[move_group-4] *     - query_planners_service
+[move_group-4] *     - state_validation_service
+[move_group-4] *     - save_geometry_to_file
+[move_group-4] ********************************************************
+[move_group-4] 
+[move_group-4] [INFO] [1786508105.705862398] [move_group.moveit.moveit.ros.move_group.context]: MoveGroup context using pipeline ompl
+[move_group-4] [INFO] [1786508105.705876483] [move_group.moveit.moveit.ros.move_group.context]: MoveGroup context initialization complete
+[move_group-4] [96mLoading 'move_group/ApplyPlanningSceneService'...[0m
+[move_group-4] [96mLoading 'move_group/ClearOctomapService'...[0m
+[move_group-4] [96mLoading 'move_group/GetUrdfService'...[0m
+[move_group-4] [96mLoading 'move_group/LoadGeometryFromFileService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupCartesianPathService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupExecuteTrajectoryAction'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupGetPlanningSceneService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupKinematicsService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupMoveAction'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupPlanService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupQueryPlannersService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupStateValidationService'...[0m
+[move_group-4] [96mLoading 'move_group/SaveGeometryToFileService'...[0m
+[move_group-4] 
+[move_group-4] [92mYou can start planning now![0m
+[move_group-4] 
+[rviz2-1] Warning: class_loader.impl: SEVERE WARNING!!! A namespace collision has occurred with plugin factory for class rviz_default_plugins::displays::InteractiveMarkerDisplay. New factory will OVERWRITE existing one. This situation occurs when libraries containing plugins are directly linked against an executable (the one running right now generating this message). Please separate plugins out into their own library or just don't link against the library and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.
+[rviz2-1]          at line 321 in /opt/ros/jazzy/include/class_loader/class_loader/class_loader_core.hpp
+[rviz2-1] [WARN] [1786508105.891178588] [rcl.logging_rosout]: Publisher already registered for node name: 'rviz2'. If this is due to multiple nodes with the same name then all logs for the logger named 'rviz2' will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[rviz2-1] [ERROR] [1786508108.984168908] [rviz2.moveit.ros.motion_planning_frame]: Action server: /recognize_objects not available
+[rviz2-1] [INFO] [1786508109.068179440] [rviz2.moveit.ros.motion_planning_frame]: MoveGroup namespace changed: / -> . Reloading params.
+[rviz2-1] [INFO] [1786508109.278343163] [rviz2.moveit.ros.rdf_loader]: Loaded robot model in 0.0132798 seconds
+[rviz2-1] [INFO] [1786508109.279081371] [rviz2.moveit.core.robot_model]: Loading robot model 'hcr_robot'...
+[rviz2-1] [WARN] [1786508109.595973318] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[rviz2-1] [INFO] [1786508109.596362160] [rviz2.moveit.kinematics.kdl_kinematics_plugin]: Joint weights for group 'hcr_arm': 1 1 1 1 1 1
+[rviz2-1] [INFO] [1786508110.079671429] [rviz2.moveit.ros.planning_scene_monitor]: Starting planning scene monitor
+[rviz2-1] [INFO] [1786508110.081956037] [rviz2.moveit.ros.planning_scene_monitor]: Listening to '/monitored_planning_scene'
+[rviz2-1] [INFO] [1786508110.219704555] [interactive_marker_display_100282502592336]: Connected on namespace: /rviz_moveit_motion_planning_display/robot_interaction_interactive_marker_topic
+[rviz2-1] [WARN] [1786508110.221436369] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[rviz2-1] [INFO] [1786508110.230681895] [rviz2.moveit.ros.motion_planning_frame]: group hcr_arm
+[rviz2-1] [INFO] [1786508110.230930475] [rviz2.moveit.ros.motion_planning_frame]: Constructing new MoveGroup connection for group 'hcr_arm' in namespace ''
+[rviz2-1] [INFO] [1786508110.235741873] [interactive_marker_display_100282502592336]: Sending request for interactive markers
+[rviz2-1] [INFO] [1786508110.268639940] [interactive_marker_display_100282502592336]: Service response received for initialization
+[rviz2-1] [INFO] [1786508110.305671097] [rviz2.moveit.ros.move_group_interface]: Ready to take commands for planning group hcr_arm.
+[spawner-6] [WARN] [1786508112.526586395] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508112.527390799] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-7] [WARN] [1786508122.448271228] [ros2_control_controller_spawner_hcr_arm_controller]: Failed to acquire lock in 20 seconds. Attempt 1 of 5 failed. Retrying in 3 seconds...
+[spawner-6] [WARN] [1786508122.540654423] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508122.543283599] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[ERROR] [ros2_control_node-5]: process has died [pid 482, exit code -6, cmd '/opt/ros/jazzy/lib/controller_manager/ros2_control_node --ros-args --params-file /home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config/config/ros2_controllers.yaml -r /controller_manager/robot_description:=/robot_description'].
+[spawner-6] [WARN] [1786508132.924718770] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508132.925627660] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508142.936615848] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508142.937980131] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-7] [WARN] [1786508145.471825146] [ros2_control_controller_spawner_hcr_arm_controller]: Failed to acquire lock in 20 seconds. Attempt 2 of 5 failed. Retrying in 3 seconds...
+[spawner-6] [WARN] [1786508152.950283294] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508152.951718694] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508162.964620559] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508162.965978167] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-7] [WARN] [1786508168.492950113] [ros2_control_controller_spawner_hcr_arm_controller]: Failed to acquire lock in 20 seconds. Attempt 3 of 5 failed. Retrying in 3 seconds...
+[spawner-6] [WARN] [1786508172.976954147] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508172.977975709] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508182.989408339] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508182.990020214] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-7] [WARN] [1786508191.535693734] [ros2_control_controller_spawner_hcr_arm_controller]: Failed to acquire lock in 20 seconds. Attempt 4 of 5 failed. Retrying in 3 seconds...
+[spawner-6] [WARN] [1786508193.000391060] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508193.001242675] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508203.013231521] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508203.013843544] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508213.025992368] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508213.027126252] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-7] [WARN] [1786508214.575418867] [ros2_control_controller_spawner_hcr_arm_controller]: Failed to acquire lock in 20 seconds. Attempt 5 of 5 failed. Retrying in 3 seconds...
+[spawner-7] [ERROR] [1786508217.576383605] [ros2_control_controller_spawner_hcr_arm_controller]: Failed to acquire lock after multiple attempts.
+[ERROR] [spawner-7]: process has died [pid 484, exit code 1, cmd '/opt/ros/jazzy/lib/controller_manager/spawner hcr_arm_controller -c /controller_manager --ros-args'].
+[spawner-6] [WARN] [1786508223.038013421] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508223.038963849] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508233.049482248] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508233.050390696] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508243.060552987] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508243.061618766] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508253.070343958] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508253.071002703] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508263.080365631] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508263.081115437] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508273.091384426] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508273.092016806] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508283.101974751] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508283.102717224] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508293.113057384] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508293.113946021] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508303.125263293] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508303.126480421] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508313.134738444] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508313.135576964] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508323.145090446] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508323.145631733] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508333.155887079] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508333.156546531] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508343.165096521] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508343.165888366] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508353.175497798] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508353.176184639] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508363.187123244] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508363.188474392] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508373.198178085] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508373.198869445] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508383.208553045] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508383.209334127] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508393.219700584] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508393.220365007] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508403.230087732] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508403.231396011] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508413.241167167] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508413.241865653] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508423.252646347] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508423.254866545] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508433.266345681] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508433.267501299] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508443.276717520] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508443.277414106] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508453.286595159] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508453.287368959] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508463.296500152] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508463.297328397] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[spawner-6] [WARN] [1786508473.307434010] [spawner_joint_state_broadcaster]: Could not contact service /controller_manager/list_controllers
+[spawner-6] [INFO] [1786508473.308257900] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[WARNING] [launch]: user interrupted with ctrl-c (SIGINT)
+[INFO] [spawner-6]: sending signal 'SIGINT' to process[spawner-6]
+[INFO] [move_group-4]: sending signal 'SIGINT' to process[move_group-4]
+[INFO] [robot_state_publisher-3]: sending signal 'SIGINT' to process[robot_state_publisher-3]
+[INFO] [static_transform_publisher-2]: sending signal 'SIGINT' to process[static_transform_publisher-2]
+[INFO] [rviz2-1]: sending signal 'SIGINT' to process[rviz2-1]
+[move_group-4] [INFO] [1786508475.445264592] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[robot_state_publisher-3] [INFO] [1786508475.450367832] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[static_transform_publisher-2] [INFO] [1786508475.451716423] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[rviz2-1] [INFO] [1786508475.454936240] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[spawner-6] [INFO] [1786508475.459313136] [spawner_joint_state_broadcaster]: KeyboardInterrupt received! Exiting....
+[rviz2-1] [WARN] [1786508475.471458591] [interactive_marker_display_100282502592336]: Server not available while running, resetting
+[move_group-4] [INFO] [1786508475.510515575] [move_group.moveit.moveit.ros.moveit_cpp]: Deleting MoveItCpp
+[move_group-4] Stack trace (most recent call last):
+[move_group-4] #15   Object "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2", at 0xffffffffffffffff, in 
+[rviz2-1] [INFO] [1786508475.540468360] [rclcpp]: signal_handler(SIGINT/SIGTERM)
+[move_group-4] #14   Object "/opt/ros/jazzy/lib/moveit_ros_move_group/move_group", at 0x62cfb6e42a44, in _start
+[move_group-4] #13   Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x756e617f528a, in __libc_start_main
+[move_group-4] #12   Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x756e617f51c9, in 
+[move_group-4] #11   Object "/opt/ros/jazzy/lib/moveit_ros_move_group/move_group", at 0x62cfb6e41539, in main
+[move_group-4] #10   Object "/opt/ros/jazzy/lib/moveit_ros_move_group/move_group", at 0x62cfb6e44159, in 
+[move_group-4] #9    Object "/opt/ros/jazzy/lib/libmoveit_cpp.so.2.12.4", at 0x756e6217dad0, in moveit_cpp::MoveItCpp::~MoveItCpp()
+[move_group-4] #8    Object "/opt/ros/jazzy/lib/libmoveit_cpp.so.2.12.4", at 0x756e6217d989, in 
+[INFO] [static_transform_publisher-2]: process has finished cleanly [pid 479]
+[move_group-4] #7    Object "/opt/ros/jazzy/lib/libmoveit_trajectory_execution_manager.so.2.12.4", at 0x756e614ea44a, in trajectory_execution_manager::TrajectoryExecutionManager::~TrajectoryExecutionManager()
+[move_group-4] #6    Object "/opt/ros/jazzy/lib/libmoveit_trajectory_execution_manager.so.2.12.4", at 0x756e614fc5a5, in 
+[rviz2-1] MESA: error: dri3_alloc_render_buffer:1626 xcb_dri3_pixmap_from_buffer[s] failed
+[rviz2-1] MESA: error: X error: 9
+[rviz2-1] MESA: error: dri3_alloc_render_buffer:1626 xcb_dri3_pixmap_from_buffer[s] failed
+[rviz2-1] MESA: error: X error: 9
+[move_group-4] #5    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x756e61e1b294, in rclcpp::Node::~Node()
+[move_group-4] #4    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x756e61dc5485, in 
+[move_group-4] #3    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x756e61e19b60, in 
+[move_group-4] #2    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x756e61e19aa3, in rclcpp::node_interfaces::NodeBase::~NodeBase()
+[move_group-4] #1    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x756e61dc5549, in 
+[move_group-4] #0    Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x756e61dc9b19, in rclcpp::CallbackGroup::~CallbackGroup()
+[move_group-4] Segmentation fault (Address not mapped to object [0x756e540eada0])
+[rviz2-1] 
+[rviz2-1] >>> [rcutils|error_handling.c:108] rcutils_set_error_state()
+[rviz2-1] This error state is being overwritten:
+[rviz2-1] 
+[rviz2-1]   'rcl node's context is invalid, at ./src/rcl/node.c:404'
+[rviz2-1] 
+[rviz2-1] with this new error message:
+[rviz2-1] 
+[rviz2-1]   'publisher's context is invalid, at ./src/rcl/publisher.c:423'
+[rviz2-1] 
+[rviz2-1] rcutils_reset_error() should be called after error handling to avoid this.
+[rviz2-1] <<<
+[rviz2-1] [INFO] [1786508475.701928810] [rviz2.moveit.ros.planning_scene_monitor]: Stopping planning scene monitor
+[ERROR] [robot_state_publisher-3]: process has died [pid 480, exit code -2, cmd '/opt/ros/jazzy/lib/robot_state_publisher/robot_state_publisher --ros-args -r __node:=robot_state_publisher --params-file /tmp/launch_params_bcabkzjk'].
+[INFO] [spawner-6]: process has finished cleanly [pid 483]
+[ERROR] [move_group-4]: process has died [pid 481, exit code -11, cmd '/opt/ros/jazzy/lib/moveit_ros_move_group/move_group --ros-args --log-level info --ros-args --params-file /tmp/launch_params_oxthc_k6'].
+[INFO] [rviz2-1]: process has finished cleanly [pid 478]

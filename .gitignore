@@ -12,22 +12,7 @@ src/moveit2/ws_moveit2/src/moveit2_tutorials/
 .claude/settings.local.json
 
 # ── PC 로컬 GPU 오버라이드 ──
-# compose.yml 에는 GPU 설정이 없다 — PC마다 compose.override.yml 을 만들어 얹는다
-# (스니펫은 각 모듈 README §2. 커밋 대상 아님)
-src/moveit2/compose.override.yml
-src/vision/compose.override.yml
-src/simulation/compose.override.yml
 
-# ── 모듈별 런타임 데이터 ──
-# 세 모듈 모두 확인 하네스가 산출물을 data/ 로 떨군다. 런타임 자산이라 커밋하지 않는다.
-#   vision      입력 샘플 이미지 · 지도 산출물(SVG·PNG·CSV)
-#   operator    작업 레코드(job.json·timeline.*) · 나중에 웹이 쓸 uploads/·results/·atlier.db
-#   simulation  접촉 궤적·SVG · URDF→MJCF 변환 결과(assets/ 의 OBJ 포함, 스크립트로 재생성됨)
-#
-# operator 에는 compose.override.yml 훅이 없다 — 창을 띄우지 않아 GPU 설정이 필요 없다.
-src/vision/data/
-src/operator/data/
-src/simulation/data/
 
 # ── Python ──
 __pycache__/

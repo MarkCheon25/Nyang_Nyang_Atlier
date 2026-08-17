@@ -1,0 +1,45 @@
+[INFO] [1786419338.500531077] [controller_manager]: Using Steady (Monotonic) clock for triggering controller manager cycles.
+[INFO] [1786419338.504018605] [controller_manager]: Subscribing to '/robot_description' topic for robot description.
+[INFO] [1786419338.506386171] [controller_manager]: update rate is 100 Hz
+[INFO] [1786419338.506410126] [controller_manager]: Overruns handling is : enabled
+[INFO] [1786419338.506417199] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50
+[WARN] [1786419338.506497226] [controller_manager]: Could not enable FIFO RT scheduling policy: with error number <1>(Operation not permitted). See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details on how to enable realtime scheduling.
+[INFO] [1786419338.673323028] [controller_manager]: Received robot description from topic.
+[INFO] [1786419338.673374426] [controller_manager]: Enforcing command limits is disabled. Command limits from URDF will be ignored.
+[INFO] [1786419338.676022725] [controller_manager]: Loading hardware 'hcr_robot_system' 
+[INFO] [1786419338.694215565] [controller_manager]: Loaded hardware 'hcr_robot_system' from plugin 'hcr_bridge/HcrSystemInterface'
+[INFO] [1786419338.694354399] [controller_manager]: Initialize hardware 'hcr_robot_system' 
+[INFO] [1786419338.694370204] [controller_manager.hardware_component.system.hcr_robot_system]: Starting async handler with scheduler priority: 50 and policy : synchronized
+[WARN] [1786419338.694491321] [controller_manager.hardware_component.system.hcr_robot_system]: Could not enable FIFO RT scheduling policy. Consider setting up your user to do FIFO RT scheduling. See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details.
+[INFO] [1786419338.705756513] [controller_manager.hardware_component.system.hcr_robot_system]: HcrSystemInterface on_init — 127.0.0.1:1884 · allow_motion=false · deadband=0.0100° · rw_rate=30Hz · is_async=true
+[INFO] [1786419338.705958804] [controller_manager.hardware_component.system.hcr_robot_system]: allow_motion=false — write() 는 아무것도 발행하지 않는다 (읽기 전용)
+[INFO] [1786419338.706097325] [controller_manager]: Successful initialization of hardware 'hcr_robot_system'
+[INFO] [1786419338.706768600] [controller_manager]: Activating component 'hcr_robot_system'.
+[INFO] [1786419338.706802244] [resource_manager]: 'configure' hardware 'hcr_robot_system' 
+[ERROR] [1786419341.728079202] [controller_manager.hardware_component.system.hcr_robot_system]: motion/joint/position 첫 표본을 3000ms 안에 못 받았다 — 브로커는 붙었지만 로봇이 상태를 안 낸다
+[ERROR] [1786419341.728523831] [resource_manager]: Failed to 'configure' hardware 'hcr_robot_system'
+terminate called after throwing an instance of 'std::runtime_error'
+  what():  Failed to set the initial state of the component : hcr_robot_system to active
+Stack trace (most recent call last):
+#19   Object "/usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2", at 0xffffffffffffffff, in 
+#18   Object "/opt/ros/jazzy/lib/controller_manager/ros2_control_node", at 0x56c581f85bd4, in _start
+#17   Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x736becae428a, in __libc_start_main
+#16   Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x736becae41c9, in 
+#15   Object "/opt/ros/jazzy/lib/controller_manager/ros2_control_node", at 0x56c581f84f78, in main
+#14   Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x736bed0e1813, in rclcpp::executors::MultiThreadedExecutor::spin()
+#13   Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x736bed0e14d6, in rclcpp::executors::MultiThreadedExecutor::run(unsigned long)
+#12   Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x736bed0b6c69, in rclcpp::Executor::execute_any_executable(rclcpp::AnyExecutable&)
+#11   Object "/opt/ros/jazzy/lib/librclcpp.so", at 0x736bed0b653a, in rclcpp::Executor::execute_subscription(std::shared_ptr<rclcpp::SubscriptionBase>)
+#10   Object "/opt/ros/jazzy/lib/libcontroller_manager.so", at 0x736bed391474, in 
+#9    Object "/opt/ros/jazzy/lib/libcontroller_manager.so", at 0x736bed2fadfa, in controller_manager::ControllerManager::robot_description_callback(std_msgs::msg::String_<std::allocator<void> > const&)
+#8    Object "/opt/ros/jazzy/lib/libcontroller_manager.so", at 0x736bed2f805b, in controller_manager::ControllerManager::init_resource_manager(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+#7    Object "/opt/ros/jazzy/lib/libcontroller_manager.so", at 0x736bed2bc020, in 
+#6    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x736becdb5390, in __cxa_throw
+#5    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x736becd9fa54, in std::terminate()
+#4    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x736becdb50d9, in 
+#3    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x736becd9fff4, in 
+#2    Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x736becae28fe, in abort
+#1    Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x736becaff27d, in raise
+#0    Object "/usr/lib/x86_64-linux-gnu/libc.so.6", at 0x736becb58c0c, in pthread_kill
+Aborted (Signal sent by tkill() 1476 1000)
+[ros2run]: Aborted

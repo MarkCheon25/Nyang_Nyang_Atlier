@@ -1,0 +1,22 @@
+# 축온 감시견 — 임계 **58°C** · 40초 · 대상 192.168.0.20
+[  2.0s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=54 wrist3=55  | 최고 55°C
+[  4.1s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=54 wrist3=55  | 최고 55°C
+[  6.1s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=54 wrist3=55  | 최고 55°C
+[  8.2s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=54 wrist3=55  | 최고 55°C
+[ 10.2s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=54 wrist3=55  | 최고 55°C
+[ 12.2s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=54 wrist3=55  | 최고 55°C
+[ 14.3s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=54 wrist3=55  | 최고 55°C
+[ 16.3s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=55 wrist3=55  | 최고 55°C
+[ 18.3s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=55 wrist3=55  | 최고 55°C
+[ 20.4s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=55 wrist3=55  | 최고 55°C
+[ 22.4s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=55 wrist3=55  | 최고 55°C
+[ 24.5s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=55 wrist3=55  | 최고 55°C
+[ 26.6s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=55 wrist3=55  | 최고 55°C
+[ 28.6s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=55 wrist3=55  | 최고 55°C
+[ 30.6s] base=53 shoulder=52 elbow=54 wrist1=55 wrist2=55 wrist3=56  | 최고 56°C
+[ 32.7s] base=53 shoulder=52 elbow=54 wrist1=56 wrist2=55 wrist3=56  | 최고 56°C
+[ 34.7s] base=54 shoulder=52 elbow=54 wrist1=56 wrist2=55 wrist3=56  | 최고 56°C
+[ 36.8s] base=53 shoulder=52 elbow=54 wrist1=56 wrist2=55 wrist3=56  | 최고 56°C
+[ 38.8s] base=53 shoulder=52 elbow=54 wrist1=56 wrist2=55 wrist3=56  | 최고 56°C
+
+✅ 창 종료 — 임계 미도달. 표본 393건 · 축별 최고: base=54 shoulder=52 elbow=54 wrist1=56 wrist2=55 wrist3=56

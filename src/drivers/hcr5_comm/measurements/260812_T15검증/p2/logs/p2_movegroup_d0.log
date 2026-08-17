@@ -1,0 +1,283 @@
+[INFO] [launch]: All log files can be found below /home/rosuser/.ros/log/2026-08-12-12-23-48-262025-moveit2-2382
+[INFO] [launch]: Default logging verbosity is set to INFO
+WARNING:root:[33;21mCannot infer SRDF from `/home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config`. -- using config/hcr_robot.srdf[0m
+[INFO] [rviz2-1]: process started with pid [2399]
+[INFO] [static_transform_publisher-2]: process started with pid [2400]
+[INFO] [robot_state_publisher-3]: process started with pid [2401]
+[INFO] [move_group-4]: process started with pid [2402]
+[INFO] [ros2_control_node-5]: process started with pid [2403]
+[INFO] [spawner-6]: process started with pid [2404]
+[INFO] [spawner-7]: process started with pid [2405]
+[static_transform_publisher-2] [WARN] [1786537428.872466176] []: Old-style arguments are deprecated; see --help for new-style arguments
+[static_transform_publisher-2] [INFO] [1786537428.939969434] [static_transform_publisher]: Spinning until stopped - publishing transform
+[static_transform_publisher-2] translation: ('0.000000', '0.000000', '0.000000')
+[static_transform_publisher-2] rotation: ('0.000000', '0.000000', '0.000000', '1.000000')
+[static_transform_publisher-2] from 'world' to 'base_link'
+[robot_state_publisher-3] [WARN] [1786537429.306710965] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[robot_state_publisher-3] [INFO] [1786537429.307222859] [robot_state_publisher]: Robot initialized
+[move_group-4] [INFO] [1786537429.821383927] [move_group.moveit.moveit.ros.rdf_loader]: Loaded robot model in 0.00813075 seconds
+[move_group-4] [INFO] [1786537429.821613001] [move_group.moveit.moveit.core.robot_model]: Loading robot model 'hcr_robot'...
+[ros2_control_node-5] [INFO] [1786537429.969403412] [controller_manager]: Using Steady (Monotonic) clock for triggering controller manager cycles.
+[ros2_control_node-5] [INFO] [1786537430.039084397] [controller_manager]: Subscribing to '/robot_description' topic for robot description.
+[ros2_control_node-5] [INFO] [1786537430.045605254] [controller_manager]: update rate is 100 Hz
+[ros2_control_node-5] [INFO] [1786537430.045659985] [controller_manager]: Overruns handling is : enabled
+[ros2_control_node-5] [INFO] [1786537430.045674962] [controller_manager]: Spawning controller_manager RT thread with scheduler priority: 50
+[ros2_control_node-5] [WARN] [1786537430.045795562] [controller_manager]: Could not enable FIFO RT scheduling policy: with error number <1>(Operation not permitted). See [https://control.ros.org/master/doc/ros2_control/controller_manager/doc/userdoc.html] for details on how to enable realtime scheduling.
+[ros2_control_node-5] [INFO] [1786537430.050362820] [controller_manager]: Received robot description from topic.
+[ros2_control_node-5] [INFO] [1786537430.050412908] [controller_manager]: Enforcing command limits is disabled. Command limits from URDF will be ignored.
+[ros2_control_node-5] [INFO] [1786537430.053210949] [controller_manager]: Loading hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786537430.053856118] [controller_manager]: Loaded hardware 'hcr_robot_system' from plugin 'mock_components/GenericSystem'
+[ros2_control_node-5] [INFO] [1786537430.053938365] [controller_manager]: Initialize hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786537430.069852350] [controller_manager]: Successful initialization of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786537430.070286395] [controller_manager]: Activating component 'hcr_robot_system'.
+[ros2_control_node-5] [INFO] [1786537430.070323895] [resource_manager]: 'configure' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786537430.070352739] [resource_manager]: Successful 'configure' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786537430.070365908] [resource_manager]: 'activate' hardware 'hcr_robot_system' 
+[ros2_control_node-5] [INFO] [1786537430.070382356] [resource_manager]: Successful 'activate' of hardware 'hcr_robot_system'
+[ros2_control_node-5] [INFO] [1786537430.070536425] [controller_manager]: Registering statistics for : hcr_robot_system
+[ros2_control_node-5] [INFO] [1786537430.070708707] [controller_manager]: Resource Manager has been successfully initialized. Starting Controller Manager services...
+[ros2_control_node-5] [INFO] [1786537430.229890954] [controller_manager]: Received robot description from topic.
+[ros2_control_node-5] [WARN] [1786537430.229946829] [controller_manager]: ResourceManager has already loaded a urdf. Ignoring attempt to reload a robot description.
+[spawner-7] [INFO] [1786537430.247958753] [spawner_hcr_arm_controller]: waiting for service /controller_manager/list_controllers to become available...
+[ros2_control_node-5] [INFO] [1786537430.250262841] [controller_manager]: Loading controller : 'hcr_arm_controller' of type 'joint_trajectory_controller/JointTrajectoryController'
+[ros2_control_node-5] [INFO] [1786537430.250308401] [controller_manager]: Loading controller 'hcr_arm_controller'
+[ros2_control_node-5] [INFO] [1786537430.270650044] [controller_manager]: Controller 'hcr_arm_controller' node arguments: --ros-args --params-file /home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config/config/ros2_controllers.yaml 
+[spawner-7] [INFO] [1786537430.307861254] [spawner_hcr_arm_controller]: Loaded hcr_arm_controller
+[ros2_control_node-5] [INFO] [1786537430.309248814] [controller_manager]: Configuring controller: 'hcr_arm_controller'
+[ros2_control_node-5] [INFO] [1786537430.309663128] [hcr_arm_controller]: No specific joint names are used for command interfaces. Using 'joints' parameter.
+[ros2_control_node-5] [INFO] [1786537430.309708970] [hcr_arm_controller]: Command interfaces are [position] and state interfaces are [position velocity].
+[ros2_control_node-5] [INFO] [1786537430.309745989] [hcr_arm_controller]: Using 'splines' interpolation method.
+[ros2_control_node-5] [INFO] [1786537430.317298321] [hcr_arm_controller]: Action status changes will be monitored at 20.00 Hz.
+[ros2_control_node-5] [INFO] [1786537430.326094210] [hcr_arm_controller]: Setting initial scaling factor to 1.000000
+[ros2_control_node-5] [INFO] [1786537430.326135655] [hcr_arm_controller]: No scaling interface set. This controller will not read speed scaling from the hardware.
+[move_group-4] [WARN] [1786537430.328569057] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[ros2_control_node-5] [INFO] [1786537430.328711748] [controller_manager]: Activating controllers: [ hcr_arm_controller ]
+[move_group-4] [INFO] [1786537430.328722901] [move_group.moveit.moveit.kinematics.kdl_kinematics_plugin]: Joint weights for group 'hcr_arm': 1 1 1 1 1 1
+[ros2_control_node-5] [INFO] [1786537430.337003475] [controller_manager]: Successfully switched controllers!
+[spawner-7] [INFO] [1786537430.348440891] [spawner_hcr_arm_controller]: Configured and activated hcr_arm_controller
+[rviz2-1] [INFO] [1786537430.365547078] [rviz2]: Stereo is NOT SUPPORTED
+[rviz2-1] [INFO] [1786537430.365931089] [rviz2]: OpenGl version: 4.6 (GLSL 4.6)
+[rviz2-1] [INFO] [1786537430.439576256] [rviz2]: Stereo is NOT SUPPORTED
+[spawner-6] [INFO] [1786537430.533862793] [spawner_joint_state_broadcaster]: waiting for service /controller_manager/list_controllers to become available...
+[INFO] [spawner-7]: process has finished cleanly [pid 2405]
+[rviz2-1] Warning: class_loader.impl: SEVERE WARNING!!! A namespace collision has occurred with plugin factory for class rviz_default_plugins::displays::InteractiveMarkerDisplay. New factory will OVERWRITE existing one. This situation occurs when libraries containing plugins are directly linked against an executable (the one running right now generating this message). Please separate plugins out into their own library or just don't link against the library and use either class_loader::ClassLoader/MultiLibraryClassLoader to open.
+[rviz2-1]          at line 321 in /opt/ros/jazzy/include/class_loader/class_loader/class_loader_core.hpp
+[rviz2-1] [WARN] [1786537430.682730327] [rcl.logging_rosout]: Publisher already registered for node name: 'rviz2'. If this is due to multiple nodes with the same name then all logs for the logger named 'rviz2' will go out over the existing publisher. As soon as any node with that name is destructed it will unregister the publisher, preventing any further logs for that name from being published on the rosout topic.
+[move_group-4] [INFO] [1786537430.789402562] [move_group.moveit.moveit.ros.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'
+[move_group-4] [INFO] [1786537430.789610073] [move_group.moveit.moveit.ros.moveit_cpp]: Listening to 'joint_states' for joint states
+[move_group-4] [INFO] [1786537430.790726732] [move_group.moveit.moveit.ros.current_state_monitor]: Listening to joint states on topic 'joint_states'
+[move_group-4] [INFO] [1786537430.791469753] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to '/attached_collision_object' for attached collision objects
+[move_group-4] [INFO] [1786537430.791500198] [move_group.moveit.moveit.ros.planning_scene_monitor]: Stopping existing planning scene publisher.
+[move_group-4] [INFO] [1786537430.791598016] [move_group.moveit.moveit.ros.planning_scene_monitor]: Stopped publishing maintained planning scene.
+[move_group-4] [INFO] [1786537430.792086366] [move_group.moveit.moveit.ros.planning_scene_monitor]: Publishing maintained planning scene on 'monitored_planning_scene'
+[move_group-4] [INFO] [1786537430.792203794] [move_group.moveit.moveit.ros.planning_scene_monitor]: Starting planning scene monitor
+[move_group-4] [INFO] [1786537430.792798809] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to '/planning_scene'
+[move_group-4] [INFO] [1786537430.792836157] [move_group.moveit.moveit.ros.planning_scene_monitor]: Starting world geometry update monitor for collision objects, attached objects, octomap updates.
+[move_group-4] [INFO] [1786537430.794247878] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to 'collision_object'
+[move_group-4] [INFO] [1786537430.794925506] [move_group.moveit.moveit.ros.planning_scene_monitor]: Listening to 'planning_scene_world' for planning scene world geometry
+[move_group-4] [WARN] [1786537430.795145657] [move_group.moveit.moveit.ros.occupancy_map_monitor]: Resolution not specified for Octomap. Assuming resolution = 0.1 instead
+[move_group-4] [ERROR] [1786537430.795192094] [move_group.moveit.moveit.ros.occupancy_map_monitor]: No 3D sensor plugin(s) defined for octomap updates
+[move_group-4] [INFO] [1786537431.068061003] [move_group.moveit.moveit.ros.planning_pipeline]: Successfully loaded planner 'OMPL'
+[move_group-4] [INFO] [1786537431.069633444] [move_group]: Try loading adapter 'default_planning_request_adapters/ResolveConstraintFrames'
+[move_group-4] [INFO] [1786537431.076086432] [move_group]: Loaded adapter 'default_planning_request_adapters/ResolveConstraintFrames'
+[move_group-4] [INFO] [1786537431.076133394] [move_group]: Try loading adapter 'default_planning_request_adapters/ValidateWorkspaceBounds'
+[move_group-4] [INFO] [1786537431.076590731] [move_group]: Loaded adapter 'default_planning_request_adapters/ValidateWorkspaceBounds'
+[move_group-4] [INFO] [1786537431.076617638] [move_group]: Try loading adapter 'default_planning_request_adapters/CheckStartStateBounds'
+[move_group-4] [INFO] [1786537431.076674079] [move_group]: Loaded adapter 'default_planning_request_adapters/CheckStartStateBounds'
+[move_group-4] [INFO] [1786537431.076687425] [move_group]: Try loading adapter 'default_planning_request_adapters/CheckStartStateCollision'
+[move_group-4] [INFO] [1786537431.076715143] [move_group]: Loaded adapter 'default_planning_request_adapters/CheckStartStateCollision'
+[move_group-4] [INFO] [1786537431.078955316] [move_group]: Try loading adapter 'default_planning_response_adapters/AddTimeOptimalParameterization'
+[move_group-4] [INFO] [1786537431.081787944] [move_group]: Loaded adapter 'default_planning_response_adapters/AddTimeOptimalParameterization'
+[move_group-4] [INFO] [1786537431.081817401] [move_group]: Try loading adapter 'default_planning_response_adapters/ValidateSolution'
+[move_group-4] [INFO] [1786537431.084485301] [move_group]: Loaded adapter 'default_planning_response_adapters/ValidateSolution'
+[move_group-4] [INFO] [1786537431.084533477] [move_group]: Try loading adapter 'default_planning_response_adapters/DisplayMotionPath'
+[move_group-4] [INFO] [1786537431.085961134] [move_group]: Loaded adapter 'default_planning_response_adapters/DisplayMotionPath'
+[move_group-4] [INFO] [1786537431.155462813] [move_group.moveit.moveit.plugins.simple_controller_manager]: Added FollowJointTrajectory controller for hcr_arm_controller
+[move_group-4] [INFO] [1786537431.155737483] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786537431.155815992] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786537431.156569383] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Trajectory execution is managing controllers
+[move_group-4] [INFO] [1786537431.156607419] [move_group]: MoveGroup debug mode is ON
+[move_group-4] [INFO] [1786537431.207995016] [move_group.moveit.moveit.ros.move_group.executable]: 
+[move_group-4] 
+[move_group-4] ********************************************************
+[move_group-4] * MoveGroup using: 
+[move_group-4] *     - apply_planning_scene_service
+[move_group-4] *     - clear_octomap_service
+[move_group-4] *     - get_group_urdf
+[move_group-4] *     - load_geometry_from_file
+[move_group-4] *     - CartesianPathService
+[move_group-4] *     - execute_trajectory_action
+[move_group-4] *     - get_planning_scene_service
+[move_group-4] *     - kinematics_service
+[move_group-4] *     - move_action
+[move_group-4] *     - motion_plan_service
+[move_group-4] *     - query_planners_service
+[move_group-4] *     - state_validation_service
+[move_group-4] *     - save_geometry_to_file
+[move_group-4] ********************************************************
+[move_group-4] 
+[move_group-4] [INFO] [1786537431.208054517] [move_group.moveit.moveit.ros.move_group.context]: MoveGroup context using pipeline ompl
+[move_group-4] [INFO] [1786537431.208067855] [move_group.moveit.moveit.ros.move_group.context]: MoveGroup context initialization complete
+[move_group-4] [96mLoading 'move_group/ApplyPlanningSceneService'...[0m
+[move_group-4] [96mLoading 'move_group/ClearOctomapService'...[0m
+[move_group-4] [96mLoading 'move_group/GetUrdfService'...[0m
+[move_group-4] [96mLoading 'move_group/LoadGeometryFromFileService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupCartesianPathService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupExecuteTrajectoryAction'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupGetPlanningSceneService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupKinematicsService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupMoveAction'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupPlanService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupQueryPlannersService'...[0m
+[move_group-4] [96mLoading 'move_group/MoveGroupStateValidationService'...[0m
+[move_group-4] [96mLoading 'move_group/SaveGeometryToFileService'...[0m
+[move_group-4] 
+[move_group-4] [92mYou can start planning now![0m
+[move_group-4] 
+[ros2_control_node-5] [INFO] [1786537433.538969928] [controller_manager]: Loading controller : 'joint_state_broadcaster' of type 'joint_state_broadcaster/JointStateBroadcaster'
+[ros2_control_node-5] [INFO] [1786537433.539008537] [controller_manager]: Loading controller 'joint_state_broadcaster'
+[ros2_control_node-5] [INFO] [1786537433.544842865] [controller_manager]: Controller 'joint_state_broadcaster' node arguments: --ros-args --params-file /home/rosuser/ws_moveit2/install/hcr_moveit_config/share/hcr_moveit_config/config/ros2_controllers.yaml 
+[spawner-6] [INFO] [1786537433.578145907] [spawner_joint_state_broadcaster]: Loaded joint_state_broadcaster
+[ros2_control_node-5] [INFO] [1786537433.580039544] [controller_manager]: Configuring controller: 'joint_state_broadcaster'
+[ros2_control_node-5] [INFO] [1786537433.580154744] [joint_state_broadcaster]: 'joints' or 'interfaces' parameter is empty. All available state interfaces will be published
+[ros2_control_node-5] [INFO] [1786537433.592199507] [controller_manager]: Activating controllers: [ joint_state_broadcaster ]
+[ros2_control_node-5] [INFO] [1786537433.596331979] [controller_manager]: Successfully switched controllers!
+[spawner-6] [INFO] [1786537433.607961288] [spawner_joint_state_broadcaster]: Configured and activated joint_state_broadcaster
+[rviz2-1] [ERROR] [1786537433.779960093] [rviz2.moveit.ros.motion_planning_frame]: Action server: /recognize_objects not available
+[INFO] [spawner-6]: process has finished cleanly [pid 2404]
+[rviz2-1] [INFO] [1786537433.824070412] [rviz2.moveit.ros.motion_planning_frame]: MoveGroup namespace changed: / -> . Reloading params.
+[rviz2-1] [INFO] [1786537434.060585037] [rviz2.moveit.ros.rdf_loader]: Loaded robot model in 0.0186482 seconds
+[rviz2-1] [INFO] [1786537434.061403515] [rviz2.moveit.core.robot_model]: Loading robot model 'hcr_robot'...
+[rviz2-1] [WARN] [1786537434.242004235] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[rviz2-1] [INFO] [1786537434.242644076] [rviz2.moveit.kinematics.kdl_kinematics_plugin]: Joint weights for group 'hcr_arm': 1 1 1 1 1 1
+[rviz2-1] [INFO] [1786537434.628024882] [rviz2.moveit.ros.planning_scene_monitor]: Starting planning scene monitor
+[rviz2-1] [INFO] [1786537434.629863611] [rviz2.moveit.ros.planning_scene_monitor]: Listening to '/monitored_planning_scene'
+[rviz2-1] [INFO] [1786537434.776702906] [interactive_marker_display_109564576938192]: Connected on namespace: /rviz_moveit_motion_planning_display/robot_interaction_interactive_marker_topic
+[rviz2-1] [WARN] [1786537434.778284293] [kdl_parser]: The root link base_link has an inertia specified in the URDF, but KDL does not support a root link with an inertia.  As a workaround, you can add an extra dummy link to your URDF.
+[rviz2-1] [INFO] [1786537434.782866889] [rviz2.moveit.ros.motion_planning_frame]: group hcr_arm
+[rviz2-1] [INFO] [1786537434.783023624] [rviz2.moveit.ros.motion_planning_frame]: Constructing new MoveGroup connection for group 'hcr_arm' in namespace ''
+[rviz2-1] [INFO] [1786537434.790168274] [interactive_marker_display_109564576938192]: Sending request for interactive markers
+[rviz2-1] [INFO] [1786537434.820429102] [rviz2.moveit.ros.move_group_interface]: Ready to take commands for planning group hcr_arm.
+[rviz2-1] [INFO] [1786537434.823660831] [interactive_marker_display_109564576938192]: Service response received for initialization
+[move_group-4] [INFO] [1786537484.922538410] [move_group.moveit.moveit.ros.move_group.move_action]: MoveGroupMoveAction: Received request
+[move_group-4] [INFO] [1786537484.923302009] [move_group.moveit.moveit.ros.move_group.move_action]: executing..
+[move_group-4] [INFO] [1786537484.926652497] [move_group.moveit.moveit.ros.move_group.move_action]: Combined planning and execution request received for MoveGroup action. Forwarding to planning and execution pipeline.
+[move_group-4] [WARN] [1786537484.926883617] [move_group.moveit.moveit.ros.move_group.capability]: Execution of motions should always start at the robot's current state. Ignoring the state supplied as start state in the motion planning request
+[move_group-4] [INFO] [1786537484.926933904] [move_group.moveit.moveit.ros.plan_execution]: Planning attempt 1 of at most 1
+[move_group-4] [INFO] [1786537484.927376722] [move_group]: Calling PlanningRequestAdapter 'ResolveConstraintFrames'
+[move_group-4] [INFO] [1786537484.927429478] [move_group]: Calling PlanningRequestAdapter 'ValidateWorkspaceBounds'
+[move_group-4] [WARN] [1786537484.927438129] [move_group.moveit.moveit.ros.validate_workspace_bounds]: It looks like the planning volume was not specified. Using default values.
+[move_group-4] [INFO] [1786537484.927457358] [move_group]: Calling PlanningRequestAdapter 'CheckStartStateBounds'
+[move_group-4] [INFO] [1786537484.927481716] [move_group]: Calling PlanningRequestAdapter 'CheckStartStateCollision'
+[move_group-4] [INFO] [1786537484.928360201] [move_group.moveit.moveit.planners.ompl.model_based_planning_context]: Planner configuration 'hcr_arm' will use planner 'geometric::RRT'. Additional configuration parameters will be set when the planner is constructed.
+[move_group-4] [INFO] [1786537484.928584526] [move_group]: Calling Planner 'OMPL'
+[move_group-4] [INFO] [1786537484.968308499] [move_group]: Calling PlanningResponseAdapter 'AddTimeOptimalParameterization'
+[move_group-4] [INFO] [1786537484.969557698] [move_group]: Calling PlanningResponseAdapter 'ValidateSolution'
+[move_group-4] [INFO] [1786537484.969753388] [move_group]: Calling PlanningResponseAdapter 'DisplayMotionPath'
+[move_group-4] [WARN] [1786537484.969933160] [move_group.moveit.moveit.ros.planning_pipeline]: The planner plugin did not fill out the 'planner_id' field of the MotionPlanResponse. Setting it to the planner ID name of the MotionPlanRequest assuming that the planner plugin does warn you if it does not use the requested planner.
+[move_group-4] [INFO] [1786537484.970076057] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786537484.970116645] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786537484.970201934] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01
+[move_group-4] [INFO] [1786537484.976498413] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Starting trajectory execution ...
+[move_group-4] [INFO] [1786537484.976595257] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786537484.976630356] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786537484.976804388] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to hcr_arm_controller
+[ros2_control_node-5] [INFO] [1786537484.977287113] [hcr_arm_controller]: Received new action goal
+[ros2_control_node-5] [INFO] [1786537484.977361845] [hcr_arm_controller]: Accepted new action goal
+[move_group-4] [INFO] [1786537484.977605196] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: hcr_arm_controller started execution
+[move_group-4] [INFO] [1786537484.977637608] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted!
+[ros2_control_node-5] [INFO] [1786537486.056319594] [hcr_arm_controller]: Goal reached, success!
+[move_group-4] [INFO] [1786537486.078015991] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'hcr_arm_controller' successfully finished
+[move_group-4] [INFO] [1786537486.106622132] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...
+[move_group-4] [INFO] [1786537486.116952234] [move_group.moveit.moveit.ros.move_group.move_action]: Solution was found and executed.
+[move_group-4] [INFO] [1786537524.943309498] [move_group.moveit.moveit.ros.move_group.move_action]: MoveGroupMoveAction: Received request
+[move_group-4] [INFO] [1786537524.943590981] [move_group.moveit.moveit.ros.move_group.move_action]: executing..
+[move_group-4] [INFO] [1786537524.946529302] [move_group.moveit.moveit.ros.move_group.move_action]: Combined planning and execution request received for MoveGroup action. Forwarding to planning and execution pipeline.
+[move_group-4] [WARN] [1786537524.946748639] [move_group.moveit.moveit.ros.move_group.capability]: Execution of motions should always start at the robot's current state. Ignoring the state supplied as start state in the motion planning request
+[move_group-4] [INFO] [1786537524.946783229] [move_group.moveit.moveit.ros.plan_execution]: Planning attempt 1 of at most 1
+[move_group-4] [INFO] [1786537524.947066712] [move_group]: Calling PlanningRequestAdapter 'ResolveConstraintFrames'
+[move_group-4] [INFO] [1786537524.947117521] [move_group]: Calling PlanningRequestAdapter 'ValidateWorkspaceBounds'
+[move_group-4] [WARN] [1786537524.947128484] [move_group.moveit.moveit.ros.validate_workspace_bounds]: It looks like the planning volume was not specified. Using default values.
+[move_group-4] [INFO] [1786537524.947155535] [move_group]: Calling PlanningRequestAdapter 'CheckStartStateBounds'
+[move_group-4] [INFO] [1786537524.947196553] [move_group]: Calling PlanningRequestAdapter 'CheckStartStateCollision'
+[move_group-4] [INFO] [1786537524.947582676] [move_group.moveit.moveit.planners.ompl.model_based_planning_context]: Planner configuration 'hcr_arm' will use planner 'geometric::RRT'. Additional configuration parameters will be set when the planner is constructed.
+[move_group-4] [INFO] [1786537524.947709410] [move_group]: Calling Planner 'OMPL'
+[move_group-4] [INFO] [1786537524.965392061] [move_group]: Calling PlanningResponseAdapter 'AddTimeOptimalParameterization'
+[move_group-4] [INFO] [1786537524.966386512] [move_group]: Calling PlanningResponseAdapter 'ValidateSolution'
+[move_group-4] [INFO] [1786537524.966600194] [move_group]: Calling PlanningResponseAdapter 'DisplayMotionPath'
+[move_group-4] [WARN] [1786537524.966709951] [move_group.moveit.moveit.ros.planning_pipeline]: The planner plugin did not fill out the 'planner_id' field of the MotionPlanResponse. Setting it to the planner ID name of the MotionPlanRequest assuming that the planner plugin does warn you if it does not use the requested planner.
+[move_group-4] [INFO] [1786537524.966874154] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786537524.966914454] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786537524.967000641] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Validating trajectory with allowed_start_tolerance 0.01
+[move_group-4] [INFO] [1786537524.976646199] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Starting trajectory execution ...
+[move_group-4] [INFO] [1786537524.976717017] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786537524.976751331] [move_group.moveit.moveit.plugins.simple_controller_manager]: Returned 1 controllers in list
+[move_group-4] [INFO] [1786537524.976894824] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: sending trajectory to hcr_arm_controller
+[ros2_control_node-5] [INFO] [1786537524.977272573] [hcr_arm_controller]: Received new action goal
+[ros2_control_node-5] [INFO] [1786537524.977342662] [hcr_arm_controller]: Accepted new action goal
+[move_group-4] [INFO] [1786537524.977530932] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: hcr_arm_controller started execution
+[move_group-4] [INFO] [1786537524.977543192] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Goal request accepted!
+[ros2_control_node-5] [INFO] [1786537526.226504405] [hcr_arm_controller]: Goal reached, success!
+[move_group-4] [INFO] [1786537526.228267160] [moveit.simple_controller_manager.follow_joint_trajectory_controller_handle]: Controller 'hcr_arm_controller' successfully finished
+[move_group-4] [INFO] [1786537526.256442853] [move_group.moveit.moveit.ros.trajectory_execution_manager]: Completed trajectory execution with status SUCCEEDED ...
+[move_group-4] [INFO] [1786537526.256780700] [move_group.moveit.moveit.ros.move_group.move_action]: Solution was found and executed.
+[move_group-4] [ERROR] [1786538219.572965781] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.574460980] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.575780957] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.577092723] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.580748177] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.585484478] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.586815223] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.587985584] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.589410049] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.590549381] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.591902553] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.594177440] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.596463292] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.599615604] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.606045519] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.607452520] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.617515572] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.618835254] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.625387630] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538219.626726318] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.898275140] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.899816392] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.900917142] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.902325565] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.904002830] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.905555183] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.906860724] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.908315445] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.909503749] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.913435985] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.917478105] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.920311636] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.922931723] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.924484913] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.930602033] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.931834744] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.938612438] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.939952732] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.949102729] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538222.952260271] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.289831184] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.291720132] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.293080064] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.294470043] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.296070226] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.298300058] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.300332580] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.303103251] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.304546473] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.305985553] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.308252517] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.310492721] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.312969908] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.315489760] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.322988757] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.324344933] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.331408616] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.333405384] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.339768487] [move_group.moveit.moveit.core.conversions]: Found empty JointState message
+[move_group-4] [ERROR] [1786538225.341008594] [move_group.moveit.moveit.core.conversions]: Found empty JointState message

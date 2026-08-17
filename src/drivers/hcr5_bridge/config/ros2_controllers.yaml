@@ -1,0 +1,44 @@
+# ros2_control 컨트롤러 설정 — hcr5_bridge 자체 사본.
+#
+# 원본은 hcr_moveit_config/config/ros2_controllers.yaml 이었다. 그 파일을 계속 참조하면
+# 기동에 MoveIt 패키지가 필요해져 "moveit2 없이 선다"가 성립하지 않는다. 그래서 사본을 든다.
+#
+# ⚠️ 두 곳이 되었으므로 갈릴 수 있다. 값이 다르면 **이 파일이 ros2_control 경로의 기준**이고,
+#    MoveIt 경로(demo.launch.py)는 저쪽을 쓴다. 컨트롤러 이름은 양쪽이 같아야 한다 —
+#    hcr_arm_controller 를 검증.md V-4 · README §3 · moveit_controllers.yaml 이 다 이름으로 든다.
+#
+# update_rate 100Hz 는 controller_manager 의 주기다. 하드웨어 read/write 는 rw_rate(30Hz),
+# 실기 MQTT 발행은 ≥137ms — **세 층이 서로 다르다**(중간결과물 §5, README §3.5).
+
+controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    hcr_arm_controller:
+      type: joint_trajectory_controller/JointTrajectoryController
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+
+
+hcr_arm_controller:
+  ros__parameters:
+    command_interfaces:
+      - position
+    state_interfaces:
+      - position
+      - velocity
+    joints:
+      - joint_1
+      - joint_2
+      - joint_3
+      - joint_4
+      - joint_5
+      - joint_6
+    # 한 점짜리 goal 을 보내면 종점 속도가 0 이 아닌 상태로 끝날 수 있다.
+    allow_nonzero_velocity_at_trajectory_end: true
+
+    # ⚠️ constraints 를 여기 두지 않았다 — 종전과 같다.
+    # 그래서 error_code:0(SUCCESSFUL) 은 도착 판정이 못 된다(README §3.5).
+    # 도착은 mqtt_cmd.py pos 로 본다. constraints 신설은 아직 안 태운 변경이라
+    # 이번 세션에서 손대지 않는다 — 업무목록 승격 후보.
