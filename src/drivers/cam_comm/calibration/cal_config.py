@@ -58,6 +58,22 @@ def default_config() -> dict[str, Any]:
             "cut_marks": True,
             "scale_bar_mm": 100.0,    # 인쇄 배율 검증자. 100mm 를 자로 재서 확인한다
             "output_name": "marker_sheet",
+
+            # ── 프린터 배율 보정 ──
+            # 프린터가 실제로 내는 배율. 1.0 = 있는 그대로 인쇄된다(정상).
+            #
+            # 🔴 **설정으로 고치는 것은 차선책이다.** 원칙은 프린터에서 "페이지에 맞춤"을
+            #    끄는 것이고, 그게 가능하면 이 값은 1.0 으로 둔다. 프린터 설정에 손댈 수
+            #    없을 때만 쓴다 — 배율이 프린터·용지·드라이버마다 다르므로, 이 값이 1.0
+            #    이 아닌 설정 파일은 **그 프린터 전용**이고 다른 PC 로 옮기면 틀린다.
+            #
+            # 재는 법 — 시트를 뽑아 스케일 바를 자로 잰다. scale_bar_mm(100) 짜리가
+            #   85mm 로 나왔으면 print_scale = 85/100 = 0.85.
+            #   `cal.py board --measured-bar 85` 로 넣으면 계산해서 써 준다.
+            #
+            # 보정하면 렌더 치수를 1/print_scale 배로 키워 인쇄 후 제 치수가 되게 한다.
+            # 그만큼 시트가 커지므로 A4 를 넘길 수 있고, 그때는 최대 가능 치수를 알려주고 멈춘다.
+            "print_scale": 1.0,
         },
 
         # ── ChArUco — 조건부. 블록 A ④ 정식 intrinsic 으로 갈 때만 ──
@@ -198,6 +214,11 @@ def validate_config(cfg: dict[str, Any]) -> None:
                     ("label_strip_mm", strip)):
         if v < 0:
             raise ValueError(f"board.{name} 은 음수일 수 없다")
+
+    scale = b.get("print_scale", 1.0)
+    if not isinstance(scale, (int, float)) or not 0.2 <= scale <= 3.0:
+        raise ValueError(f"board.print_scale={scale} 이 이상하다 — 0.2~3.0 사이여야 한다. "
+                         "스케일 바 실측/명목 비율이다 (85mm/100mm → 0.85)")
 
     # 타일이 실제로 페이지에 들어가는가 — 여기서 못 잡으면 그리다 잘린다
     tile_w = size + 2 * quiet

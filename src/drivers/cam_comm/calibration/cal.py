@@ -60,6 +60,12 @@ def build_parser() -> argparse.ArgumentParser:
                    help="markers = 기준 마커 시트(기본) / charuco = 정식 intrinsic 용")
     b.add_argument("-o", "--output", metavar="PATH",
                    help="출력 PDF 경로. 생략하면 paths.data_dir/board/ 아래")
+    b.add_argument("--measured-bar", metavar="MM", type=float,
+                   help="앞서 뽑은 시트의 스케일 바를 자로 잰 값(mm). "
+                        "board.scale_bar_mm(기본 100) 과의 비로 프린터 배율을 계산해 "
+                        "보정한다. 예: 85 를 재었으면 --measured-bar 85")
+    b.add_argument("--print-scale", metavar="RATIO", type=float,
+                   help="프린터 배율을 직접 준다(0.85 = 85%%). --measured-bar 와 택일")
 
     sub.add_parser("distortion", parents=[common], help="[A] 왜곡 점검 — 카메라")
     sub.add_parser("reference", parents=[common],
@@ -74,8 +80,22 @@ def resolve_config(args: argparse.Namespace) -> dict[str, Any]:
     """인자와 설정 파일을 합쳐 최종 설정으로. 인자가 파일을 이긴다."""
     cfg = cal_config.load_config(getattr(args, "config", None))
 
-    # 지금은 설정을 덮는 인자가 없다. 생기면 여기서 얹고 다시 검증한다 —
-    # 인자로 들어온 값도 파일과 똑같이 validate 를 통과해야 한다.
+    # 🔴 인자로 들어온 값도 파일과 똑같이 validate 를 통과해야 한다.
+    measured = getattr(args, "measured_bar", None)
+    direct = getattr(args, "print_scale", None)
+    if measured is not None and direct is not None:
+        raise SystemExit("--measured-bar 와 --print-scale 은 함께 쓸 수 없다 — 하나만 줄 것")
+
+    if measured is not None:
+        nominal = float(cfg["board"]["scale_bar_mm"])
+        if measured <= 0:
+            raise SystemExit(f"--measured-bar 는 양수여야 한다: {measured}")
+        cfg["board"]["print_scale"] = measured / nominal
+    elif direct is not None:
+        cfg["board"]["print_scale"] = float(direct)
+
+    if measured is not None or direct is not None:
+        cal_config.validate_config(cfg)
     return cfg
 
 
@@ -88,14 +108,25 @@ def cmd_board(args: argparse.Namespace, cfg: dict[str, Any]) -> int:
     kind = getattr(args, "kind", "markers")
     dpi = int(cfg["board"]["dpi"])
 
+    scale = float(cfg["board"].get("print_scale", 1.0))
+
     if kind == "markers":
         m = cfg["markers"]
+        want = float(m["size_mm"])
         dictionary = cal_markers.make_dictionary(m["dictionary"])
-        actual = cal_board.rendered_marker_mm(dictionary, float(m["size_mm"]), dpi)
+        drawn = cal_board.rendered_marker_mm(dictionary, want / scale, dpi)
+        on_paper = drawn * scale
         print(f"[A] 기준 마커 시트  {m['dictionary']}  "
               f"ids {', '.join(str(i) for i in m['reference_ids'])}")
-        print(f"    명목 {float(m['size_mm']):.3f}mm → 렌더 {actual:.3f}mm @ {dpi}dpi "
-              f"(셀 배수 반올림, {(actual / float(m['size_mm']) - 1) * 100:+.3f}%)")
+        if abs(scale - 1.0) > 1e-9:
+            print(f"    🖨  프린터 배율 보정 {scale * 100:.1f}% → 렌더를 "
+                  f"{1 / scale:.4f}배로 키운다")
+            print(f"    목표 {want:.3f}mm  →  그리는 치수 {drawn:.3f}mm  "
+                  f"→  인쇄 후 예상 {on_paper:.3f}mm")
+            print(f"    ⚠️ 이 시트는 **그 프린터 전용**이다 — 설정을 고치면 다시 뽑을 것")
+        else:
+            print(f"    명목 {want:.3f}mm → 렌더 {on_paper:.3f}mm @ {dpi}dpi "
+                  f"(셀 배수 반올림, {(on_paper / want - 1) * 100:+.3f}%)")
         print(f"    quiet zone {float(m['quiet_zone_mm']):g}mm")
     else:
         c = cfg["charuco"]
@@ -118,7 +149,13 @@ def cmd_board(args: argparse.Namespace, cfg: dict[str, Any]) -> int:
              else cal_board.build_charuco_sheet(cfg))
     path = cal_board.save_pdf(sheet, out, dpi)
     print(f"    → {path}  ({path.stat().st_size / 1024:.0f} KB)")
-    print("    🔴 100% 배율로 인쇄하고, 시트의 스케일 바를 자로 재서 확인할 것.")
+    if abs(scale - 1.0) > 1e-9:
+        print(f"    🔴 **앞서 {scale * 100:.1f}% 를 재던 그 설정 그대로** 인쇄할 것 — "
+              "지금 프린터를 고치면 보정이 반대로 작용한다.")
+        print(f"    🔴 인쇄 후 스케일 바가 {float(cfg['board']['scale_bar_mm']):g}mm 로 "
+              "나오면 성공. 아니면 그 값으로 --measured-bar 를 다시 줄 것.")
+    else:
+        print("    🔴 100% 배율로 인쇄하고, 시트의 스케일 바를 자로 재서 확인할 것.")
     return 0
 
 

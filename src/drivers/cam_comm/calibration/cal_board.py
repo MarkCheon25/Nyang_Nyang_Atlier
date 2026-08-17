@@ -242,13 +242,19 @@ def add_cut_marks(img: np.ndarray, cfg: dict[str, Any]) -> np.ndarray:
     return out
 
 
-def add_scale_bar(img: np.ndarray, length_mm: float, dpi: int) -> np.ndarray:
+def add_scale_bar(img: np.ndarray, length_mm: float, dpi: int,
+                  label_mm: float | None = None) -> np.ndarray:
     """인쇄 배율 검증용 자. 인쇄 후 이걸 재서 100% 인지 확인한다.
 
     10mm 마다 검정/흰이 교대하는 띠라 자를 대고 읽기 쉽다.
     **이 시트에서 유일하게 "재어서 틀렸는지 알 수 있는" 물건이다** — 마커는 재기 번거롭지만
     이 자가 100.0mm 면 마커도 같은 배율로 나온 것이다.
+
+    `label_mm` — 눈금에 **적을** 값. 기본은 length_mm(그린 길이)와 같다.
+    프린터 배율 보정을 걸면 그린 길이와 인쇄 후 길이가 달라지므로, 눈금에는
+    **인쇄 후 값**을 적는다. 사람이 자를 대는 것은 종이 위이지 화면이 아니다.
     """
+    label_mm = float(length_mm if label_mm is None else label_mm)
     if length_mm <= 0:
         raise ValueError(f"length_mm 은 양수여야 한다: {length_mm}")
 
@@ -279,16 +285,24 @@ def add_scale_bar(img: np.ndarray, length_mm: float, dpi: int) -> np.ndarray:
             cv2.rectangle(out, (xa + h, y0 + h), (xb - h, y0 + bar_h - h),
                           _BLACK, lw, cv2.LINE_8)
 
-    # 눈금 숫자 — 양 끝과 가운데만. 촘촘하면 오히려 못 읽는다
+    # 눈금 숫자 — 양 끝과 가운데만. 촘촘하면 오히려 못 읽는다.
+    # 🔴 자리는 **그린 길이**로 잡고 글자는 **인쇄 후 값**으로 찍는다. 둘을 같은 변수로
+    #    쓰면 보정이 걸린 순간 눈금이 바 밖으로 밀려 나간다.
     ty = y0 + bar_h + _px(3.4, dpi)
-    for val in (0.0, length_mm / 2, length_mm):
-        s = f"{val:g}"
+    for frac in (0.0, 0.5, 1.0):
+        s = f"{label_mm * frac:g}"
         wmm, _, _ = _text_metrics(s, 2.8, dpi)          # 가운데 맞추려면 폭이 먼저 필요
-        _text(out, s, _mm(x0, dpi) + val - wmm / 2, _mm(ty, dpi), 2.8, dpi)
+        _text(out, s, _mm(x0, dpi) + length_mm * frac - wmm / 2,
+              _mm(ty, dpi), 2.8, dpi)
     _text(out, "mm", _mm(x0 + bar_w, dpi) + 5.0, _mm(ty, dpi), 2.8, dpi)
 
-    cap = (f"PRINT AT 100% - this bar must measure exactly {length_mm:g} mm. "
-           "If not, do NOT use this sheet.")
+    if abs(label_mm - length_mm) < 1e-9:
+        cap = (f"PRINT AT 100% - this bar must measure exactly {label_mm:g} mm. "
+               "If not, do NOT use this sheet.")
+    else:
+        cap = (f"SCALE-COMPENSATED SHEET - after printing this bar must measure "
+               f"{label_mm:g} mm. If it does not, re-run cal.py board "
+               f"--measured-bar <what you measured>.")
     _text(out, cap, 0.0, _mm(ty, dpi) + 4.6, 2.8, dpi, max_w_mm=_mm(w, dpi))
     return out
 
@@ -296,19 +310,35 @@ def add_scale_bar(img: np.ndarray, length_mm: float, dpi: int) -> np.ndarray:
 # ── 시트 ────────────────────────────────────────────────
 
 def build_marker_sheet(cfg: dict[str, Any]) -> np.ndarray:
-    """A4 한 장에 기준 마커 4개 + 재단선 + 스케일 바를 앉힌다."""
+    """A4 한 장에 기준 마커 4개 + 재단선 + 스케일 바를 앉힌다.
+
+    🔴 **프린터 배율 보정** (`board.print_scale`) — 1.0 이 아니면 렌더 치수를 1/scale 로
+       키워서 인쇄 후 제 치수가 되게 한다. 종이 위 결과가 정본이므로,
+       **이름표·스케일 바 눈금에는 "인쇄 후 예상 치수"를 찍는다.** 렌더 치수를 찍으면
+       사람이 그 값을 설정에 넣는데, 그건 종이 위 어디에도 없는 숫자다.
+    """
     m, b = cfg["markers"], cfg["board"]
     dpi = int(b["dpi"])
     page_w, page_h = (float(v) for v in b["page_mm"])
     margin = float(b["margin_mm"])
-    gap = float(b["tile_gap_mm"])
     cols = int(b["columns"])
     ids = list(m["reference_ids"])
-    size_mm = float(m["size_mm"])
-    quiet = float(m["quiet_zone_mm"])
+
+    # ── 보정: 물리 치수는 전부 1/scale 로 키운다 (페이지·여백은 그대로) ──
+    # 페이지를 안 키우는 이유 — 프린터는 **페이지째** 축소하므로, 페이지 안에서
+    # 내용만 키우면 축소 후 제 치수가 된다. 페이지까지 키우면 축소가 한 번 더 걸린다.
+    scale = float(b.get("print_scale", 1.0))
+    want_size = float(m["size_mm"])            # 종이 위에서 원하는 마커 치수
+    want_bar = float(b["scale_bar_mm"])        # 종이 위에서 원하는 눈금 길이
+
+    size_mm = want_size / scale                # 실제로 그릴 치수
+    quiet = float(m["quiet_zone_mm"]) / scale
+    gap = float(b["tile_gap_mm"]) / scale
 
     dictionary = cal_markers.make_dictionary(m["dictionary"])
-    actual_mm = rendered_marker_mm(dictionary, size_mm, dpi)
+    rendered_mm = rendered_marker_mm(dictionary, size_mm, dpi)
+    # 사람이 자로 잴 값 = 그린 치수 × 프린터 배율
+    actual_mm = rendered_mm * scale
     today = _dt.date.today().isoformat()
 
     # ── 타일 조립 ──
@@ -336,10 +366,18 @@ def build_marker_sheet(cfg: dict[str, Any]) -> np.ndarray:
           margin, y, 4.0, dpi, max_w_mm=text_w)
     y += 5.4
     _text(canvas, f"{m['dictionary']}   ids {', '.join(str(i) for i in ids)}   "
-                  f"nominal {size_mm:.3f} mm  ->  rendered {actual_mm:.3f} mm "
-                  f"@ {dpi} dpi   quiet zone {quiet:g} mm",
+                  f"target {want_size:.3f} mm  ->  expected on paper "
+                  f"{actual_mm:.3f} mm   @ {dpi} dpi   "
+                  f"quiet zone {quiet * scale:.1f} mm",
           margin, y, 3.0, dpi, max_w_mm=text_w)
     y += 4.2
+    if abs(scale - 1.0) > 1e-9:
+        _text(canvas,
+              f"*** PRINT SCALE COMPENSATED x{1 / scale:.4f} "
+              f"(printer measured at {scale * 100:.1f}%) - drawn {rendered_mm:.3f} mm "
+              f"so it lands at {actual_mm:.3f} mm. THIS SHEET IS FOR THAT PRINTER ONLY.",
+              margin, y, 3.0, dpi, max_w_mm=text_w)
+        y += 4.2
     _text(canvas, f"generated {today}   cal.py board --kind markers", margin, y,
           3.0, dpi, max_w_mm=text_w)
 
@@ -353,15 +391,21 @@ def build_marker_sheet(cfg: dict[str, Any]) -> np.ndarray:
     y += grid_h + 8.0
 
     # ── 스케일 바 ──
-    bar_mm = float(b["scale_bar_mm"])
+    # 눈금 글자는 want_bar(=100)로 찍히고 실제 길이는 want_bar/scale 로 그려진다.
+    # 보정이 맞았다면 인쇄물에서 자로 재어 정확히 want_bar 가 나온다 — 그게 검증 신호다.
+    bar_mm = want_bar / scale
     strip = np.full((_px(16.0, dpi), _px(text_w, dpi)), _WHITE, dtype=np.uint8)
-    strip = add_scale_bar(strip, bar_mm, dpi)
+    strip = add_scale_bar(strip, bar_mm, dpi, label_mm=want_bar)
     _paste(canvas, strip, margin, y, dpi)
     y += 16.0 + 5.0
 
     # ── 주의문 ──
+    first = ("1. Print at 100% scale. Turn OFF 'fit to page' / "
+             "'shrink oversized pages'.") if abs(scale - 1.0) < 1e-9 else (
+        f"1. Print with the SAME settings used when you measured {scale * 100:.1f}%. "
+        "Do NOT 'fix' the printer now - the compensation assumes it stays wrong.")
     notes = [
-        "1. Print at 100% scale. Turn OFF 'fit to page' / 'shrink oversized pages'.",
+        first,
         "2. Verify the scale bar with a ruler BEFORE cutting. A wrong print scale "
         "becomes a scale error inside H.",
         "3. Cut along the outer lines. Keep the LABEL STRIP AT THE BOTTOM - "
@@ -371,7 +415,8 @@ def build_marker_sheet(cfg: dict[str, Any]) -> np.ndarray:
         "5. Layout on the table: M0 M1 on top, M2 M3 below, surrounding the paper "
         "area so the paper never occludes them.",
         f"6. Measure a printed marker edge and put the measured value into "
-        f"markers.size_mm (rendered here: {actual_mm:.3f} mm).",
+        f"markers.size_mm (expected on paper: {actual_mm:.3f} mm). "
+        "The measured value wins - it is the only one that exists on paper.",
     ]
     # 🔴 줄마다 max_w_mm 에 걸리는 정도가 달라 크기가 제각각이 되면, 자동 축소를
     #    안 당한 줄만 혼자 굵어 보인다. 가장 긴 줄에 맞춘 **공통 높이**로 통일한다
@@ -383,7 +428,20 @@ def build_marker_sheet(cfg: dict[str, Any]) -> np.ndarray:
 
     for note in notes:
         if y > page_h - margin:
-            raise ValueError("주의문이 페이지를 넘는다 - margin·타일 치수를 줄일 것")
+            over = y - (page_h - margin)
+            # 세로로 넘친 만큼을 마커 치수로 환산해 "그럼 얼마면 되는가"를 알려준다.
+            # 격자는 세로 2줄이므로 마커를 d 줄이면 세로가 대략 2d 줄어든다.
+            rows_n = max(1, -(-len(ids) // cols))
+            hint = want_size - over / rows_n * scale
+            raise ValueError(
+                f"시트가 A4 를 {over:.1f}mm 넘는다"
+                + (f" (프린터 배율 {scale * 100:.1f}% 보정으로 {1 / scale:.3f}배 커졌다)"
+                   if abs(scale - 1.0) > 1e-9 else "")
+                + f".\n  → markers.size_mm 를 약 {hint:.1f}mm 이하로 낮추거나"
+                  f" (지금 {want_size:g}mm),\n"
+                  f"    quiet_zone_mm·tile_gap_mm·margin_mm 을 줄일 것.\n"
+                  f"    마커를 줄이면 검출 거리와 짚기 정밀도(N15)가 함께 나빠지므로,"
+                  f" 프린터 설정을 고칠 수 있으면 그쪽이 먼저다.")
         _text(canvas, note, margin, y, note_h, dpi, max_w_mm=text_w)
         y += line_gap
     return canvas
