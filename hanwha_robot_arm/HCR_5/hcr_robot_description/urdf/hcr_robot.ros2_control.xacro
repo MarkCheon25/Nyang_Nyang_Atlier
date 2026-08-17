@@ -2,7 +2,52 @@
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
   <!--
+    ══ 하드웨어 추상화 경계 ═══════════════════════════════════════════════════
+    sim 과 실기가 **같은 URDF 를 쓰고 플러그인만 갈아끼운다.** 셋 다 기본값이 있어
+    인자 없이 부르던 기존 사용처(display.launch.py · MoveIt2 demo)는 그대로 동작한다.
 
+      plugin    실기는 hcr5_bridge/HcrSystemInterface.
+                인자명을 동료 ysh 의 hcr5_description 과 맞춰 이식을 한 줄로 뒀다
+      rw_rate   이 하드웨어 컴포넌트만의 read()/write() 주기(Hz).
+                controller_manager 의 update_rate 와 분리된다 (ros2_control 4.45.2).
+                기본 100 = update_rate 와 같은 값이라 mock 거동이 종전과 같다.
+                ⚠️ 파서가 양의 정수를 요구한다 — 0 을 기본값으로 두면 뜨지 않는다
+      is_async  실기 명령 RPC 왕복이 115~137ms 라 동기 발행은 100Hz 루프를 막는다.
+                워커 스레드로 분리할 때 true
+
+    앞의 셋은 `<ros2_control>` **속성**이고, 아래 둘은 `<hardware>` 안의 **`<param>`** 이다.
+    ros2_control 이 둘을 다른 자리에서 읽으므로 실리는 곳이 다르다.
+
+      allow_motion  실기를 **실제로 움직일지**의 안전 잠금. 플러그인 기본값이 false 이고
+                    이 param 만이 켜는 유일한 통로다 (hcr_system_interface.cpp:108-118).
+                    false 면 write() 가 무동작 — 실기 '읽기 전용' 모드가 이 상태다.
+                    ⚠️ true 는 로봇이 움직인다. 서보 ON·e-stop 대기·입회를 갖추고서만 쓴다
+
+      servo_off_on_deactivate
+                    비활성화(= 종료)될 때 서보를 끌지. **기본 true.**
+                    allow_motion 과 무관하게 적용된다 — 읽기 전용으로 띄웠어도 서보는
+                    launch 나 사람이 켜 뒀을 수 있기 때문이다. mock 플러그인은 이 param 을
+                    안 읽으므로 mock 거동은 종전과 같다.
+                    ⚠️ false 로 두면 종료 후 서보가 켜진 채 남는다 — 축온이 올라
+                    58~61°C 에서 6축이 트립한다(2026-08-05, 컨트롤러 재부팅으로만 복구).
+                    자세가 위험해 브레이크를 걸고 싶지 않을 때만 false
+
+    실기 읽기는 `rw_rate:=30 is_async:=true` 로 연다 — 상태 버스 실측이 29.1Hz 다.
+    실기 쓰기는 거기에 `allow_motion:=true` 를 더한다.
+    근거: src/drivers/hcr5_comm/guideline/중간결과물.md §2·§5
+    ════════════════════════════════════════════════════════════════════════ -->
+  <xacro:macro name="hcr_robot_ros2_control"
+               params="name:=hcr_robot_system
+                       plugin:=mock_components/GenericSystem
+                       rw_rate:=100
+                       is_async:=false
+                       allow_motion:=false
+                       servo_off_on_deactivate:=true">
+    <ros2_control name="${name}" type="system" rw_rate="${rw_rate}" is_async="${is_async}">
+      <hardware>
+        <plugin>${plugin}</plugin>
+        <param name="allow_motion">${allow_motion}</param>
+        <param name="servo_off_on_deactivate">${servo_off_on_deactivate}</param>
       </hardware>
 
       <!-- initial_value = URDF 홈 [90, 0, 90, 0, 90, 0]°.
