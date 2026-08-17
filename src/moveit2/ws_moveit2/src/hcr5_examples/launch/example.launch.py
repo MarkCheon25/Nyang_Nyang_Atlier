@@ -10,9 +10,11 @@ MoveGroupInterface 는 robot_description · SRDF · kinematics · joint_limits �
     ros2 launch hcr5_examples example.launch.py example:=cartesian_square
     ros2 launch hcr5_examples example.launch.py example:=draw_contour
 
-draw_contour 는 인자를 받는다 (재빌드 없이 실험 가능):
-    ros2 launch hcr5_examples example.launch.py example:=draw_contour draw_size:=0.25
+draw_contour 는 실제 A4 용지 위에 그린다. 종이 네 모서리는 teach 기록이라
+05_draw_contour.cpp 에 상수로 박혀 있고, 펜 높이만 인자로 뺐다 (재빌드 없이 실험):
     ros2 launch hcr5_examples example.launch.py example:=draw_contour execute:=false
+    ros2 launch hcr5_examples example.launch.py example:=draw_contour z_right:=-0.018
+    ros2 launch hcr5_examples example.launch.py example:=draw_contour use_measured_z:=true
 
 ⚠️ `ros2 launch` 에 `--ros-args -p x:=y` 를 붙여도 **노드로 전달되지 않는다.**
    노드 파라미터는 반드시 아래처럼 launch 인자로 선언해 parameters 에 실어야 한다.
@@ -39,7 +41,13 @@ from moveit_configs_utils import MoveItConfigsBuilder
 # ⚠️ 타입을 반드시 지정해야 한다. LaunchConfiguration 은 **문자열**이라
 #    그냥 넘기면 노드에 string 으로 선언되고, get_value<double>() 이 예외를 던진다.
 TUNABLES = [
-    ("draw_size", "0.15",  float, "도형의 긴 변 길이 [m]"),
+    ("draw_size", "0.0",   float, "도형의 긴 변 길이 [m] — 0 이면 종이에 맞춰 자동"),
+    ("margin",    "0.015", float, "종이 가장자리에 남길 여백 [m]"),
+    ("z_left",    "-0.012", float, "종이 좌변(로봇 쪽)의 Z [m] — 펜 높이"),
+    ("z_right",   "-0.014", float, "종이 우변(먼 쪽)의 Z [m] — 펜 높이"),
+    ("use_measured_z", "false", bool,
+     "true 면 teach 한 Z(좌 -12.4 / 우 -18.3mm)를 그대로 쓴다. z_left/z_right 무시"),
+    ("pen_yaw_deg", "0.0", float, "펜 축 중심 회전 [deg] — 선에는 영향 없고 손목 자세만 바뀐다"),
     ("eef_step",  "0.002", float, "데카르트 경로 보간 간격 [m] — 작을수록 선이 매끄럽다"),
     ("hover",     "0.03",  float, "펜을 들고 이동할 높이 [m]"),
     ("vel_scale", "0.1",   float, "속도 스케일 (0~1)"),
