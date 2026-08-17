@@ -1,0 +1,62 @@
+# ============================================================================
+#  vision 개발 환경 (ROS 2 Jazzy + OpenCV 4.6 contrib) — Docker Compose
+#
+#  ▶ 첫 실행:  ./run_container.sh build    (이미지 빌드, 5~15분)
+#  ▶ 진입:     ./run_container.sh shell
+#  ▶ 상세:     README.md
+#
+#  이미지는 같은 폴더의 Dockerfile 로 각 PC에서 직접 빌드한다.
+#  moveit2 환경과 별도 이미지다 — 통합은 추후 과제.
+# ============================================================================
+services:
+  vision:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        USER_NAME: rosuser
+        # 호스트 사용자와 UID/GID를 맞춰야 ws_vision/·data/ 안에 생기는 파일
+        # 권한이 꼬이지 않는다. run_container.sh 가 현재 사용자 값을 넘겨준다.
+        USER_UID: "${HOST_UID:-1000}"
+        USER_GID: "${HOST_GID:-1000}"
+    image: vision_dev:jazzy
+    container_name: vision_dev
+    hostname: vision
+
+    network_mode: host      # ROS 2 DDS 통신
+    ipc: host
+    stdin_open: true
+    tty: true
+
+    # ------------------------------------------------------------------------
+    # [GPU] 이 파일에 GPU 설정은 없다 — moveit2/compose.yml 과 같은 방침이다.
+    #
+    #  vision 은 CPU 만으로 동작하므로 GPU 오버라이드는 **선택**이다.
+    #  cv::imshow 로 창을 띄울 때만 렌더 노드 접근이 필요하고, 결과 확인은
+    #  파일 출력(호스트에서 열람)이 주력이라 없어도 지장이 없다.
+    #
+    #    · 필요하면 같은 폴더에 compose.override.yml 을 만든다 (스니펫은 README §2)
+    #    · run_container.sh 가 그 파일이 있으면 자동으로 함께 읽는다
+    #    · .gitignore 대상이라 커밋되지 않는다 — PC 로컬 자산
+    # ------------------------------------------------------------------------
+
+    environment:
+      # GUI(X11) — cv::imshow 창을 호스트 디스플레이에 띄울 때만 쓰인다
+      - DISPLAY=${DISPLAY:-:0}
+      - QT_X11_NO_MITSHM=1
+      - XDG_RUNTIME_DIR=/tmp/runtime-rosuser
+      # ROS 2 도메인 — 다른 노드와 통신하려면 상대와 같은 값이어야 한다
+      - ROS_DOMAIN_ID=${ROS_DOMAIN_ID:-0}
+
+    volumes:
+      # X11 소켓 — 실행 전 호스트에서 1회: xhost +local:root
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ${XAUTHORITY:-$HOME/.Xauthority}:/home/rosuser/.Xauthority:ro
+      # 작업 워크스페이스. 컨테이너 안에서 만든 결과물이 호스트에 그대로 남는다.
+      - ./ws_vision:/home/rosuser/ws_vision:rw
+      # 입력 샘플 이미지와 CLI 출력물. 워크스페이스와 분리해 두어야 빌드
+      # 산출물과 섞이지 않고, 호스트에서 바로 열어 결과를 확인할 수 있다.
+      - ./data:/home/rosuser/data:rw
+
+    working_dir: /home/rosuser/ws_vision
+    command: bash

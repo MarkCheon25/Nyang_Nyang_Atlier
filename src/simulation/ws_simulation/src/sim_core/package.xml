@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>sim_core</name>
+  <version>0.1.0</version>
+  <description>
+    펜-종이 접촉 궤적을 기록·해석하는 코어 라이브러리 (BRD F7.1 · R2 필압 검증).
+    ROS 에도 MuJoCo 에도 의존하지 않는다 — 시뮬 연동은 sim_bringup 이 담당한다.
+  </description>
+  <maintainer email="cocoffeechan09@gmail.com">Mark Cheon</maintainer>
+  <license>Apache-2.0</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

@@ -1,0 +1,126 @@
+<?xml version="1.0"?>
+<!--
+  HCR-5 + 펜 — 시뮬레이션 전용 래퍼.
+
+  ⚠️ **`hanwha_robot_arm/` 자산을 고치지 않는다.** 저기는 외부(커뮤니티 ROS1)에서
+  가져와 포팅한 자산이고, moveit2·simulation 양쪽이 함께 쓴다. 펜을 붙이는 일은
+  여기서 감싸는 방식으로 한다.
+
+  ⚠️ **이 펜 링크는 아직 MoveIt 의 TCP 가 아니다.** F4.1(종이→로봇 좌표 변환)이
+  펜 끝을 기준으로 풀려야 하므로, moveit2 착수 시 이 정의를 어디에 둘지
+  (여기냐 hanwha 자산이냐) 다시 정해야 한다 — 업무목록 참조.
+-->
+<robot name="hcr_robot_pen" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!--
+    ⚠️ **`ros2_control:=false` 를 이 줄들보다 먼저 선언해야 한다.**
+    xacro 의 `<xacro:arg>` 는 "아직 정의되지 않았으면 기본값을 넣는다"이므로,
+    여기서 먼저 false 를 박아 두면 include 되는 원본의 기본값(true)이 무시된다.
+    원본이 mock 블록을 만들지 않게 해서, 아래에서 MuJoCo 블록을 직접 정의한다.
+  -->
+  <xacro:arg name="ros2_control" default="false"/>
+
+  <!-- MuJoCo 가 로드할 씬. **변환 산출물이라 git 제외 영역에 생긴다** —
+       robot_description_to_mjcf.sh 의 -o 로 지정한 곳과 맞춰야 한다. -->
+  <xacro:arg name="mujoco_scene" default="/home/rosuser/data/mjcf/scene.xml"/>
+  <xacro:arg name="headless" default="false"/>
+
+  <!-- 원본 로봇 (링크 7 · 조인트 6, inertial 전부 있음 — MuJoCo 변환 가능) -->
+  <xacro:include filename="$(find hcr_robot_description)/urdf/hcr_robot.xacro"/>
+
+  <!--
+    로봇을 월드에 고정한다. 원본 xacro 에는 world 링크가 없고 플랫 URDF 에만 있다 —
+    시뮬에서는 베이스가 떠 있으면 안 되므로 여기서 붙인다.
+    BRD §2.3: 철제 책상 상판에 수평 고정.
+  -->
+  <link name="world"/>
+  <joint name="world_to_base" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ── 펜 ────────────────────────────────────────────────────────────────
+       Phase 1 은 펜을 **테이프로 플랜지에 고정**한다 (BRD §2.3). 즉 z 방향
+       컴플라이언스가 없다 — 이것이 R2(필압 제어 실패)의 가능성을 "중"에서
+       "높음"으로 올린 이유이고, 이 시뮬레이션이 보려는 것이 바로 그 결과다.
+
+       ⚠️ 아래 치수·장착 위치는 **실측 전 임시값**이다. 실물 확인 후 갱신할 것.
+  -->
+  <xacro:property name="pen_length" value="0.150"/>   <!-- 연필 전체 길이 -->
+  <xacro:property name="pen_radius" value="0.004"/>   <!-- 연필 반지름 -->
+  <xacro:property name="pen_mass"   value="0.010"/>
+
+  <link name="pen_link">
+    <visual>
+      <origin xyz="0 0 ${pen_length/2}" rpy="0 0 0"/>
+      <geometry><cylinder radius="${pen_radius}" length="${pen_length}"/></geometry>
+      <material name="pencil"><color rgba="0.85 0.65 0.13 1"/></material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 ${pen_length/2}" rpy="0 0 0"/>
+      <geometry><cylinder radius="${pen_radius}" length="${pen_length}"/></geometry>
+    </collision>
+    <inertial>
+      <!-- MuJoCo 는 inertial 이 없으면 변환에서 걸린다 (find_missing_inertias.py) -->
+      <origin xyz="0 0 ${pen_length/2}" rpy="0 0 0"/>
+      <mass value="${pen_mass}"/>
+      <inertia ixx="${pen_mass*(3*pen_radius*pen_radius + pen_length*pen_length)/12}" ixy="0" ixz="0"
+               iyy="${pen_mass*(3*pen_radius*pen_radius + pen_length*pen_length)/12}" iyz="0"
+               izz="${pen_mass*pen_radius*pen_radius/2}"/>
+    </inertial>
+  </link>
+
+  <!-- 플랜지 직결 — 그리퍼 없음 (BRD §2.2) -->
+  <joint name="pen_joint" type="fixed">
+    <parent link="link6_1"/>
+    <child link="pen_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
+
+  <!-- 펜 **끝**. 종이와 닿는 지점이며 접촉·필압을 여기서 본다. -->
+  <link name="pen_tip"/>
+  <joint name="pen_tip_joint" type="fixed">
+    <parent link="pen_link"/>
+    <child link="pen_tip"/>
+    <origin xyz="0 0 ${pen_length}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ── ros2_control — 여기가 하드웨어 추상화 경계다 (N6 · F7.3) ───────────
+       원본 `hcr_robot.ros2_control.xacro` 는 `mock_components/GenericSystem` 을
+       쓴다. **바뀌는 것은 이 플러그인 한 줄뿐**이고 MoveIt2 도
+       joint_trajectory_controller 도 그대로다 — SA 가 경계를 F4.3 에 둔 설계가
+       그대로 성립한다.
+  -->
+  <ros2_control name="hcr_robot_mujoco" type="system">
+    <hardware>
+      <plugin>mujoco_ros2_control/MujocoSystemInterface</plugin>
+
+      <!-- 씬은 launch 파라미터가 아니라 **여기 hardware param 으로** 넘긴다
+           (mujoco_ros2_control 규약 — demos 의 test_robot.urdf 와 같은 방식) -->
+      <param name="mujoco_model">$(arg mujoco_scene)</param>
+      <!-- true 면 Simulate 창을 띄우지 않는다. 확인 경로가 SVG 라 headless 로도 결과가 나온다 -->
+      <param name="headless">$(arg headless)</param>
+      <param name="sim_speed_factor">1.0</param>
+    </hardware>
+
+    <xacro:macro name="mujoco_joint" params="name initial">
+      <joint name="${name}">
+        <command_interface name="position"/>
+        <state_interface name="position"><param name="initial_value">${initial}</param></state_interface>
+        <state_interface name="velocity"/>
+        <!-- mock 에는 없던 것 — 접촉 반력이 관절에 실리는지 보려면 필요하다 -->
+        <state_interface name="effort"/>
+      </joint>
+    </xacro:macro>
+
+    <!-- 초기 자세는 원본 ros2_control.xacro 의 initial_value 를 그대로 따른다 -->
+    <xacro:mujoco_joint name="joint_1" initial="0"/>
+    <xacro:mujoco_joint name="joint_2" initial="0"/>
+    <xacro:mujoco_joint name="joint_3" initial="1.5669"/>
+    <xacro:mujoco_joint name="joint_4" initial="-1.59"/>
+    <xacro:mujoco_joint name="joint_5" initial="-1.4695"/>
+    <xacro:mujoco_joint name="joint_6" initial="0"/>
+  </ros2_control>
+
+</robot>
