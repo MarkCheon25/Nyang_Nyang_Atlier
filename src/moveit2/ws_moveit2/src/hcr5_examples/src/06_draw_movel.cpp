@@ -46,6 +46,13 @@
 //   앞 구간의 끝으로 이어 붙이므로, 로봇을 안 움직이고도 **전 구간이 제대로
 //   계획된다** (05 의 execute:=false 는 그렇지 않다 — 05 헤더 §8 참조).
 //
+//   ⚠️ execute:=false 는 로봇을 안 움직이므로 **0.1초 만에 끝난다.** 그냥 두면
+//      볼 것이 없다 — move_group 이 구간을 계산할 때마다 /display_planned_path 에
+//      한 구간짜리 미리보기를 내보내는데, 72개가 0.1초 안에 서로를 덮어써서
+//      화면에는 깜빡임만 남는다. 그래서 §7-b 가 **72구간을 한 메시지로 묶어 다시
+//      발행**한다. 그때 RViz 가 처음부터 끝까지 한 번에 재생한다.
+//      재생을 보는 동안 노드는 preview_hold 초(기본 30) 동안 살아 있는다.
+//
 // 파라미터
 //   z_left  −0.012 · z_right −0.014   종이 좌·우변의 Z [m]
 //   use_measured_z false               true 면 teach 한 Z 를 그대로 쓴다
@@ -53,6 +60,7 @@
 //   vel_scale 0.1 · acc_scale 0.1 · execute true · go_home true · pen_yaw_deg 0.0
 //   settle    0.0                      꼭짓점마다 추가로 멈추는 시간 [s] (실기 왕복 흉내)
 //   short_seg 0.002                    이보다 짧은 변을 "짧은 구간"으로 집계 [m]
+//   preview_hold 30.0                  execute:=false 재생을 보는 동안 살아 있는 시간 [s]
 
 #include <chrono>
 #include <cmath>
@@ -62,11 +70,13 @@
 
 #include <rclcpp/rclcpp.hpp>
 #include <geometry_msgs/msg/pose.hpp>
+#include <moveit_msgs/msg/display_trajectory.hpp>
 #include <moveit_msgs/msg/robot_trajectory.hpp>
 #include <std_srvs/srv/empty.hpp>
 #include <visualization_msgs/msg/marker_array.hpp>
 
 #include <moveit/move_group_interface/move_group_interface.hpp>
+#include <moveit/robot_state/conversions.hpp>
 #include <moveit/robot_state/robot_state.hpp>
 #include <moveit/robot_trajectory/robot_trajectory.hpp>
 #include <moveit/trajectory_processing/time_optimal_trajectory_generation.hpp>
@@ -98,7 +108,14 @@ static double dist(const geometry_msgs::msg::Pose & a, const geometry_msgs::msg:
 // ── movel 한 구간 ────────────────────────────────────────────────────────────
 // 현재 상태(cursor)에서 target 까지 **데카르트 직선 하나**를 계획·실행한다.
 // 이것이 실기의 이동 명령 1건에 대응한다.
-struct Seg { bool ok; double fraction; double length; double duration; size_t points; };
+struct Seg {
+  bool   ok{false};
+  double fraction{0.0};
+  double length{0.0};
+  double duration{0.0};
+  size_t points{0};
+  moveit_msgs::msg::RobotTrajectory traj;   // RViz 미리보기용 (execute:=false)
+};
 
 static Seg movel(
   moveit::planning_interface::MoveGroupInterface & mg,
@@ -108,7 +125,8 @@ static Seg movel(
   double eef_step, double vel, double acc, bool execute,
   const rclcpp::Logger & log, size_t idx)
 {
-  Seg r{false, 0.0, dist(from, target), 0.0, 0};
+  Seg r;
+  r.length = dist(from, target);
 
   // 시작 상태를 명시한다. execute 면 실기(mock)의 현재 상태, 아니면 앞 구간의 끝.
   // 이 한 줄이 execute:=false 검토를 성립시킨다 — 로봇이 안 움직여도 다음 구간이
@@ -138,6 +156,7 @@ static Seg movel(
 
   r.points   = traj.joint_trajectory.points.size();
   r.duration = rclcpp::Duration(traj.joint_trajectory.points.back().time_from_start).seconds();
+  r.traj     = traj;
 
   if (execute) {
     if (mg.execute(traj) != moveit::core::MoveItErrorCode::SUCCESS) {
@@ -177,6 +196,7 @@ int main(int argc, char ** argv)
   const bool   go_home   = param<bool>(node, "go_home", true);
   const double settle    = param<double>(node, "settle", 0.0);
   const double short_seg = param<double>(node, "short_seg", 0.002);
+  const double preview_hold = param<double>(node, "preview_hold", 30.0);
 
   using moveit::planning_interface::MoveGroupInterface;
   MoveGroupInterface mg(node, "hcr_arm");
@@ -350,6 +370,11 @@ int main(int argc, char ** argv)
   const auto t0 = std::chrono::steady_clock::now();
   auto prev = start_above;
 
+  // execute:=false 는 로봇을 안 움직이므로 순식간에 끝난다 — 볼 것이 없다.
+  // 그래서 계획한 궤적을 모아 두었다가 RViz 에 재생시킨다 (§7-b).
+  const moveit::core::RobotState preview_start(cursor);
+  std::vector<moveit_msgs::msg::RobotTrajectory> preview;
+
   size_t done = 0, failed_at = 0;
   double total_len = 0.0, total_dur = 0.0;
   double worst_frac = 1.0; size_t worst_idx = 0;
@@ -363,6 +388,7 @@ int main(int argc, char ** argv)
     total_dur += seg.duration;
     if (seg.fraction < worst_frac) { worst_frac = seg.fraction; worst_idx = i; }
     if (seg.duration > slowest)    { slowest = seg.duration;    slowest_idx = i; }
+    if (!execute) { preview.push_back(seg.traj); }
     prev = targets[i];
     ++done;
 
@@ -407,9 +433,37 @@ int main(int argc, char ** argv)
     RCLCPP_INFO(log, "execute:=false — 전 구간 계획만 확인했다. 로봇은 움직이지 않았다.");
   }
 
-  // 마커를 남겨 두기 위해 잠시 더 살아 있는다 (transient_local 이라 죽어도 남지만,
-  // 늦게 붙은 구독자가 확실히 받도록 여유를 둔다).
-  rclcpp::sleep_for(std::chrono::seconds(1));
+  // ── 7-b. RViz 재생 (execute:=false 일 때만) ────────────────────────────────
+  // execute:=false 는 로봇을 안 움직이므로 0.1초 만에 끝나 눈으로 볼 것이 없다.
+  // 계획해 둔 구간 궤적 전부를 DisplayTrajectory 로 한 번에 발행하면, RViz 의
+  // MotionPlanning → Planned Path 가 **유령 로봇으로 처음부터 끝까지 재생**한다.
+  // 실기 없이 movel 연쇄를 통째로 검토하는 자리가 이것이다.
+  //
+  // 재생 속도는 moveit.rviz 의 `State Display Time` 이 정한다 (현재 0.05 s/웨이포인트).
+  // 더 느리게 보려면 RViz 에서 그 값을 올리거나 REALTIME 으로 바꾼다.
+  //
+  // execute:=true 에서는 **일부러 발행하지 않는다.** 실제 로봇이 이미 움직였는데
+  // 유령까지 재생하면 둘이 헷갈린다 (moveit.rviz 의 Loop Animation 주석과 같은 이유).
+  if (!execute && !preview.empty()) {
+    auto disp_pub = node->create_publisher<moveit_msgs::msg::DisplayTrajectory>(
+      "/display_planned_path", rclcpp::QoS(1).transient_local().reliable());
+
+    moveit_msgs::msg::DisplayTrajectory disp;
+    disp.model_id = mg.getRobotModel()->getName();
+    moveit::core::robotStateToRobotStateMsg(preview_start, disp.trajectory_start);
+    disp.trajectory = preview;
+    disp_pub->publish(disp);
+
+    RCLCPP_INFO(log, "RViz 재생 발행: %zu 구간 · 궤적 %.1f 초 — MotionPlanning 의 "
+                     "Planned Path 가 유령 로봇으로 재생한다", preview.size(), total_dur);
+    RCLCPP_INFO(log, "재생을 보는 동안 %.0f 초 살아 있는다 (preview_hold 로 조절). "
+                     "Ctrl-C 로 언제든 끝낼 수 있다", preview_hold);
+    rclcpp::sleep_for(std::chrono::milliseconds(static_cast<int>(preview_hold * 1000)));
+  } else {
+    // 마커를 남겨 두기 위해 잠시 더 살아 있는다 (transient_local 이라 죽어도 남지만,
+    // 늦게 붙은 구독자가 확실히 받도록 여유를 둔다).
+    rclcpp::sleep_for(std::chrono::seconds(1));
+  }
 
   exec.cancel();
   spinner.join();

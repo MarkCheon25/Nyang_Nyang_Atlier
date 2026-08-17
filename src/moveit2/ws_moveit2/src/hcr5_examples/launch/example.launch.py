@@ -62,6 +62,8 @@ TUNABLES = [
     # draw_movel 전용
     ("settle",    "0.0",   float, "꼭짓점마다 추가로 멈추는 시간 [s] — 실기 명령 왕복 흉내"),
     ("short_seg", "0.002", float, "이보다 짧은 변을 '짧은 구간'으로 집계 [m]"),
+    ("preview_hold", "30.0", float,
+     "execute:=false 일 때 RViz 재생을 보는 동안 노드가 살아 있는 시간 [s]"),
 ]
 
 
