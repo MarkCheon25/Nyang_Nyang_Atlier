@@ -227,6 +227,29 @@ def test_raw_is_never_overwritten():
         shutil.rmtree(tmp)
 
 
+def test_raw_survives_same_millisecond_burst():
+    """빠르게 연달아 저장해도 하나도 안 잃는가.
+
+    🔴 처음 구현은 파일명이 밀리초까지라 연속 저장이 같은 밀리초에 걸리면 덮어썼다.
+       200회에 86건이 사라졌고, 위 테스트는 두 번만 저장해 **가끔만** 실패했다 —
+       그 간헐적 실패가 이 결함의 유일한 신호였다. 여기서 확실히 못 박는다.
+    """
+    tmp = Path(tempfile.mkdtemp())
+    try:
+        cfg = _cfg(tmp)
+        n = 200
+        paths = [cal_config.save_raw(cfg, "B", "touch", {"v": i}) for i in range(n)]
+        assert len(set(paths)) == n, f"{n - len(set(paths))}건이 덮어써졌다"
+
+        items = cal_config.load_raw(cfg, "B")
+        assert len(items) == n
+        # 🔴 정렬까지 본다. 파일명 정렬이 곧 수집 순서여야 한다 — 일련번호를 겹칠 때만
+        #    붙이면 여기서 순서가 뒤집힌다(실제로 그렇게 만들었다가 잡혔다).
+        assert [i["data"]["v"] for i in items] == list(range(n))
+    finally:
+        shutil.rmtree(tmp)
+
+
 def test_raw_dir_rejects_unknown_block():
     try:
         cal_config.raw_dir(_cfg(), "Z")

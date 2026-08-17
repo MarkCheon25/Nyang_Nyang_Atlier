@@ -440,8 +440,9 @@ def build_marker_sheet(cfg: dict[str, Any]) -> np.ndarray:
                 + f".\n  → markers.size_mm 를 약 {hint:.1f}mm 이하로 낮추거나"
                   f" (지금 {want_size:g}mm),\n"
                   f"    quiet_zone_mm·tile_gap_mm·margin_mm 을 줄일 것.\n"
-                  f"    마커를 줄이면 검출 거리와 짚기 정밀도(N15)가 함께 나빠지므로,"
-                  f" 프린터 설정을 고칠 수 있으면 그쪽이 먼저다.")
+                  f"    마커를 줄이면 **검출**이 나빠진다(N14) — 짚기 증폭(N15)은 마커"
+                  f" 크기와 무관하니 거기까지 걱정할 필요는 없다.\n"
+                  f"    프린터 설정을 고칠 수 있으면 그쪽이 먼저다.")
         _text(canvas, note, margin, y, note_h, dpi, max_w_mm=text_w)
         y += line_gap
     return canvas

@@ -493,13 +493,28 @@ def save_raw(cfg: dict[str, Any], block: str, tag: str, data: Any) -> Path:
     🔴 **덮어쓰지 않는다.** 파일명에 수집 시각을 박는다 — 같은 tag 로 두 번 수집하는
        일은 흔하고(짚다 실수해서 다시 짚는다), 그때 앞의 것이 사라지면 무엇이 튀었는지
        나중에 대조할 수 없다. 원자료는 지우지 않는 것이 이 계층의 존재 이유다.
+
+    🔴 **시각만으로는 부족하다.** 처음엔 밀리초까지 찍고 끝냈는데, 연속 저장이 같은
+       밀리초에 걸리면 그대로 덮어썼다 — 200회 저장에 **86건이 사라졌다**(2026-08-17 실측).
+       하필 "덮어쓰지 않는 것이 존재 이유" 인 함수가 조용히 덮어쓰고 있었다.
+       이름이 겹치면 뒤에 일련번호를 올려 **반드시 새 파일**이 되게 한다.
+
+    🔴 일련번호는 **겹칠 때만이 아니라 항상** 붙이고 0 을 채운다. 겹칠 때만 붙이면
+       `..._123_001__` 이 `..._123__` 보다 **앞서** 정렬돼(`'0' < '_'`) load_raw 의
+       "수집 시각 순" 약속이 깨진다. 실제로 그렇게 만들었다가 테스트가 간헐적으로
+       실패했다 — 파일명 정렬이 곧 시간 정렬이 되도록 형식을 고정한다.
     """
     d = raw_dir(cfg, block)
     d.mkdir(parents=True, exist_ok=True)
 
     stamp = _dt.datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
     safe_tag = "".join(c if c.isalnum() or c in "-_." else "_" for c in str(tag))
-    path = d / f"{stamp}__{safe_tag}.yaml"
+
+    seq = 0
+    path = d / f"{stamp}_{seq:03d}__{safe_tag}.yaml"
+    while path.exists():
+        seq += 1
+        path = d / f"{stamp}_{seq:03d}__{safe_tag}.yaml"
 
     payload = {
         "_meta": {
