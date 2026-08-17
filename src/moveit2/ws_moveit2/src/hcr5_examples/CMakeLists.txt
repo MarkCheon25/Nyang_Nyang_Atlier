@@ -26,6 +26,7 @@ set(EXAMPLES
   cartesian_square:03_cartesian_square
   4_cartesian_square:04_cartesian_square
   draw_contour:05_draw_contour
+  draw_movel:06_draw_movel
 )
 
 foreach(pair IN LISTS EXAMPLES)
@@ -34,6 +35,9 @@ foreach(pair IN LISTS EXAMPLES)
   list(GET parts 1 srcfile)
 
   add_executable(${target} src/${srcfile}.cpp)
+  # include/ 는 종이·도형 좌표 정본(a4_paper.hpp). 05·06 이 같은 것을 본다.
+  target_include_directories(${target} PRIVATE
+    $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>)
   ament_target_dependencies(${target}
     rclcpp
     moveit_ros_planning_interface

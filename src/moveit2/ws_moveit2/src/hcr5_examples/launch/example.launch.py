@@ -10,11 +10,16 @@ MoveGroupInterface 는 robot_description · SRDF · kinematics · joint_limits �
     ros2 launch hcr5_examples example.launch.py example:=cartesian_square
     ros2 launch hcr5_examples example.launch.py example:=draw_contour
 
-draw_contour 는 실제 A4 용지 위에 그린다. 종이 네 모서리는 teach 기록이라
-05_draw_contour.cpp 에 상수로 박혀 있고, 펜 높이만 인자로 뺐다 (재빌드 없이 실험):
+draw_contour · draw_movel 은 실제 A4 용지 위에 같은 그림을 그린다. 다른 것은
+실행 전략뿐이다 — draw_contour 는 연속 궤적 1개, draw_movel 은 변마다 점대점
+직선(실기의 `move/joint/here` 모델). 종이 네 모서리는 teach 기록이라
+include/hcr5_examples/a4_paper.hpp 에 상수로 있고, 펜 높이만 인자로 뺐다:
     ros2 launch hcr5_examples example.launch.py example:=draw_contour execute:=false
-    ros2 launch hcr5_examples example.launch.py example:=draw_contour z_right:=-0.018
-    ros2 launch hcr5_examples example.launch.py example:=draw_contour use_measured_z:=true
+    ros2 launch hcr5_examples example.launch.py example:=draw_movel   execute:=false
+    ros2 launch hcr5_examples example.launch.py example:=draw_movel   use_measured_z:=true
+
+⚠️ execute:=false 검토는 draw_movel 에서만 온전하다. draw_movel 은 구간마다 시작
+   상태를 앞 구간 끝으로 이어 붙이므로 로봇을 안 움직여도 전 구간이 계획된다.
 
 ⚠️ `ros2 launch` 에 `--ros-args -p x:=y` 를 붙여도 **노드로 전달되지 않는다.**
    노드 파라미터는 반드시 아래처럼 launch 인자로 선언해 parameters 에 실어야 한다.
@@ -54,6 +59,9 @@ TUNABLES = [
     ("acc_scale", "0.1",   float, "가속도 스케일 (0~1)"),
     ("execute",   "true",  bool,  "false 면 계획만 하고 실행하지 않는다"),
     ("go_home",   "true",  bool,  "false 면 현재 자세에서 바로 그린다"),
+    # draw_movel 전용
+    ("settle",    "0.0",   float, "꼭짓점마다 추가로 멈추는 시간 [s] — 실기 명령 왕복 흉내"),
+    ("short_seg", "0.002", float, "이보다 짧은 변을 '짧은 구간'으로 집계 [m]"),
 ]
 
 
@@ -68,7 +76,7 @@ def generate_launch_description():
             "example",
             default_value="joint_goal",
             description="joint_goal | pose_goal | cartesian_square | "
-                        "4_cartesian_square | draw_contour",
+                        "4_cartesian_square | draw_contour | draw_movel",
         ),
     ] + [
         DeclareLaunchArgument(name, default_value=default, description=desc)
