@@ -65,6 +65,12 @@ target_link_libraries(movej hcr_mqtt)
 add_executable(movel src/movel.cpp)
 target_link_libraries(movel hcr_mqtt)
 
+# stroke 는 movel 과 같은 문(program/plan)이되 MOVE 노드를 **여러 개** 싣는다.
+# movel 이 노드 1개 = 구간 1개라 매 점에서 속도가 0 을 찍는 것을 continues:true 체인으로
+# 잇는다 (hcr5_comm/README.md §6.3). 소묘 스트로크의 본 경로다 — 2026-08-17 (260817-쿠르베).
+add_executable(stroke src/stroke.cpp)
+target_link_libraries(stroke hcr_mqtt)
+
 # servo 는 rclcpp 를 안 쓴다 — 스택이 죽은 뒤에도 단독으로 돌아야 한다(정지 사다리 3순위).
 add_executable(servo src/servo.cpp)
 target_link_libraries(servo hcr_mqtt)
@@ -73,7 +79,7 @@ install(TARGETS hcr_mqtt hcr_system_interface
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
-install(TARGETS state_bridge_node movej movel servo DESTINATION lib/${PROJECT_NAME})
+install(TARGETS state_bridge_node movej movel stroke servo DESTINATION lib/${PROJECT_NAME})
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY launch config rviz DESTINATION share/${PROJECT_NAME})
 

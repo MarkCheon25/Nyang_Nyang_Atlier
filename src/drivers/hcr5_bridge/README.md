@@ -152,6 +152,7 @@ pubWithAck → uuid 와 같은 이름의 토픽으로 응답:
 | `include/hcr5_bridge/servo_gate.hpp` | **게이트 ⑤** — `program/play` 전 서보 상태 확인. `movej`·`movel` 공용 |
 | `include/hcr5_bridge/move_common.hpp` | ⚠️ **고아** — JTC 경로의 공통 게이트였다. 2026-08-16 `movej` 이관으로 사용처가 없어졌다 ([`movej.md`](movej.md) §4) |
 | `src/movej.cpp` · `src/movel.cpp` · `src/servo.cpp` | 운전 실행기 (`ros2 run hcr5_bridge …`) — 셋 다 **rclcpp 없음** |
+| `src/stroke.cpp` | 점 열을 **한 프로그램**으로 이어 그리는 실행기 (2026-08-17) — rclcpp 없음. ⚠️ 전 경로 완주 기록 없음 → [`stroke.md`](stroke.md) |
 | `src/state_bridge_node.cpp` | 독립 노드 경로 |
 | `hcr5_bridge_plugins.xml` | pluginlib 등록 — 클래스명 `hcr5_bridge/HcrSystemInterface` |
 | `launch/bringup.launch.py` · `launch/state_bridge.launch.py` | 두 경로의 진입 |
