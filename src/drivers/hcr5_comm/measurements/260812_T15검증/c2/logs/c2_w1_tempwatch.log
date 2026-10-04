@@ -1,0 +1,13 @@
+# 축온 감시견 — 임계 **58°C** · 22초 · 대상 192.168.0.20
+[  2.1s] base=47 shoulder=45 elbow=47 wrist1=47 wrist2=46 wrist3=46  | 최고 47°C
+[  4.2s] base=47 shoulder=45 elbow=47 wrist1=47 wrist2=46 wrist3=46  | 최고 47°C
+[  6.2s] base=47 shoulder=45 elbow=47 wrist1=47 wrist2=46 wrist3=46  | 최고 47°C
+[  8.2s] base=47 shoulder=45 elbow=47 wrist1=47 wrist2=46 wrist3=46  | 최고 47°C
+[ 10.3s] base=47 shoulder=45 elbow=47 wrist1=47 wrist2=46 wrist3=46  | 최고 47°C
+[ 12.4s] base=47 shoulder=45 elbow=47 wrist1=47 wrist2=46 wrist3=46  | 최고 47°C
+[ 14.4s] base=47 shoulder=45 elbow=47 wrist1=47 wrist2=46 wrist3=46  | 최고 47°C
+[ 16.4s] base=47 shoulder=45 elbow=47 wrist1=47 wrist2=46 wrist3=46  | 최고 47°C
+[ 18.5s] base=47 shoulder=45 elbow=47 wrist1=47 wrist2=46 wrist3=46  | 최고 47°C
+[ 20.5s] base=47 shoulder=45 elbow=48 wrist1=47 wrist2=46 wrist3=47  | 최고 48°C
+
+✅ 창 종료 — 임계 미도달. 표본 215건 · 축별 최고: base=47 shoulder=45 elbow=48 wrist1=48 wrist2=47 wrist3=47

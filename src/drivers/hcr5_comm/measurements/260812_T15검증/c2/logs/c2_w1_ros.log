@@ -1,0 +1,60 @@
+{
+  "joint_names": [
+    "joint_1",
+    "joint_2",
+    "joint_3",
+    "joint_4",
+    "joint_5",
+    "joint_6"
+  ],
+  "n_joint_states": 2019,
+  "n_controller_state": 2018,
+  "js_span_s": 20.18,
+  "js_publish_hz": 100.05,
+  "js_value_change_count": 141,
+  "js_value_change_hz": 6.987,
+  "js_peak_to_peak_deg": [
+    5.004218,
+    0.013597,
+    0.017241,
+    0.044435,
+    0.004895,
+    0.000218
+  ],
+  "vel_moving_samples": 461,
+  "vel_sign_match_pct": 100.0,
+  "vel_rel_err_median": 0.7008,
+  "vel_rel_err_p90": 0.7769,
+  "track_max_abs_err_deg": [
+    0.6958,
+    0.0134,
+    0.0166,
+    0.0442,
+    0.0049,
+    0.0001
+  ],
+  "track_final_err_deg": [
+    0.0002,
+    0.0044,
+    -0.0012,
+    0.0442,
+    0.0049,
+    0.0001
+  ],
+  "track_final_reference_deg": [
+    94.9946,
+    -0.0102,
+    90.0036,
+    -0.0877,
+    89.9995,
+    0.0019
+  ],
+  "track_final_feedback_deg": [
+    94.9944,
+    -0.0145,
+    90.0048,
+    -0.1319,
+    89.9946,
+    0.0018
+  ]
+}

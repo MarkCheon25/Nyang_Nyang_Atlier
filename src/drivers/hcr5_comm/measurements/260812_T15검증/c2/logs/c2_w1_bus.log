@@ -1,0 +1,45 @@
+=== 수집 4598건 / 44개 토픽 / 22.0초 → /home/markch03/WorkSpace_260814/Nyang_Nyang_Atlier/src/drivers/hcr_comm/measurements/260812_T15검증/c2/bus/c2_w1_bus.jsonl
+     632회  motion/tool/position
+     632회  motion/joint/position
+     631회  motion/flange/position
+     425회  status/robot
+     425회  status/operation
+     214회  status/safety
+     214회  motion/joint/range
+     214회  motion/joint/speed
+     214회  monitor/robot
+     214회  monitor/io/configurable
+     214회  monitor/io/digital
+     214회  monitor/io/analog
+     214회  monitor/io/tool
+      66회  heartbeat
+      23회  move/joint/here  ★
+      21회  event/motion  ★
+       2회  set/operation
+       2회  mongoLog
+       2회  modbus/device/error
+       1회  495756c0-9851-11f1-857b-345a6092b03a
+       1회  4be056aa-9851-11f1-9377-345a6092b03a
+       1회  4bffb716-9851-11f1-9377-345a6092b03a
+       1회  4c215998-9851-11f1-9377-345a6092b03a
+       1회  4c417ab6-9851-11f1-9377-345a6092b03a
+       1회  4c5deb74-9851-11f1-9377-345a6092b03a
+       1회  4c7f8040-9851-11f1-9377-345a6092b03a
+       1회  4ca58e34-9851-11f1-9377-345a6092b03a
+       1회  4cbfc8c6-9851-11f1-9377-345a6092b03a
+       1회  4cde651a-9851-11f1-9377-345a6092b03a
+       1회  4cfe871e-9851-11f1-9377-345a6092b03a
+       1회  4d1af5de-9851-11f1-9377-345a6092b03a
+       1회  4d36b832-9851-11f1-9377-345a6092b03a
+       1회  4d5275fe-9851-11f1-9377-345a6092b03a
+       1회  4d6c7792-9851-11f1-9377-345a6092b03a
+       1회  4d8cf6a2-9851-11f1-9377-345a6092b03a
+       1회  4dab56ce-9851-11f1-9377-345a6092b03a
+       1회  4dc6a29e-9851-11f1-9377-345a6092b03a
+       1회  4de2e5ee-9851-11f1-9377-345a6092b03a
+       1회  4e099464-9851-11f1-9377-345a6092b03a
+       1회  4e243ad0-9851-11f1-9377-345a6092b03a
+       1회  4e3e632e-9851-11f1-9377-345a6092b03a
+       1회  4e5c730a-9851-11f1-9377-345a6092b03a
+       1회  4e778f46-9851-11f1-9377-345a6092b03a
+       1회  51f747fb-9851-11f1-9571-345a6092b03a

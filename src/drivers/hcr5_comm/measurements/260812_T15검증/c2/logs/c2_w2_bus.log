@@ -1,0 +1,40 @@
+=== 수집 4624건 / 39개 토픽 / 22.0초 → /home/markch03/WorkSpace_260814/Nyang_Nyang_Atlier/src/drivers/hcr_comm/measurements/260812_T15검증/c2/bus/c2_w2_bus.jsonl
+     641회  motion/tool/position
+     640회  motion/joint/position
+     640회  motion/flange/position
+     428회  status/robot
+     428회  status/operation
+     216회  status/safety
+     215회  motion/joint/range
+     215회  motion/joint/speed
+     215회  monitor/robot
+     215회  monitor/io/configurable
+     215회  monitor/io/digital
+     215회  monitor/io/analog
+     215회  monitor/io/tool
+      66회  heartbeat
+      18회  move/joint/here  ★
+      16회  event/motion  ★
+       2회  set/operation
+       2회  mongoLog
+       2회  modbus/device/error
+       1회  bd6574ad-9857-11f1-a5ea-345a6092b03a
+       1회  bfed269e-9857-11f1-9377-345a6092b03a
+       1회  c009caba-9857-11f1-9377-345a6092b03a
+       1회  c02502b2-9857-11f1-9377-345a6092b03a
+       1회  c0484100-9857-11f1-9377-345a6092b03a
+       1회  c064f868-9857-11f1-9377-345a6092b03a
+       1회  c0844448-9857-11f1-9377-345a6092b03a
+       1회  c0a0d54a-9857-11f1-9377-345a6092b03a
+       1회  c0c20756-9857-11f1-9377-345a6092b03a
+       1회  c0dd281a-9857-11f1-9377-345a6092b03a
+       1회  c0f8f838-9857-11f1-9377-345a6092b03a
+       1회  c1140d08-9857-11f1-9377-345a6092b03a
+       1회  c137c5ae-9857-11f1-9377-345a6092b03a
+       1회  c152f784-9857-11f1-9377-345a6092b03a
+       1회  c17099ce-9857-11f1-9377-345a6092b03a
+       1회  c190a250-9857-11f1-9377-345a6092b03a
+       1회  c1b0d804-9857-11f1-9377-345a6092b03a
+       1회  c1cac7be-9857-11f1-9377-345a6092b03a
+       1회  c1e6ebba-9857-11f1-9377-345a6092b03a
+       1회  c5715f1d-9857-11f1-817d-345a6092b03a

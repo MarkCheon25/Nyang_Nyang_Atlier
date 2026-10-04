@@ -1,0 +1,10 @@
+  sec: 0
+  nanosec: 0
+
+Goal accepted with ID: 99bf08dc27ff49d8bd065cc03a62512d
+
+Result:
+    error_code: 0
+error_string: Goal successfully reached!
+
+Goal finished with status: SUCCEEDED
